@@ -894,6 +894,7 @@ html, body {
       <div class="phase-bar" id="phase-bar">
         <div class="chip active" data-phase="all">Todos</div>
         <div class="chip" data-phase="groups">Fase de grupos</div>
+        <div class="chip" data-phase="r32">Dieciseisavos</div>
         <div class="chip" data-phase="r16">Octavos</div>
         <div class="chip" data-phase="qf">Cuartos</div>
         <div class="chip" data-phase="sf">Semifinales</div>
@@ -967,78 +968,29 @@ html, body {
 // ══════════════════════════════════════
 function flag(id, sz) {
   sz = sz || 32;
-  const s = `width:${sz}px;height:${sz}px;`;
-  const svgs = {
-    usa:`<rect width="${sz}" height="${sz}" fill="#B22234"/><rect y="0" width="${sz}" height="${sz/13}" fill="#B22234"/><rect y="${sz/13}" width="${sz}" height="${sz/13}" fill="#fff"/><rect y="${2*sz/13}" width="${sz}" height="${sz/13}" fill="#B22234"/><rect y="${3*sz/13}" width="${sz}" height="${sz/13}" fill="#fff"/><rect y="${4*sz/13}" width="${sz}" height="${sz/13}" fill="#B22234"/><rect y="${5*sz/13}" width="${sz}" height="${sz/13}" fill="#fff"/><rect y="${6*sz/13}" width="${sz}" height="${sz/13}" fill="#B22234"/><rect y="${7*sz/13}" width="${sz}" height="${sz/13}" fill="#fff"/><rect y="${8*sz/13}" width="${sz}" height="${sz/13}" fill="#B22234"/><rect y="${9*sz/13}" width="${sz}" height="${sz/13}" fill="#fff"/><rect y="${10*sz/13}" width="${sz}" height="${sz/13}" fill="#B22234"/><rect y="${11*sz/13}" width="${sz}" height="${sz/13}" fill="#fff"/><rect y="${12*sz/13}" width="${sz}" height="${sz/13+1}" fill="#B22234"/><rect width="${sz*0.4}" height="${sz*0.54}" fill="#3C3B6E"/>`,
-    can:`<rect width="${sz}" height="${sz}" fill="#fff"/><rect width="${sz*0.25}" height="${sz}" fill="#FF0000"/><rect x="${sz*0.75}" width="${sz*0.25}" height="${sz}" fill="#FF0000"/><polygon points="${sz*0.5},${sz*0.18} ${sz*0.53},${sz*0.28} ${sz*0.63},${sz*0.25} ${sz*0.58},${sz*0.34} ${sz*0.68},${sz*0.38} ${sz*0.59},${sz*0.43} ${sz*0.62},${sz*0.53} ${sz*0.5},${sz*0.48} ${sz*0.38},${sz*0.53} ${sz*0.41},${sz*0.43} ${sz*0.32},${sz*0.38} ${sz*0.42},${sz*0.34} ${sz*0.37},${sz*0.25} ${sz*0.47},${sz*0.28}" fill="#FF0000"/><rect x="${sz*0.47}" y="${sz*0.48}" width="${sz*0.06}" height="${sz*0.2}" fill="#FF0000"/>`,
-    mex:`<rect width="${sz*0.33}" height="${sz}" fill="#006847"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#fff"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#CE1126"/>`,
-    uru:`<rect width="${sz}" height="${sz}" fill="#fff"/><rect y="${sz*0.11}" width="${sz}" height="${sz*0.11}" fill="#72AFDF"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.11}" fill="#72AFDF"/><rect y="${sz*0.55}" width="${sz}" height="${sz*0.11}" fill="#72AFDF"/><rect y="${sz*0.77}" width="${sz}" height="${sz*0.11}" fill="#72AFDF"/>`,
-    arg:`<rect width="${sz}" height="${sz}" fill="#74ACDF"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz*0.12}" fill="#F6B40E"/>`,
-    chi:`<rect width="${sz}" height="${sz*0.5}" fill="#D52B1E"/><rect y="${sz*0.5}" width="${sz}" height="${sz*0.5}" fill="#fff"/><rect width="${sz*0.5}" height="${sz*0.5}" fill="#0035AD"/><polygon points="${sz*0.25},${sz*0.06} ${sz*0.3},${sz*0.21} ${sz*0.44},${sz*0.21} ${sz*0.32},${sz*0.31} ${sz*0.37},${sz*0.46} ${sz*0.25},${sz*0.37} ${sz*0.13},${sz*0.46} ${sz*0.18},${sz*0.31} ${sz*0.06},${sz*0.21} ${sz*0.2},${sz*0.21}" fill="#fff"/>`,
-    per:`<rect width="${sz*0.33}" height="${sz}" fill="#D91023"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#fff"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#D91023"/>`,
-    bra:`<rect width="${sz}" height="${sz}" fill="#009C3B"/><polygon points="${sz/2},${sz*0.13} ${sz*0.9},${sz/2} ${sz/2},${sz*0.87} ${sz*0.1},${sz/2}" fill="#FFDF00"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz*0.2}" fill="#002776"/>`,
-    esp:`<rect width="${sz}" height="${sz}" fill="#AA151B"/><rect y="${sz*0.25}" width="${sz}" height="${sz*0.5}" fill="#F1BF00"/>`,
-    mar:`<rect width="${sz}" height="${sz}" fill="#C1272D"/><polygon points="${sz/2},${sz*0.29} ${sz*0.55},${sz*0.43} ${sz*0.7},${sz*0.43} ${sz*0.58},${sz*0.53} ${sz*0.63},${sz*0.67} ${sz/2},${sz*0.58} ${sz*0.37},${sz*0.67} ${sz*0.42},${sz*0.53} ${sz*0.3},${sz*0.43} ${sz*0.45},${sz*0.43}" fill="none" stroke="#006233" stroke-width="${sz*0.035}"/>`,
-    por:`<rect width="${sz}" height="${sz}" fill="#ED0000"/><rect width="${sz*0.4}" height="${sz}" fill="#006600"/>`,
-    fra:`<rect width="${sz*0.33}" height="${sz}" fill="#0052A5"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#fff"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#EF4135"/>`,
-    ger:`<rect width="${sz}" height="${sz*0.33}" fill="#000"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#DD0000"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#FFCE00"/>`,
-    sco:`<rect width="${sz}" height="${sz}" fill="#003399"/><line x1="0" y1="0" x2="${sz}" y2="${sz}" stroke="#fff" stroke-width="${sz*0.14}"/><line x1="${sz}" y1="0" x2="0" y2="${sz}" stroke="#fff" stroke-width="${sz*0.14}"/>`,
-    sui:`<rect width="${sz}" height="${sz}" fill="#FF0000"/><rect x="${sz*0.42}" y="${sz*0.2}" width="${sz*0.16}" height="${sz*0.6}" fill="#fff"/><rect x="${sz*0.2}" y="${sz*0.42}" width="${sz*0.6}" height="${sz*0.16}" fill="#fff"/>`,
-    hun:`<rect width="${sz}" height="${sz*0.33}" fill="#CE2939"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#477050"/>`,
-    bel:`<rect width="${sz*0.33}" height="${sz}" fill="#000"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#FAE042"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#EF3340"/>`,
-    eng:`<rect width="${sz}" height="${sz}" fill="#fff"/><rect x="${sz*0.42}" y="0" width="${sz*0.16}" height="${sz}" fill="#CE1124"/><rect y="${sz*0.42}" width="${sz}" height="${sz*0.16}" fill="#CE1124"/>`,
-    ser:`<rect width="${sz}" height="${sz*0.33}" fill="#C6363C"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#0C4076"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#fff"/>`,
-    den:`<rect width="${sz}" height="${sz}" fill="#C60C30"/><rect x="${sz*0.34}" y="0" width="${sz*0.16}" height="${sz}" fill="#fff"/><rect y="${sz*0.42}" width="${sz}" height="${sz*0.16}" fill="#fff"/>`,
-    ned:`<rect width="${sz}" height="${sz*0.33}" fill="#AE1C28"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#21468B"/>`,
-    aut:`<rect width="${sz}" height="${sz*0.33}" fill="#ED2939"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#ED2939"/>`,
-    tur:`<rect width="${sz}" height="${sz}" fill="#E30A17"/><circle cx="${sz*0.42}" cy="${sz/2}" r="${sz*0.19}" fill="#fff"/><circle cx="${sz*0.49}" cy="${sz/2}" r="${sz*0.15}" fill="#E30A17"/>`,
-    pol:`<rect width="${sz}" height="${sz*0.5}" fill="#fff"/><rect y="${sz*0.5}" width="${sz}" height="${sz*0.5}" fill="#DC143C"/>`,
-    cro:`<rect width="${sz}" height="${sz*0.33}" fill="#FF0000"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#0093DD"/>`,
-    jpn:`<rect width="${sz}" height="${sz}" fill="#fff"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz*0.22}" fill="#BC002D"/>`,
-    col:`<rect width="${sz}" height="${sz*0.5}" fill="#FCD116"/><rect y="${sz*0.5}" width="${sz}" height="${sz*0.25}" fill="#003893"/><rect y="${sz*0.75}" width="${sz}" height="${sz*0.25}" fill="#CE1126"/>`,
-    ksa:`<rect width="${sz}" height="${sz}" fill="#006C35"/>`,
-    gha:`<rect width="${sz}" height="${sz*0.33}" fill="#006B3F"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#FCD116"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#EF3340"/><polygon points="${sz/2},${sz*0.37} ${sz*0.54},${sz*0.47} ${sz*0.65},${sz*0.47} ${sz*0.57},${sz*0.54} ${sz*0.6},${sz*0.64} ${sz/2},${sz*0.58} ${sz*0.4},${sz*0.64} ${sz*0.43},${sz*0.54} ${sz*0.35},${sz*0.47} ${sz*0.46},${sz*0.47}" fill="#000"/>`,
-    kor:`<rect width="${sz}" height="${sz}" fill="#fff"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz*0.24}" fill="#CD2E3A"/><path d="M ${sz/2},${sz*0.26} A ${sz*0.12},${sz*0.12} 0 0,1 ${sz/2},${sz*0.5} A ${sz*0.12},${sz*0.12} 0 0,0 ${sz/2},${sz*0.74} A ${sz*0.24},${sz*0.24} 0 0,1 ${sz/2},${sz*0.26} Z" fill="#003478"/><circle cx="${sz/2}" cy="${sz*0.38}" r="${sz*0.12}" fill="#CD2E3A"/><circle cx="${sz/2}" cy="${sz*0.62}" r="${sz*0.12}" fill="#003478"/><line x1="${sz*0.16}" y1="${sz*0.19}" x2="${sz*0.29}" y2="${sz*0.29}" stroke="#000" stroke-width="${sz*0.04}"/><line x1="${sz*0.19}" y1="${sz*0.25}" x2="${sz*0.32}" y2="${sz*0.35}" stroke="#000" stroke-width="${sz*0.04}"/><line x1="${sz*0.13}" y1="${sz*0.25}" x2="${sz*0.26}" y2="${sz*0.35}" stroke="#000" stroke-width="${sz*0.04}"/><line x1="${sz*0.71}" y1="${sz*0.65}" x2="${sz*0.84}" y2="${sz*0.75}" stroke="#000" stroke-width="${sz*0.04}"/><line x1="${sz*0.68}" y1="${sz*0.71}" x2="${sz*0.81}" y2="${sz*0.81}" stroke="#000" stroke-width="${sz*0.04}"/><line x1="${sz*0.74}" y1="${sz*0.71}" x2="${sz*0.87}" y2="${sz*0.81}" stroke="#000" stroke-width="${sz*0.04}"/>`,
-    aus:`<rect width="${sz}" height="${sz}" fill="#00008B"/><rect width="${sz*0.5}" height="${sz*0.5}" fill="#012169"/><line x1="0" y1="0" x2="${sz*0.5}" y2="${sz*0.5}" stroke="#fff" stroke-width="${sz*0.12}"/><line x1="${sz*0.5}" y1="0" x2="0" y2="${sz*0.5}" stroke="#fff" stroke-width="${sz*0.12}"/><line x1="${sz*0.1}" y1="0" x2="${sz*0.1}" y2="${sz*0.5}" stroke="#CC0000" stroke-width="${sz*0.06}"/><line x1="0" y1="${sz*0.25}" x2="${sz*0.5}" y2="${sz*0.25}" stroke="#CC0000" stroke-width="${sz*0.06}"/><polygon points="${sz*0.75},${sz*0.58} ${sz*0.78},${sz*0.67} ${sz*0.87},${sz*0.67} ${sz*0.8},${sz*0.73} ${sz*0.83},${sz*0.82} ${sz*0.75},${sz*0.76} ${sz*0.67},${sz*0.82} ${sz*0.7},${sz*0.73} ${sz*0.63},${sz*0.67} ${sz*0.72},${sz*0.67}" fill="#fff"/>`,
-    sen:`<rect width="${sz*0.33}" height="${sz}" fill="#00853F"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#FDEF42"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#E31B23"/>`,
-    ecu:`<rect width="${sz}" height="${sz*0.5}" fill="#FFD100"/><rect y="${sz*0.5}" width="${sz}" height="${sz*0.25}" fill="#003DA5"/><rect y="${sz*0.75}" width="${sz}" height="${sz*0.25}" fill="#C8102E"/>`,
-    par:`<rect width="${sz}" height="${sz*0.33}" fill="#D52B1E"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#0038A8"/>`,
-    ven:`<rect width="${sz}" height="${sz*0.33}" fill="#CC0001"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#FFD700"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#003DA5"/>`,
-    bol:`<rect width="${sz}" height="${sz*0.33}" fill="#D52B1E"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#F4C430"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#007A3D"/>`,
-    cmr:`<rect width="${sz*0.33}" height="${sz}" fill="#007A5E"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#CE1126"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#FCD116"/>`,
-    cdi:`<rect width="${sz*0.33}" height="${sz}" fill="#F77F00"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#fff"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#009A44"/>`,
-    nzl:`<rect width="${sz}" height="${sz}" fill="#00247D"/><line x1="0" y1="0" x2="${sz*0.5}" y2="${sz*0.5}" stroke="#fff" stroke-width="${sz*0.12}"/><line x1="${sz*0.5}" y1="0" x2="0" y2="${sz*0.5}" stroke="#fff" stroke-width="${sz*0.12}"/><line x1="${sz*0.18}" y1="0" x2="${sz*0.18}" y2="${sz*0.5}" stroke="#CC0000" stroke-width="${sz*0.06}"/><line x1="0" y1="${sz*0.25}" x2="${sz*0.5}" y2="${sz*0.25}" stroke="#CC0000" stroke-width="${sz*0.06}"/>`,
-    ira:`<rect width="${sz}" height="${sz*0.33}" fill="#239f40"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#da0000"/>`,
-    // New teams — redrawn from official references
-    rsa:`<rect width="${sz}" height="${sz*0.25}" fill="#E03C31"/><rect y="${sz*0.25}" width="${sz}" height="${sz*0.1}" fill="#fff"/><rect y="${sz*0.35}" width="${sz}" height="${sz*0.3}" fill="#007A4D"/><rect y="${sz*0.65}" width="${sz}" height="${sz*0.1}" fill="#fff"/><rect y="${sz*0.75}" width="${sz}" height="${sz*0.25}" fill="#001489"/><polygon points="0,0 0,${sz} ${sz*0.5},${sz/2}" fill="#000"/><polygon points="0,${sz*0.07} 0,${sz*0.93} ${sz*0.42},${sz/2}" fill="#FFB612"/><polygon points="0,${sz*0.16} 0,${sz*0.84} ${sz*0.34},${sz/2}" fill="#007A4D"/>`,
-    cze:`<rect width="${sz}" height="${sz*0.5}" fill="#fff"/><rect y="${sz*0.5}" width="${sz}" height="${sz*0.5}" fill="#D7141A"/><polygon points="0,0 ${sz*0.5},${sz/2} 0,${sz}" fill="#11457E"/>`,
-    qat:`<rect width="${sz}" height="${sz}" fill="#8D1B3D"/><polygon points="0,0 ${sz*0.25},0 ${sz*0.35},${sz*0.056} ${sz*0.25},${sz*0.111} ${sz*0.35},${sz*0.167} ${sz*0.25},${sz*0.222} ${sz*0.35},${sz*0.278} ${sz*0.25},${sz*0.333} ${sz*0.35},${sz*0.389} ${sz*0.25},${sz*0.444} ${sz*0.35},${sz*0.5} ${sz*0.25},${sz*0.556} ${sz*0.35},${sz*0.611} ${sz*0.25},${sz*0.667} ${sz*0.35},${sz*0.722} ${sz*0.25},${sz*0.778} ${sz*0.35},${sz*0.833} ${sz*0.25},${sz*0.889} ${sz*0.35},${sz*0.944} ${sz*0.25},${sz} 0,${sz}" fill="#fff"/>`,
-    bih:`<rect width="${sz}" height="${sz}" fill="#003DA5"/><polygon points="${sz*0.18},${sz} ${sz*0.82},0 ${sz},0 ${sz},${sz*0.18}" fill="#FCCA33"/><circle cx="${sz*0.2}" cy="${sz*0.91}" r="${sz*0.055}" fill="#fff"/><circle cx="${sz*0.3}" cy="${sz*0.74}" r="${sz*0.055}" fill="#fff"/><circle cx="${sz*0.4}" cy="${sz*0.57}" r="${sz*0.055}" fill="#fff"/><circle cx="${sz*0.5}" cy="${sz*0.4}" r="${sz*0.055}" fill="#fff"/><circle cx="${sz*0.6}" cy="${sz*0.23}" r="${sz*0.055}" fill="#fff"/><circle cx="${sz*0.7}" cy="${sz*0.06}" r="${sz*0.055}" fill="#fff"/>`,
-    cur:`<rect width="${sz}" height="${sz}" fill="#002B7F"/><rect y="${sz*0.58}" width="${sz}" height="${sz*0.19}" fill="#F9E814"/><polygon points="${sz*0.28},${sz*0.11} ${sz*0.3},${sz*0.18} ${sz*0.37},${sz*0.18} ${sz*0.32},${sz*0.23} ${sz*0.34},${sz*0.3} ${sz*0.28},${sz*0.25} ${sz*0.22},${sz*0.3} ${sz*0.24},${sz*0.23} ${sz*0.19},${sz*0.18} ${sz*0.26},${sz*0.18}" fill="#fff"/><polygon points="${sz*0.48},${sz*0.06} ${sz*0.5},${sz*0.12} ${sz*0.56},${sz*0.12} ${sz*0.52},${sz*0.16} ${sz*0.54},${sz*0.22} ${sz*0.48},${sz*0.18} ${sz*0.42},${sz*0.22} ${sz*0.44},${sz*0.16} ${sz*0.4},${sz*0.12} ${sz*0.46},${sz*0.12}" fill="#fff"/>`,
-    tun:`<rect width="${sz}" height="${sz}" fill="#E70013"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz*0.3}" fill="#fff"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz*0.24}" fill="#E70013"/><circle cx="${sz*0.46}" cy="${sz*0.43}" r="${sz*0.12}" fill="#fff"/><circle cx="${sz*0.52}" cy="${sz*0.43}" r="${sz*0.095}" fill="#E70013"/><polygon points="${sz*0.575},${sz*0.43} ${sz*0.59},${sz*0.47} ${sz*0.63},${sz*0.44} ${sz*0.61},${sz*0.48} ${sz*0.64},${sz*0.52} ${sz*0.6},${sz*0.51} ${sz*0.575},${sz*0.55} ${sz*0.555},${sz*0.51} ${sz*0.515},${sz*0.52} ${sz*0.54},${sz*0.48} ${sz*0.515},${sz*0.44} ${sz*0.555},${sz*0.47}" fill="#fff"/>`,
-    swe:`<rect width="${sz}" height="${sz}" fill="#006AA7"/><rect x="${sz*0.31}" y="0" width="${sz*0.16}" height="${sz}" fill="#FECC02"/><rect y="${sz*0.42}" width="${sz}" height="${sz*0.16}" fill="#FECC02"/>`,
-    egy:`<rect width="${sz}" height="${sz*0.333}" fill="#CE1126"/><rect y="${sz*0.333}" width="${sz}" height="${sz*0.334}" fill="#fff"/><rect y="${sz*0.667}" width="${sz}" height="${sz*0.333}" fill="#000"/><rect x="${sz*0.36}" y="${sz*0.38}" width="${sz*0.28}" height="${sz*0.16}" fill="#C09300"/>`,
-    cpv:`<rect width="${sz}" height="${sz}" fill="#003893"/><rect y="${sz*0.55}" width="${sz}" height="${sz*0.1}" fill="#CE2028"/><rect y="${sz*0.7}" width="${sz}" height="${sz*0.1}" fill="#CE2028"/><circle cx="${sz*0.35}" cy="${sz*0.64}" r="${sz*0.16}" fill="none" stroke="#F7D116" stroke-width="${sz*0.022}"/><circle cx="${sz*0.35}" cy="${sz*0.48}" r="${sz*0.022}" fill="#F7D116"/><circle cx="${sz*0.46}" cy="${sz*0.51}" r="${sz*0.022}" fill="#F7D116"/><circle cx="${sz*0.5}" cy="${sz*0.61}" r="${sz*0.022}" fill="#F7D116"/><circle cx="${sz*0.46}" cy="${sz*0.71}" r="${sz*0.022}" fill="#F7D116"/><circle cx="${sz*0.35}" cy="${sz*0.75}" r="${sz*0.022}" fill="#F7D116"/><circle cx="${sz*0.24}" cy="${sz*0.71}" r="${sz*0.022}" fill="#F7D116"/><circle cx="${sz*0.2}" cy="${sz*0.61}" r="${sz*0.022}" fill="#F7D116"/><circle cx="${sz*0.24}" cy="${sz*0.51}" r="${sz*0.022}" fill="#F7D116"/>`,
-    irq:`<rect width="${sz}" height="${sz*0.333}" fill="#CE1126"/><rect y="${sz*0.333}" width="${sz}" height="${sz*0.334}" fill="#fff"/><rect y="${sz*0.667}" width="${sz}" height="${sz*0.333}" fill="#000"/><text x="${sz/2}" y="${sz*0.585}" text-anchor="middle" font-family="serif" font-size="${sz*0.16}" fill="#007A3D">الله أكبر</text>`,
-    nor:`<rect width="${sz}" height="${sz}" fill="#EF2B2D"/><rect x="${sz*0.25}" y="0" width="${sz*0.16}" height="${sz}" fill="#fff"/><rect y="${sz*0.42}" width="${sz}" height="${sz*0.16}" fill="#fff"/><rect x="${sz*0.28}" y="0" width="${sz*0.1}" height="${sz}" fill="#002868"/><rect y="${sz*0.45}" width="${sz}" height="${sz*0.1}" fill="#002868"/>`,
-    alg:`<rect width="${sz*0.5}" height="${sz}" fill="#006233"/><rect x="${sz*0.5}" width="${sz*0.5}" height="${sz}" fill="#fff"/><circle cx="${sz*0.47}" cy="${sz/2}" r="${sz*0.2}" fill="#D21034"/><circle cx="${sz*0.53}" cy="${sz/2}" r="${sz*0.155}" fill="#006233"/><polygon points="${sz*0.565},${sz*0.375} ${sz*0.595},${sz*0.44} ${sz*0.665},${sz*0.415} ${sz*0.625},${sz*0.48} ${sz*0.665},${sz*0.545} ${sz*0.595},${sz*0.52} ${sz*0.565},${sz*0.585} ${sz*0.545},${sz*0.515} ${sz*0.475},${sz*0.545} ${sz*0.505},${sz*0.48} ${sz*0.475},${sz*0.415} ${sz*0.545},${sz*0.44}" fill="#D21034"/>`,
-    jor:`<rect width="${sz}" height="${sz*0.333}" fill="#007A3D"/><rect y="${sz*0.333}" width="${sz}" height="${sz*0.334}" fill="#fff"/><rect y="${sz*0.667}" width="${sz}" height="${sz*0.333}" fill="#000"/><polygon points="0,0 ${sz*0.42},${sz/2} 0,${sz}" fill="#CE1126"/><circle cx="${sz*0.17}" cy="${sz/2}" r="${sz*0.08}" fill="#fff"/>`,
-    cod:`<rect width="${sz}" height="${sz}" fill="#007FFF"/><line x1="0" y1="${sz}" x2="${sz}" y2="0" stroke="#F7D618" stroke-width="${sz*0.18}"/><line x1="0" y1="${sz}" x2="${sz}" y2="0" stroke="#CE1021" stroke-width="${sz*0.1}"/><polygon points="${sz*0.12},${sz*0.2} ${sz*0.15},${sz*0.29} ${sz*0.24},${sz*0.29} ${sz*0.17},${sz*0.34} ${sz*0.2},${sz*0.43} ${sz*0.12},${sz*0.38} ${sz*0.04},${sz*0.43} ${sz*0.07},${sz*0.34} ${sz*0},${sz*0.29} ${sz*0.09},${sz*0.29}" fill="#F7D618"/>`,
-    uzb:`<rect width="${sz}" height="${sz*0.31}" fill="#1EB53A"/><rect y="${sz*0.31}" width="${sz}" height="${sz*0.05}" fill="#fff"/><rect y="${sz*0.36}" width="${sz}" height="${sz*0.28}" fill="#0099B5"/><rect y="${sz*0.64}" width="${sz}" height="${sz*0.05}" fill="#fff"/><rect y="${sz*0.69}" width="${sz}" height="${sz*0.31}" fill="#CE1126"/><circle cx="${sz*0.12}" cy="${sz*0.155}" r="${sz*0.09}" fill="#fff"/><circle cx="${sz*0.17}" cy="${sz*0.155}" r="${sz*0.07}" fill="#0099B5"/>`,
-    pan:`<rect width="${sz*0.5}" height="${sz*0.5}" fill="#fff"/><rect x="${sz*0.5}" width="${sz*0.5}" height="${sz*0.5}" fill="#D21034"/><rect y="${sz*0.5}" width="${sz*0.5}" height="${sz*0.5}" fill="#005293"/><rect x="${sz*0.5}" y="${sz*0.5}" width="${sz*0.5}" height="${sz*0.5}" fill="#fff"/><polygon points="${sz*0.25},${sz*0.1} ${sz*0.285},${sz*0.2} ${sz*0.385},${sz*0.2} ${sz*0.305},${sz*0.26} ${sz*0.335},${sz*0.36} ${sz*0.25},${sz*0.3} ${sz*0.165},${sz*0.36} ${sz*0.195},${sz*0.26} ${sz*0.115},${sz*0.2} ${sz*0.215},${sz*0.2}" fill="#005293"/><polygon points="${sz*0.75},${sz*0.6} ${sz*0.785},${sz*0.7} ${sz*0.885},${sz*0.7} ${sz*0.805},${sz*0.76} ${sz*0.835},${sz*0.86} ${sz*0.75},${sz*0.8} ${sz*0.665},${sz*0.86} ${sz*0.695},${sz*0.76} ${sz*0.615},${sz*0.7} ${sz*0.715},${sz*0.7}" fill="#D21034"/>`,
-    hat:`<rect width="${sz}" height="${sz*0.5}" fill="#00209F"/><rect y="${sz*0.5}" width="${sz}" height="${sz*0.5}" fill="#D21034"/><rect x="${sz*0.35}" y="${sz*0.3}" width="${sz*0.3}" height="${sz*0.22}" fill="#fff" opacity="0.9"/><text x="${sz/2}" y="${sz*0.465}" text-anchor="middle" font-family="serif" font-size="${sz*0.13}" fill="#006400">LIBERTÉ</text>`,
-    sco2:`<rect width="${sz}" height="${sz}" fill="#003399"/><line x1="0" y1="0" x2="${sz}" y2="${sz}" stroke="#fff" stroke-width="${sz*0.14}"/><line x1="${sz}" y1="0" x2="0" y2="${sz}" stroke="#fff" stroke-width="${sz*0.14}"/>`,
+  const iso = {
+    usa:'us', can:'ca', mex:'mx', uru:'uy', arg:'ar', chi:'cl', per:'pe',
+    bra:'br', esp:'es', mar:'ma', por:'pt', fra:'fr', ger:'de', sco:'gb-sct',
+    sui:'ch', hun:'hu', bel:'be', eng:'gb-eng', ser:'rs', den:'dk', ned:'nl',
+    aut:'at', tur:'tr', pol:'pl', cro:'hr', jpn:'jp', col:'co', ksa:'sa',
+    gha:'gh', kor:'kr', aus:'au', sen:'sn', ecu:'ec', par:'py', ven:'ve',
+    bol:'bo', cmr:'cm', cdi:'ci', nzl:'nz', ira:'ir', rsa:'za', cze:'cz',
+    bih:'ba', qat:'qa', hat:'ht', cur:'cw', tun:'tn', swe:'se', cpv:'cv',
+    irq:'iq', nor:'no', alg:'dz', jor:'jo', cod:'cd', uzb:'uz', pan:'pa',
+    egy:'eg', tur:'tr', jpn:'jp',
   };
-
-  const inner = svgs[id];
-  if (!inner) {
-    const colors = ['#2563EB','#DC2626','#16A34A','#D97706','#7C3AED','#0891B2'];
-    const h = id.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
-    const bc = colors[h%colors.length];
-    const lt = id.substring(0,2).toUpperCase();
-    return `<div class="fc" style="${s}"><svg viewBox="0 0 ${sz} ${sz}" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="fcc${id}${sz}"><circle cx="${sz/2}" cy="${sz/2}" r="${sz/2}"/></clipPath></defs><g clip-path="url(#fcc${id}${sz})"><rect width="${sz}" height="${sz}" fill="${bc}"/><text x="${sz/2}" y="${sz/2+4}" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="${sz*0.35}" font-weight="700" fill="rgba(255,255,255,0.9)">${lt}</text></g></svg></div>`;
+  const code = iso[id];
+  const s = `width:${sz}px;height:${sz}px;`;
+  const cls = `fc${sz===40?' lg':sz===56?' xl':''}`;
+  if (code) {
+    return `<div class="${cls}" style="${s};overflow:hidden;border-radius:50%;"><img src="https://flagcdn.com/w${sz*2}/${code}.png" width="${sz}" height="${sz}" style="object-fit:cover;width:${sz}px;height:${sz}px;display:block;" onerror="this.parentElement.innerHTML=this.parentElement.innerHTML.replace(this.outerHTML,'<svg viewBox=\'0 0 ${sz} ${sz}\' width=\'${sz}\' height=\'${sz}\'><rect width=\'${sz}\' height=\'${sz}\' fill=\'#E4E0D8\'/><text x=\'${sz/2}\' y=\'${sz/2+4}\' text-anchor=\'middle\' font-family=\'DM Sans\' font-size=\'${sz*0.32}\' fill=\'#9C968E\'>${id.toUpperCase()}</text></svg>')"></div>`;
   }
-  return `<div class="fc${sz===40?' lg':sz===56?' xl':''}" style="${s}"><svg viewBox="0 0 ${sz} ${sz}" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="fcc${id}${sz}"><circle cx="${sz/2}" cy="${sz/2}" r="${sz/2}"/></clipPath></defs><g clip-path="url(#fcc${id}${sz})">${inner}</g></svg></div>`;
+  // Fallback: colored circle with initials
+  const colors = ['#2563EB','#DC2626','#16A34A','#D97706','#7C3AED','#0891B2'];
+  const h = id.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const bc = colors[h%colors.length];
+  const lt = id.substring(0,2).toUpperCase();
+  return `<div class="${cls}" style="${s}"><svg viewBox="0 0 ${sz} ${sz}" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="fcc${id}${sz}"><circle cx="${sz/2}" cy="${sz/2}" r="${sz/2}"/></clipPath></defs><g clip-path="url(#fcc${id}${sz})"><rect width="${sz}" height="${sz}" fill="${bc}"/><text x="${sz/2}" y="${sz/2+4}" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="${sz*0.35}" font-weight="700" fill="rgba(255,255,255,0.9)">${lt}</text></g></svg></div>`;
 }
 
 // ══════════════════════════════════════
@@ -1214,101 +1166,110 @@ const TEAM_INFO = {
 };
 
 const MATCHES = [
-  // GRUPO A
-  {id:'m1', home:'mex', away:'rsa', date:'2026-06-11', time:'15:00', venue:'Estadio Ciudad de México', group:'A', phase:'groups'},
-  {id:'m2', home:'kor', away:'cze', date:'2026-06-11', time:'22:00', venue:'Estadio Guadalajara', group:'A', phase:'groups'},
-  {id:'m3', home:'cze', away:'rsa', date:'2026-06-18', time:'12:00', venue:'Atlanta Stadium', group:'A', phase:'groups'},
-  {id:'m4', home:'mex', away:'kor', date:'2026-06-18', time:'21:00', venue:'Estadio Guadalajara', group:'A', phase:'groups'},
-  {id:'m5', home:'cze', away:'mex', date:'2026-06-24', time:'21:00', venue:'Estadio Ciudad de México', group:'A', phase:'groups'},
-  {id:'m6', home:'rsa', away:'kor', date:'2026-06-24', time:'21:00', venue:'Estadio Monterrey', group:'A', phase:'groups'},
-
-  // GRUPO B
-  {id:'m7', home:'can', away:'bih', date:'2026-06-12', time:'15:00', venue:'Toronto Stadium', group:'B', phase:'groups'},
-  {id:'m8', home:'qat', away:'sui', date:'2026-06-13', time:'15:00', venue:'San Francisco Bay Area Stadium', group:'B', phase:'groups'},
-  {id:'m9', home:'sui', away:'bih', date:'2026-06-18', time:'15:00', venue:'Los Angeles Stadium', group:'B', phase:'groups'},
-  {id:'m10', home:'can', away:'qat', date:'2026-06-18', time:'18:00', venue:'BC Place, Vancouver', group:'B', phase:'groups'},
-  {id:'m11', home:'sui', away:'can', date:'2026-06-24', time:'15:00', venue:'BC Place, Vancouver', group:'B', phase:'groups'},
-  {id:'m12', home:'bih', away:'qat', date:'2026-06-24', time:'15:00', venue:'Seattle Stadium', group:'B', phase:'groups'},
-
-  // GRUPO C
-  {id:'m13', home:'bra', away:'mar', date:'2026-06-13', time:'18:00', venue:'Nueva York NJ Stadium', group:'C', phase:'groups'},
-  {id:'m14', home:'hat', away:'sco', date:'2026-06-13', time:'21:00', venue:'Boston Stadium', group:'C', phase:'groups'},
-  {id:'m15', home:'sco', away:'mar', date:'2026-06-19', time:'18:00', venue:'Boston Stadium', group:'C', phase:'groups'},
-  {id:'m16', home:'bra', away:'hat', date:'2026-06-19', time:'21:00', venue:'Philadelphia Stadium', group:'C', phase:'groups'},
-  {id:'m17', home:'bra', away:'sco', date:'2026-06-24', time:'18:00', venue:'Miami Stadium', group:'C', phase:'groups'},
-  {id:'m18', home:'mar', away:'hat', date:'2026-06-24', time:'18:00', venue:'Atlanta Stadium', group:'C', phase:'groups'},
-
-  // GRUPO D
-  {id:'m19', home:'usa', away:'par', date:'2026-06-12', time:'21:00', venue:'Los Angeles Stadium', group:'D', phase:'groups'},
-  {id:'m20', home:'aus', away:'tur', date:'2026-06-13', time:'00:00', venue:'BC Place, Vancouver', group:'D', phase:'groups'},
-  {id:'m21', home:'usa', away:'aus', date:'2026-06-19', time:'15:00', venue:'Seattle Stadium', group:'D', phase:'groups'},
-  {id:'m22', home:'tur', away:'par', date:'2026-06-19', time:'00:00', venue:'San Francisco Bay Area Stadium', group:'D', phase:'groups'},
-  {id:'m23', home:'tur', away:'usa', date:'2026-06-25', time:'22:00', venue:'Los Angeles Stadium', group:'D', phase:'groups'},
-  {id:'m24', home:'par', away:'aus', date:'2026-06-25', time:'22:00', venue:'San Francisco Bay Area Stadium', group:'D', phase:'groups'},
-
-  // GRUPO E
-  {id:'m25', home:'ger', away:'cur', date:'2026-06-14', time:'13:00', venue:'Houston Stadium', group:'E', phase:'groups'},
-  {id:'m26', home:'cdi', away:'ecu', date:'2026-06-14', time:'19:00', venue:'Philadelphia Stadium', group:'E', phase:'groups'},
-  {id:'m27', home:'ger', away:'cdi', date:'2026-06-20', time:'16:00', venue:'Toronto Stadium', group:'E', phase:'groups'},
-  {id:'m28', home:'ecu', away:'cur', date:'2026-06-20', time:'22:00', venue:'Kansas City Stadium', group:'E', phase:'groups'},
-  {id:'m29', home:'cur', away:'cdi', date:'2026-06-25', time:'16:00', venue:'Philadelphia Stadium', group:'E', phase:'groups'},
-  {id:'m30', home:'ecu', away:'ger', date:'2026-06-25', time:'16:00', venue:'Nueva York NJ Stadium', group:'E', phase:'groups'},
-
-  // GRUPO F
-  {id:'m31', home:'ned', away:'jpn', date:'2026-06-14', time:'16:00', venue:'Dallas Stadium', group:'F', phase:'groups'},
-  {id:'m32', home:'swe', away:'tun', date:'2026-06-14', time:'22:00', venue:'Estadio Monterrey', group:'F', phase:'groups'},
-  {id:'m33', home:'ned', away:'swe', date:'2026-06-20', time:'13:00', venue:'Houston Stadium', group:'F', phase:'groups'},
-  {id:'m34', home:'tun', away:'jpn', date:'2026-06-20', time:'00:00', venue:'Estadio Monterrey', group:'F', phase:'groups'},
-  {id:'m35', home:'jpn', away:'swe', date:'2026-06-25', time:'19:00', venue:'Dallas Stadium', group:'F', phase:'groups'},
-  {id:'m36', home:'tun', away:'ned', date:'2026-06-25', time:'19:00', venue:'Kansas City Stadium', group:'F', phase:'groups'},
-
-  // GRUPO G
-  {id:'m37', home:'bel', away:'egy', date:'2026-06-15', time:'15:00', venue:'Seattle Stadium', group:'G', phase:'groups'},
-  {id:'m38', home:'ira', away:'nzl', date:'2026-06-15', time:'21:00', venue:'Los Angeles Stadium', group:'G', phase:'groups'},
-  {id:'m39', home:'bel', away:'ira', date:'2026-06-21', time:'15:00', venue:'Los Angeles Stadium', group:'G', phase:'groups'},
-  {id:'m40', home:'nzl', away:'egy', date:'2026-06-21', time:'21:00', venue:'BC Place, Vancouver', group:'G', phase:'groups'},
-  {id:'m41', home:'egy', away:'ira', date:'2026-06-26', time:'23:00', venue:'Seattle Stadium', group:'G', phase:'groups'},
-  {id:'m42', home:'nzl', away:'bel', date:'2026-06-26', time:'23:00', venue:'BC Place, Vancouver', group:'G', phase:'groups'},
-
-  // GRUPO H
-  {id:'m43', home:'esp', away:'cpv', date:'2026-06-15', time:'12:00', venue:'Atlanta Stadium', group:'H', phase:'groups'},
-  {id:'m44', home:'ksa', away:'uru', date:'2026-06-15', time:'18:00', venue:'Miami Stadium', group:'H', phase:'groups'},
-  {id:'m45', home:'esp', away:'ksa', date:'2026-06-21', time:'12:00', venue:'Atlanta Stadium', group:'H', phase:'groups'},
-  {id:'m46', home:'uru', away:'cpv', date:'2026-06-21', time:'18:00', venue:'Miami Stadium', group:'H', phase:'groups'},
-  {id:'m47', home:'cpv', away:'ksa', date:'2026-06-26', time:'20:00', venue:'Houston Stadium', group:'H', phase:'groups'},
-  {id:'m48', home:'uru', away:'esp', date:'2026-06-26', time:'20:00', venue:'Estadio Guadalajara', group:'H', phase:'groups'},
-
-  // GRUPO I
-  {id:'m49', home:'fra', away:'sen', date:'2026-06-16', time:'15:00', venue:'Nueva York NJ Stadium', group:'I', phase:'groups'},
-  {id:'m50', home:'irq', away:'nor', date:'2026-06-16', time:'18:00', venue:'Boston Stadium', group:'I', phase:'groups'},
-  {id:'m51', home:'fra', away:'irq', date:'2026-06-22', time:'17:00', venue:'Philadelphia Stadium', group:'I', phase:'groups'},
-  {id:'m52', home:'nor', away:'sen', date:'2026-06-22', time:'20:00', venue:'Nueva York NJ Stadium', group:'I', phase:'groups'},
-  {id:'m53', home:'nor', away:'fra', date:'2026-06-26', time:'15:00', venue:'Boston Stadium', group:'I', phase:'groups'},
-  {id:'m54', home:'sen', away:'irq', date:'2026-06-26', time:'15:00', venue:'Toronto Stadium', group:'I', phase:'groups'},
-
-  // GRUPO J
-  {id:'m55', home:'arg', away:'alg', date:'2026-06-16', time:'21:00', venue:'Kansas City Stadium', group:'J', phase:'groups'},
-  {id:'m56', home:'aut', away:'jor', date:'2026-06-17', time:'00:00', venue:'San Francisco Bay Area Stadium', group:'J', phase:'groups'},
-  {id:'m57', home:'arg', away:'aut', date:'2026-06-22', time:'13:00', venue:'Dallas Stadium', group:'J', phase:'groups'},
-  {id:'m58', home:'jor', away:'alg', date:'2026-06-22', time:'23:00', venue:'San Francisco Bay Area Stadium', group:'J', phase:'groups'},
-  {id:'m59', home:'alg', away:'aut', date:'2026-06-27', time:'22:00', venue:'Kansas City Stadium', group:'J', phase:'groups'},
-  {id:'m60', home:'jor', away:'arg', date:'2026-06-27', time:'22:00', venue:'Dallas Stadium', group:'J', phase:'groups'},
-
-  // GRUPO K
-  {id:'m61', home:'por', away:'cod', date:'2026-06-17', time:'13:00', venue:'Houston Stadium', group:'K', phase:'groups'},
-  {id:'m62', home:'uzb', away:'col', date:'2026-06-17', time:'22:00', venue:'Estadio Ciudad de México', group:'K', phase:'groups'},
-  {id:'m63', home:'por', away:'uzb', date:'2026-06-23', time:'13:00', venue:'Houston Stadium', group:'K', phase:'groups'},
-  {id:'m64', home:'col', away:'cod', date:'2026-06-23', time:'22:00', venue:'Estadio Guadalajara', group:'K', phase:'groups'},
-  {id:'m65', home:'col', away:'por', date:'2026-06-27', time:'19:30', venue:'Miami Stadium', group:'K', phase:'groups'},
-  {id:'m66', home:'cod', away:'uzb', date:'2026-06-27', time:'19:30', venue:'Atlanta Stadium', group:'K', phase:'groups'},
-
-  // GRUPO L
-  {id:'m67', home:'eng', away:'cro', date:'2026-06-17', time:'16:00', venue:'Dallas Stadium', group:'L', phase:'groups'},
-  {id:'m68', home:'gha', away:'pan', date:'2026-06-17', time:'19:00', venue:'Toronto Stadium', group:'L', phase:'groups'},
-  {id:'m69', home:'eng', away:'gha', date:'2026-06-23', time:'16:00', venue:'Boston Stadium', group:'L', phase:'groups'},
-  {id:'m70', home:'pan', away:'cro', date:'2026-06-23', time:'19:00', venue:'Toronto Stadium', group:'L', phase:'groups'},
-  {id:'m71', home:'pan', away:'eng', date:'2026-06-27', time:'17:00', venue:'Nueva York NJ Stadium', group:'L', phase:'groups'},
-  {id:'m72', home:'cro', away:'gha', date:'2026-06-27', time:'17:00', venue:'Philadelphia Stadium', group:'L', phase:'groups'},
+  {id:'m1', home:'mex', away:'rsa', date:'2026-06-11', time:'21:00', venue:'Estadio Azteca, Ciudad de México', group:'A', phase:'groups'},
+  {id:'m2', home:'kor', away:'cze', date:'2026-06-12', time:'04:00', venue:'Estadio Akron, Guadalajara', group:'A', phase:'groups'},
+  {id:'m3', home:'cze', away:'rsa', date:'2026-06-18', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', group:'A', phase:'groups'},
+  {id:'m4', home:'mex', away:'kor', date:'2026-06-19', time:'03:00', venue:'Estadio Akron, Guadalajara', group:'A', phase:'groups'},
+  {id:'m5', home:'cze', away:'mex', date:'2026-06-25', time:'03:00', venue:'Estadio Azteca, Ciudad de México', group:'A', phase:'groups'},
+  {id:'m6', home:'rsa', away:'kor', date:'2026-06-25', time:'03:00', venue:'Estadio BBVA, Monterrey', group:'A', phase:'groups'},
+  {id:'m7', home:'can', away:'bih', date:'2026-06-12', time:'21:00', venue:'BMO Field, Toronto', group:'B', phase:'groups'},
+  {id:'m8', home:'qat', away:'sui', date:'2026-06-13', time:'21:00', venue:'Levis Stadium, Santa Clara', group:'B', phase:'groups'},
+  {id:'m9', home:'can', away:'qat', date:'2026-06-19', time:'00:00', venue:'BC Place, Vancouver', group:'B', phase:'groups'},
+  {id:'m10', home:'sui', away:'bih', date:'2026-06-18', time:'21:00', venue:'SoFi Stadium, Los Ángeles', group:'B', phase:'groups'},
+  {id:'m11', home:'bih', away:'qat', date:'2026-06-24', time:'21:00', venue:'Lumen Field, Seattle', group:'B', phase:'groups'},
+  {id:'m12', home:'sui', away:'can', date:'2026-06-24', time:'21:00', venue:'BC Place, Vancouver', group:'B', phase:'groups'},
+  {id:'m13', home:'bra', away:'mar', date:'2026-06-14', time:'00:00', venue:'MetLife Stadium, Nueva Jersey', group:'C', phase:'groups'},
+  {id:'m14', home:'hat', away:'sco', date:'2026-06-14', time:'03:00', venue:'Gillette Stadium, Boston', group:'C', phase:'groups'},
+  {id:'m15', home:'sco', away:'mar', date:'2026-06-20', time:'00:00', venue:'Gillette Stadium, Boston', group:'C', phase:'groups'},
+  {id:'m16', home:'bra', away:'hat', date:'2026-06-20', time:'02:30', venue:'Lincoln Financial Field, Filadelfia', group:'C', phase:'groups'},
+  {id:'m17', home:'mar', away:'hat', date:'2026-06-25', time:'00:00', venue:'Mercedes-Benz Stadium, Atlanta', group:'C', phase:'groups'},
+  {id:'m18', home:'sco', away:'bra', date:'2026-06-25', time:'00:00', venue:'Hard Rock Stadium, Miami', group:'C', phase:'groups'},
+  {id:'m19', home:'usa', away:'par', date:'2026-06-13', time:'03:00', venue:'SoFi Stadium, Los Ángeles', group:'D', phase:'groups'},
+  {id:'m20', home:'aus', away:'tur', date:'2026-06-14', time:'06:00', venue:'BC Place, Vancouver', group:'D', phase:'groups'},
+  {id:'m21', home:'usa', away:'aus', date:'2026-06-19', time:'21:00', venue:'Lumen Field, Seattle', group:'D', phase:'groups'},
+  {id:'m22', home:'tur', away:'par', date:'2026-06-20', time:'05:00', venue:'Levis Stadium, Santa Clara', group:'D', phase:'groups'},
+  {id:'m23', home:'par', away:'aus', date:'2026-06-26', time:'04:00', venue:'Levis Stadium, Santa Clara', group:'D', phase:'groups'},
+  {id:'m24', home:'tur', away:'usa', date:'2026-06-26', time:'04:00', venue:'SoFi Stadium, Los Ángeles', group:'D', phase:'groups'},
+  {id:'m25', home:'ger', away:'cur', date:'2026-06-14', time:'19:00', venue:'NRG Stadium, Houston', group:'E', phase:'groups'},
+  {id:'m26', home:'cdi', away:'ecu', date:'2026-06-15', time:'01:00', venue:'Lincoln Financial Field, Filadelfia', group:'E', phase:'groups'},
+  {id:'m27', home:'ger', away:'cdi', date:'2026-06-20', time:'22:00', venue:'BMO Field, Toronto', group:'E', phase:'groups'},
+  {id:'m28', home:'ecu', away:'cur', date:'2026-06-21', time:'02:00', venue:'Arrowhead Stadium, Kansas City', group:'E', phase:'groups'},
+  {id:'m29', home:'cur', away:'cdi', date:'2026-06-25', time:'22:00', venue:'Lincoln Financial Field, Filadelfia', group:'E', phase:'groups'},
+  {id:'m30', home:'ecu', away:'ger', date:'2026-06-25', time:'22:00', venue:'MetLife Stadium, Nueva Jersey', group:'E', phase:'groups'},
+  {id:'m31', home:'ned', away:'jpn', date:'2026-06-14', time:'22:00', venue:'AT&T Stadium, Dallas', group:'F', phase:'groups'},
+  {id:'m32', home:'swe', away:'tun', date:'2026-06-15', time:'04:00', venue:'Estadio BBVA, Monterrey', group:'F', phase:'groups'},
+  {id:'m33', home:'ned', away:'swe', date:'2026-06-20', time:'19:00', venue:'NRG Stadium, Houston', group:'F', phase:'groups'},
+  {id:'m34', home:'tun', away:'jpn', date:'2026-06-21', time:'06:00', venue:'Estadio BBVA, Monterrey', group:'F', phase:'groups'},
+  {id:'m35', home:'jpn', away:'swe', date:'2026-06-26', time:'01:00', venue:'AT&T Stadium, Dallas', group:'F', phase:'groups'},
+  {id:'m36', home:'tun', away:'ned', date:'2026-06-26', time:'01:00', venue:'Arrowhead Stadium, Kansas City', group:'F', phase:'groups'},
+  {id:'m37', home:'bel', away:'egy', date:'2026-06-15', time:'21:00', venue:'Lumen Field, Seattle', group:'G', phase:'groups'},
+  {id:'m38', home:'ira', away:'nzl', date:'2026-06-16', time:'03:00', venue:'SoFi Stadium, Los Ángeles', group:'G', phase:'groups'},
+  {id:'m39', home:'bel', away:'ira', date:'2026-06-21', time:'21:00', venue:'SoFi Stadium, Los Ángeles', group:'G', phase:'groups'},
+  {id:'m40', home:'nzl', away:'egy', date:'2026-06-22', time:'03:00', venue:'BC Place, Vancouver', group:'G', phase:'groups'},
+  {id:'m41', home:'egy', away:'ira', date:'2026-06-27', time:'05:00', venue:'Lumen Field, Seattle', group:'G', phase:'groups'},
+  {id:'m42', home:'nzl', away:'bel', date:'2026-06-27', time:'05:00', venue:'BC Place, Vancouver', group:'G', phase:'groups'},
+  {id:'m43', home:'esp', away:'cpv', date:'2026-06-15', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', group:'H', phase:'groups'},
+  {id:'m44', home:'ksa', away:'uru', date:'2026-06-16', time:'00:00', venue:'Hard Rock Stadium, Miami', group:'H', phase:'groups'},
+  {id:'m45', home:'esp', away:'ksa', date:'2026-06-21', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', group:'H', phase:'groups'},
+  {id:'m46', home:'uru', away:'cpv', date:'2026-06-22', time:'00:00', venue:'Hard Rock Stadium, Miami', group:'H', phase:'groups'},
+  {id:'m47', home:'cpv', away:'ksa', date:'2026-06-27', time:'02:00', venue:'NRG Stadium, Houston', group:'H', phase:'groups'},
+  {id:'m48', home:'uru', away:'esp', date:'2026-06-27', time:'02:00', venue:'Estadio Akron, Guadalajara', group:'H', phase:'groups'},
+  {id:'m49', home:'fra', away:'sen', date:'2026-06-16', time:'21:00', venue:'MetLife Stadium, Nueva Jersey', group:'I', phase:'groups'},
+  {id:'m50', home:'irq', away:'nor', date:'2026-06-17', time:'00:00', venue:'Gillette Stadium, Boston', group:'I', phase:'groups'},
+  {id:'m51', home:'fra', away:'irq', date:'2026-06-22', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', group:'I', phase:'groups'},
+  {id:'m52', home:'nor', away:'sen', date:'2026-06-23', time:'02:00', venue:'BMO Field, Toronto', group:'I', phase:'groups'},
+  {id:'m53', home:'nor', away:'fra', date:'2026-06-26', time:'21:00', venue:'Gillette Stadium, Boston', group:'I', phase:'groups'},
+  {id:'m54', home:'sen', away:'irq', date:'2026-06-26', time:'21:00', venue:'BMO Field, Toronto', group:'I', phase:'groups'},
+  {id:'m55', home:'arg', away:'alg', date:'2026-06-17', time:'03:00', venue:'Arrowhead Stadium, Kansas City', group:'J', phase:'groups'},
+  {id:'m56', home:'aut', away:'jor', date:'2026-06-17', time:'06:00', venue:'Levis Stadium, Santa Clara', group:'J', phase:'groups'},
+  {id:'m57', home:'arg', away:'aut', date:'2026-06-22', time:'19:00', venue:'AT&T Stadium, Dallas', group:'J', phase:'groups'},
+  {id:'m58', home:'jor', away:'alg', date:'2026-06-23', time:'05:00', venue:'Levis Stadium, Santa Clara', group:'J', phase:'groups'},
+  {id:'m59', home:'alg', away:'aut', date:'2026-06-28', time:'04:00', venue:'Arrowhead Stadium, Kansas City', group:'J', phase:'groups'},
+  {id:'m60', home:'jor', away:'arg', date:'2026-06-28', time:'04:00', venue:'AT&T Stadium, Dallas', group:'J', phase:'groups'},
+  {id:'m61', home:'por', away:'cod', date:'2026-06-17', time:'19:00', venue:'NRG Stadium, Houston', group:'K', phase:'groups'},
+  {id:'m62', home:'uzb', away:'col', date:'2026-06-18', time:'04:00', venue:'Estadio Azteca, Ciudad de México', group:'K', phase:'groups'},
+  {id:'m63', home:'por', away:'uzb', date:'2026-06-23', time:'19:00', venue:'NRG Stadium, Houston', group:'K', phase:'groups'},
+  {id:'m64', home:'col', away:'cod', date:'2026-06-24', time:'04:00', venue:'Estadio Akron, Guadalajara', group:'K', phase:'groups'},
+  {id:'m65', home:'col', away:'por', date:'2026-06-28', time:'01:30', venue:'Hard Rock Stadium, Miami', group:'K', phase:'groups'},
+  {id:'m66', home:'cod', away:'uzb', date:'2026-06-28', time:'01:30', venue:'Mercedes-Benz Stadium, Atlanta', group:'K', phase:'groups'},
+  {id:'m67', home:'eng', away:'cro', date:'2026-06-17', time:'22:00', venue:'AT&T Stadium, Dallas', group:'L', phase:'groups'},
+  {id:'m68', home:'gha', away:'pan', date:'2026-06-18', time:'01:00', venue:'BMO Field, Toronto', group:'L', phase:'groups'},
+  {id:'m69', home:'eng', away:'gha', date:'2026-06-23', time:'22:00', venue:'Gillette Stadium, Boston', group:'L', phase:'groups'},
+  {id:'m70', home:'pan', away:'cro', date:'2026-06-24', time:'01:00', venue:'Gillette Stadium, Boston', group:'L', phase:'groups'},
+  {id:'m71', home:'cro', away:'gha', date:'2026-06-27', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', group:'L', phase:'groups'},
+  {id:'m72', home:'pan', away:'eng', date:'2026-06-27', time:'23:00', venue:'MetLife Stadium, Nueva Jersey', group:'L', phase:'groups'},
+  {id:'m73', home:'2º Grupo A', away:'2º Grupo B', date:'2026-06-28', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'r32'},
+  {id:'m74', home:'1º Grupo C', away:'2º Grupo F', date:'2026-06-29', time:'19:00', venue:'NRG Stadium, Houston', phase:'r32'},
+  {id:'m75', home:'1º Grupo E', away:'3º A/B/C/D/F', date:'2026-06-29', time:'22:30', venue:'Gillette Stadium, Boston', phase:'r32'},
+  {id:'m76', home:'1º Grupo F', away:'2º Grupo C', date:'2026-06-30', time:'03:00', venue:'Estadio BBVA, Monterrey', phase:'r32'},
+  {id:'m77', home:'2º Grupo E', away:'2º Grupo I', date:'2026-06-30', time:'19:00', venue:'AT&T Stadium, Dallas', phase:'r32'},
+  {id:'m78', home:'1º Grupo I', away:'3º C/D/F/G/H', date:'2026-06-30', time:'23:00', venue:'MetLife Stadium, Nueva Jersey', phase:'r32'},
+  {id:'m79', home:'1º Grupo A', away:'3º C/E/F/H/I', date:'2026-07-01', time:'03:00', venue:'Estadio Azteca, Ciudad de México', phase:'r32'},
+  {id:'m80', home:'1º Grupo L', away:'3º E/H/I/J/K', date:'2026-07-01', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r32'},
+  {id:'m81', home:'1º Grupo G', away:'3º A/E/H/I/J', date:'2026-07-01', time:'22:00', venue:'Lumen Field, Seattle', phase:'r32'},
+  {id:'m82', home:'1º Grupo D', away:'3º B/E/F/I/J', date:'2026-07-02', time:'02:00', venue:'Levis Stadium, Santa Clara', phase:'r32'},
+  {id:'m83', home:'1º Grupo H', away:'2º Grupo J', date:'2026-07-02', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'r32'},
+  {id:'m84', home:'2º Grupo K', away:'2º Grupo L', date:'2026-07-03', time:'01:00', venue:'BMO Field, Toronto', phase:'r32'},
+  {id:'m85', home:'1º Grupo B', away:'3º E/F/G/I/J', date:'2026-07-03', time:'05:00', venue:'BC Place, Vancouver', phase:'r32'},
+  {id:'m86', home:'2º Grupo D', away:'2º Grupo G', date:'2026-07-03', time:'20:00', venue:'AT&T Stadium, Dallas', phase:'r32'},
+  {id:'m87', home:'1º Grupo J', away:'2º Grupo H', date:'2026-07-04', time:'00:00', venue:'Hard Rock Stadium, Miami', phase:'r32'},
+  {id:'m88', home:'1º Grupo K', away:'3º D/E/I/J/L', date:'2026-07-04', time:'03:30', venue:'Arrowhead Stadium, Kansas City', phase:'r32'},
+  {id:'m89', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-04', time:'19:00', venue:'NRG Stadium, Houston', phase:'r16'},
+  {id:'m90', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-04', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', phase:'r16'},
+  {id:'m91', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-05', time:'22:00', venue:'MetLife Stadium, Nueva Jersey', phase:'r16'},
+  {id:'m92', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-06', time:'02:00', venue:'Estadio Azteca, Ciudad de México', phase:'r16'},
+  {id:'m93', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-06', time:'21:00', venue:'AT&T Stadium, Dallas', phase:'r16'},
+  {id:'m94', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-07', time:'02:00', venue:'Lumen Field, Seattle', phase:'r16'},
+  {id:'m95', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-07', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r16'},
+  {id:'m96', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-07', time:'22:00', venue:'BC Place, Vancouver', phase:'r16'},
+  {id:'m97', home:'G. Octavos', away:'G. Octavos', date:'2026-07-09', time:'22:00', venue:'Gillette Stadium, Boston', phase:'qf'},
+  {id:'m98', home:'G. Octavos', away:'G. Octavos', date:'2026-07-10', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'qf'},
+  {id:'m99', home:'G. Octavos', away:'G. Octavos', date:'2026-07-11', time:'23:00', venue:'Hard Rock Stadium, Miami', phase:'qf'},
+  {id:'m100', home:'G. Octavos', away:'G. Octavos', date:'2026-07-12', time:'03:00', venue:'Arrowhead Stadium, Kansas City', phase:'qf'},
+  {id:'m101', home:'G. Cuartos', away:'G. Cuartos', date:'2026-07-14', time:'21:00', venue:'AT&T Stadium, Dallas', phase:'sf'},
+  {id:'m102', home:'G. Cuartos', away:'G. Cuartos', date:'2026-07-15', time:'21:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'sf'},
+  {id:'m103', home:'Perdedor Semi', away:'Perdedor Semi', date:'2026-07-18', time:'23:00', venue:'Hard Rock Stadium, Miami', phase:'3rd'},
+  {id:'m104', home:'G. Semifinal', away:'G. Semifinal', date:'2026-07-19', time:'21:00', venue:'MetLife Stadium, Nueva Jersey', phase:'final'},
 ];
 
 function tname(id){return(TEAM_INFO[id]||{name:id.toUpperCase()}).name;}
@@ -1330,11 +1291,16 @@ let view='matches', phase='all', q='', calMo=new Date(2026,5,1);
 // ══════════════════════════════════════
 function matchRowHTML(m, ql) {
   const hi=ql&&(tname(m.home).toLowerCase().includes(ql)||tname(m.away).toLowerCase().includes(ql));
+  const isGroup = m.phase==='groups';
+  const homeName = isGroup ? tname(m.home) : m.home;
+  const awayName = isGroup ? tname(m.away) : m.away;
+  const homeFlag = isGroup ? flag(m.home,32) : `<div class="fc" style="width:32px;height:32px;background:var(--bg3);display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid var(--border);"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--text3)" stroke-width="1.5"><path d="M12 2L3.5 5.5v6c0 4.5 3.6 8.7 8.5 9.5 4.9-.8 8.5-5 8.5-9.5v-6L12 2z"/></svg></div>`;
+  const awayFlag = isGroup ? flag(m.away,32) : `<div class="fc" style="width:32px;height:32px;background:var(--bg3);display:flex;align-items:center;justify-content:center;border-radius:50%;border:1.5px solid var(--border);"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--text3)" stroke-width="1.5"><path d="M12 2L3.5 5.5v6c0 4.5 3.6 8.7 8.5 9.5 4.9-.8 8.5-5 8.5-9.5v-6L12 2z"/></svg></div>`;
   return `<div class="match-row${hi?' highlight':''}" onclick="">
     <div class="m-home">
-      ${flag(m.home,32)}
+      ${homeFlag}
       <div class="m-home-info">
-        <div class="m-team-name">${tname(m.home)}</div>
+        <div class="m-team-name">${homeName}</div>
       </div>
     </div>
     <div class="m-center">
@@ -1342,12 +1308,11 @@ function matchRowHTML(m, ql) {
       ${m.scoreLabel?`<div class="m-status${m.scoreLive?' live':''}">${m.scoreLabel}</div>`:''}
     </div>
     <div class="m-away">
-      <div class="m-team-name">${tname(m.away)}</div>
-      ${flag(m.away,32)}
+      <div class="m-team-name">${awayName}</div>
+      ${awayFlag}
     </div>
     <div class="m-meta">
-      <span class="m-group">Grupo ${m.group}</span>
-      <span class="m-sep">·</span>
+      ${isGroup?`<span class="m-group">Grupo ${m.group}</span><span class="m-sep">·</span>`:''}
       <span class="m-venue">${m.venue.split(',')[1]?m.venue.split(',')[1].trim():m.venue}</span>
     </div>
   </div>`;
