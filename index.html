@@ -238,6 +238,12 @@ html, body {
   height: 1px;
   background: var(--border);
 }
+.group-teams-strip {
+  font-size: 11px;
+  color: var(--text3);
+  padding: 4px 18px 10px;
+  letter-spacing: 0.2px;
+}
 
 /* ── MATCH ROW ── */
 .match-row {
@@ -481,7 +487,7 @@ html, body {
 .match-mini-time { font-size: 11px; color: var(--text3); margin-top: 2px; }
 .squad-grid {
   display: grid;
-  grid-template-columns: repeat(3,1fr);
+  grid-template-columns: repeat(2,1fr);
   gap: 8px;
   padding: 0 18px 20px;
 }
@@ -522,9 +528,9 @@ html, body {
 }
 .player-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .p-num { font-family: var(--serif); font-size: 11px; color: var(--gold); font-weight: 700; }
-.p-name { font-size: 10px; font-weight: 500; color: var(--text2); text-align: center; line-height: 1.25; }
+.p-name { font-size: 11px; font-weight: 500; color: var(--text2); text-align: center; line-height: 1.25; }
 .p-pos { font-size: 9px; color: var(--text3); }
-.p-club { font-size: 9px; color: var(--text3); text-align: center; line-height: 1.2; margin-top: 1px; }
+.p-club { font-size: 10px; color: var(--text3); text-align: center; line-height: 1.2; margin-top: 1px; }
 
 /* ── CALENDAR ── */
 .cal-nav {
@@ -582,9 +588,10 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  color: var(--text3);
+  color: var(--text2);
   gap: 2px;
   transition: background 0.15s;
 }
@@ -1321,6 +1328,31 @@ let view='matches', phase='all', q='', calMo=new Date(2026,5,1);
 // ══════════════════════════════════════
 // RENDER MATCHES
 // ══════════════════════════════════════
+function matchRowHTML(m, ql) {
+  const hi=ql&&(tname(m.home).toLowerCase().includes(ql)||tname(m.away).toLowerCase().includes(ql));
+  return `<div class="match-row${hi?' highlight':''}" onclick="">
+    <div class="m-home">
+      ${flag(m.home,32)}
+      <div class="m-home-info">
+        <div class="m-team-name">${tname(m.home)}</div>
+      </div>
+    </div>
+    <div class="m-center">
+      <div class="m-time${m.score?' score':''}">${m.score||m.time}</div>
+      ${m.scoreLabel?`<div class="m-status${m.scoreLive?' live':''}">${m.scoreLabel}</div>`:''}
+    </div>
+    <div class="m-away">
+      <div class="m-team-name">${tname(m.away)}</div>
+      ${flag(m.away,32)}
+    </div>
+    <div class="m-meta">
+      <span class="m-group">Grupo ${m.group}</span>
+      <span class="m-sep">·</span>
+      <span class="m-venue">${m.venue.split(',')[1]?m.venue.split(',')[1].trim():m.venue}</span>
+    </div>
+  </div>`;
+}
+
 function renderMatches(){
   const ql=q.toLowerCase();
   let ms=MATCHES.filter(m=>{
@@ -1328,38 +1360,37 @@ function renderMatches(){
     if(ql){const h=tname(m.home).toLowerCase(),a=tname(m.away).toLowerCase();return h.includes(ql)||a.includes(ql);}
     return true;
   });
+  const el=document.getElementById('matches-list');
+  if(!ms.length){el.innerHTML='<div class="empty-state">Sin partidos para mostrar</div>';return;}
+
+  // Fase de grupos → agrupar por grupo A-L
+  if(phase==='groups'&&!ql){
+    const byGroup={};
+    ms.forEach(m=>{if(!byGroup[m.group])byGroup[m.group]=[];byGroup[m.group].push(m);});
+    const groups=Object.keys(byGroup).sort();
+    el.innerHTML=groups.map(g=>{
+      const rows=byGroup[g];
+      // Get the 4 teams in this group from the matches
+      const teams=[];
+      rows.forEach(m=>{if(!teams.includes(m.home))teams.push(m.home);if(!teams.includes(m.away))teams.push(m.away);});
+      const teamsLabel=teams.map(t=>tname(t)).join(' · ');
+      return `<div class="day-header">
+        <div class="day-label">Grupo ${g}</div>
+        <div class="day-rule"></div>
+      </div>
+      <div class="group-teams-strip">${teamsLabel}</div>`+
+      rows.map(m=>matchRowHTML(m,ql)).join('');
+    }).join('');
+    return;
+  }
+
+  // Todos / fase eliminatoria / búsqueda → agrupar por fecha
   const byDate={};
   ms.forEach(m=>{if(!byDate[m.date])byDate[m.date]=[];byDate[m.date].push(m);});
   const dates=Object.keys(byDate).sort();
-  const el=document.getElementById('matches-list');
-  if(!dates.length){el.innerHTML='<div class="empty-state">Sin partidos para mostrar</div>';return;}
   el.innerHTML=dates.map(date=>{
-    const rows=byDate[date];
     return `<div class="day-header"><div class="day-label">${fmtDate(date)}</div><div class="day-rule"></div></div>`+
-    rows.map(m=>{
-      const hi=ql&&(tname(m.home).toLowerCase().includes(ql)||tname(m.away).toLowerCase().includes(ql));
-      return `<div class="match-row${hi?' highlight':''}" onclick="">
-        <div class="m-home">
-          ${flag(m.home,32)}
-          <div class="m-home-info">
-            <div class="m-team-name">${tname(m.home)}</div>
-          </div>
-        </div>
-        <div class="m-center">
-          <div class="m-time${m.score?' score':''}">${m.score||m.time}</div>
-          ${m.scoreLabel?`<div class="m-status${m.scoreLive?' live':''}">${m.scoreLabel}</div>`:''}
-        </div>
-        <div class="m-away">
-          <div class="m-team-name">${tname(m.away)}</div>
-          ${flag(m.away,32)}
-        </div>
-        <div class="m-meta">
-          <span class="m-group">Grupo ${m.group}</span>
-          <span class="m-sep">·</span>
-          <span class="m-venue">${m.venue.split(',')[1]?m.venue.split(',')[1].trim():m.venue}</span>
-        </div>
-      </div>`;
-    }).join('');
+    byDate[date].map(m=>matchRowHTML(m,ql)).join('');
   }).join('');
 }
 
