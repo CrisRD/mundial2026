@@ -19,6 +19,7 @@
 <link rel="icon" type="image/png" href="Primerlogo.png">
 
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
 <style>
 :root {
   --gold:       #B8965A;
@@ -348,6 +349,14 @@ html, body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+.fc .fi {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+  display: block;
 }
 .fc svg { width: 32px; height: 32px; display: block; }
 .fc.lg { width: 40px; height: 40px; }
@@ -970,74 +979,17 @@ function flag(id, sz) {
   sz = sz || 32;
   const s = `width:${sz}px;height:${sz}px;`;
   const cls = `fc${sz===40?' lg':sz===56?' xl':''}`;
-  const svgs = {
-    usa:`<rect width="${sz}" height="${sz}" fill="#B22234"/><rect y="${sz*1/13}" width="${sz}" height="${sz/13}" fill="#fff"/><rect y="${sz*3/13}" width="${sz}" height="${sz/13}" fill="#fff"/><rect y="${sz*5/13}" width="${sz}" height="${sz/13}" fill="#fff"/><rect y="${sz*7/13}" width="${sz}" height="${sz/13}" fill="#fff"/><rect y="${sz*9/13}" width="${sz}" height="${sz/13}" fill="#fff"/><rect y="${sz*11/13}" width="${sz}" height="${sz/13}" fill="#fff"/><rect width="${sz*0.4}" height="${sz*0.54}" fill="#3C3B6E"/>`,
-    can:`<rect width="${sz}" height="${sz}" fill="#fff"/><rect width="${sz*0.25}" height="${sz}" fill="#FF0000"/><rect x="${sz*0.75}" width="${sz*0.25}" height="${sz}" fill="#FF0000"/><g transform="translate(${sz/2},${sz/2}) scale(${sz/100})"><path d="M 0,-36 L 4,-20 L 14,-24 L 9,-14 L 22,-16 L 16,-7 L 28,-2 L 16,4 L 20,13 L 8,9 L 6,22 L 0,15 L -6,22 L -8,9 L -20,13 L -16,4 L -28,-2 L -16,-7 L -22,-16 L -9,-14 L -14,-24 L -4,-20 Z M -2.5,15 L -2.5,32 L 2.5,32 L 2.5,15 Z" fill="#FF0000"/></g>`,
-    mex:`<rect width="${sz*0.33}" height="${sz}" fill="#006847"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#fff"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#CE1126"/>`,
-    uru:`<rect width="${sz}" height="${sz}" fill="#fff"/><rect y="${sz*0.11}" width="${sz}" height="${sz*0.11}" fill="#72AFDF"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.11}" fill="#72AFDF"/><rect y="${sz*0.55}" width="${sz}" height="${sz*0.11}" fill="#72AFDF"/><rect y="${sz*0.77}" width="${sz}" height="${sz*0.11}" fill="#72AFDF"/>`,
-    arg:`<rect width="${sz}" height="${sz}" fill="#74ACDF"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz*0.12}" fill="#F6B40E"/>`,
-    bra:`<rect width="${sz}" height="${sz}" fill="#009C3B"/><polygon points="${sz/2},${sz*0.13} ${sz*0.9},${sz/2} ${sz/2},${sz*0.87} ${sz*0.1},${sz/2}" fill="#FFDF00"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz*0.2}" fill="#002776"/>`,
-    esp:`<rect width="${sz}" height="${sz}" fill="#AA151B"/><rect y="${sz*0.25}" width="${sz}" height="${sz*0.5}" fill="#F1BF00"/>`,
-    mar:`<rect width="${sz}" height="${sz}" fill="#C1272D"/><polygon points="${sz/2},${sz*0.29} ${sz*0.55},${sz*0.43} ${sz*0.7},${sz*0.43} ${sz*0.58},${sz*0.53} ${sz*0.63},${sz*0.67} ${sz/2},${sz*0.58} ${sz*0.37},${sz*0.67} ${sz*0.42},${sz*0.53} ${sz*0.3},${sz*0.43} ${sz*0.45},${sz*0.43}" fill="none" stroke="#006233" stroke-width="${sz*0.035}"/>`,
-    por:`<rect width="${sz}" height="${sz}" fill="#ED0000"/><rect width="${sz*0.4}" height="${sz}" fill="#006600"/>`,
-    fra:`<rect width="${sz*0.33}" height="${sz}" fill="#0052A5"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#fff"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#EF4135"/>`,
-    ger:`<rect width="${sz}" height="${sz*0.33}" fill="#000"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#DD0000"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#FFCE00"/>`,
-    sco:`<rect width="${sz}" height="${sz}" fill="#003399"/><line x1="0" y1="0" x2="${sz}" y2="${sz}" stroke="#fff" stroke-width="${sz*0.14}"/><line x1="${sz}" y1="0" x2="0" y2="${sz}" stroke="#fff" stroke-width="${sz*0.14}"/>`,
-    sui:`<rect width="${sz}" height="${sz}" fill="#FF0000"/><rect x="${sz*0.42}" y="${sz*0.2}" width="${sz*0.16}" height="${sz*0.6}" fill="#fff"/><rect x="${sz*0.2}" y="${sz*0.42}" width="${sz*0.6}" height="${sz*0.16}" fill="#fff"/>`,
-    bel:`<rect width="${sz*0.33}" height="${sz}" fill="#000"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#FAE042"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#EF3340"/>`,
-    eng:`<rect width="${sz}" height="${sz}" fill="#fff"/><rect x="${sz*0.42}" y="0" width="${sz*0.16}" height="${sz}" fill="#CE1124"/><rect y="${sz*0.42}" width="${sz}" height="${sz*0.16}" fill="#CE1124"/>`,
-    ned:`<rect width="${sz}" height="${sz*0.33}" fill="#AE1C28"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#21468B"/>`,
-    aut:`<rect width="${sz}" height="${sz*0.33}" fill="#ED2939"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#ED2939"/>`,
-    tur:`<rect width="${sz}" height="${sz}" fill="#E30A17"/><circle cx="${sz*0.42}" cy="${sz/2}" r="${sz*0.19}" fill="#fff"/><circle cx="${sz*0.49}" cy="${sz/2}" r="${sz*0.15}" fill="#E30A17"/>`,
-    pol:`<rect width="${sz}" height="${sz*0.5}" fill="#fff"/><rect y="${sz*0.5}" width="${sz}" height="${sz*0.5}" fill="#DC143C"/>`,
-    cro:`<rect width="${sz}" height="${sz*0.33}" fill="#FF0000"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#0093DD"/>`,
-    jpn:`<rect width="${sz}" height="${sz}" fill="#fff"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz*0.22}" fill="#BC002D"/>`,
-    col:`<rect width="${sz}" height="${sz*0.5}" fill="#FCD116"/><rect y="${sz*0.5}" width="${sz}" height="${sz*0.25}" fill="#003893"/><rect y="${sz*0.75}" width="${sz}" height="${sz*0.25}" fill="#CE1126"/>`,
-    ksa:`<rect width="${sz}" height="${sz}" fill="#006C35"/>`,
-    gha:`<rect width="${sz}" height="${sz*0.33}" fill="#006B3F"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#FCD116"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#EF3340"/><polygon points="${sz/2},${sz*0.37} ${sz*0.54},${sz*0.47} ${sz*0.65},${sz*0.47} ${sz*0.57},${sz*0.54} ${sz*0.6},${sz*0.64} ${sz/2},${sz*0.58} ${sz*0.4},${sz*0.64} ${sz*0.43},${sz*0.54} ${sz*0.35},${sz*0.47} ${sz*0.46},${sz*0.47}" fill="#000"/>`,
-    kor:`<rect width="${sz}" height="${sz}" fill="#fff"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz*0.24}" fill="#CD2E3A"/><path d="M ${sz/2},${sz*0.26} A ${sz*0.12},${sz*0.12} 0 0,1 ${sz/2},${sz*0.5} A ${sz*0.12},${sz*0.12} 0 0,0 ${sz/2},${sz*0.74} A ${sz*0.24},${sz*0.24} 0 0,1 ${sz/2},${sz*0.26} Z" fill="#003478"/><circle cx="${sz/2}" cy="${sz*0.38}" r="${sz*0.12}" fill="#CD2E3A"/><circle cx="${sz/2}" cy="${sz*0.62}" r="${sz*0.12}" fill="#003478"/>`,
-    aus:`<rect width="${sz}" height="${sz}" fill="#00008B"/><rect width="${sz*0.5}" height="${sz*0.5}" fill="#012169"/><line x1="0" y1="0" x2="${sz*0.5}" y2="${sz*0.5}" stroke="#fff" stroke-width="${sz*0.12}"/><line x1="${sz*0.5}" y1="0" x2="0" y2="${sz*0.5}" stroke="#fff" stroke-width="${sz*0.12}"/><line x1="${sz*0.1}" y1="0" x2="${sz*0.1}" y2="${sz*0.5}" stroke="#CC0000" stroke-width="${sz*0.06}"/><line x1="0" y1="${sz*0.25}" x2="${sz*0.5}" y2="${sz*0.25}" stroke="#CC0000" stroke-width="${sz*0.06}"/>`,
-    sen:`<rect width="${sz*0.33}" height="${sz}" fill="#00853F"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#FDEF42"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#E31B23"/>`,
-    ecu:`<rect width="${sz}" height="${sz*0.5}" fill="#FFD100"/><rect y="${sz*0.5}" width="${sz}" height="${sz*0.25}" fill="#003DA5"/><rect y="${sz*0.75}" width="${sz}" height="${sz*0.25}" fill="#C8102E"/>`,
-    par:`<rect width="${sz}" height="${sz*0.33}" fill="#D52B1E"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#0038A8"/>`,
-    ven:`<rect width="${sz}" height="${sz*0.33}" fill="#CC0001"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#FFD700"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#003DA5"/>`,
-    bol:`<rect width="${sz}" height="${sz*0.33}" fill="#D52B1E"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#F4C430"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#007A3D"/>`,
-    cmr:`<rect width="${sz*0.33}" height="${sz}" fill="#007A5E"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#CE1126"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#FCD116"/>`,
-    cdi:`<rect width="${sz*0.33}" height="${sz}" fill="#F77F00"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#fff"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#009A44"/>`,
-    nzl:`<rect width="${sz}" height="${sz}" fill="#00247D"/><line x1="0" y1="0" x2="${sz*0.5}" y2="${sz*0.5}" stroke="#fff" stroke-width="${sz*0.12}"/><line x1="${sz*0.5}" y1="0" x2="0" y2="${sz*0.5}" stroke="#fff" stroke-width="${sz*0.12}"/><line x1="${sz*0.18}" y1="0" x2="${sz*0.18}" y2="${sz*0.5}" stroke="#CC0000" stroke-width="${sz*0.06}"/><line x1="0" y1="${sz*0.25}" x2="${sz*0.5}" y2="${sz*0.25}" stroke="#CC0000" stroke-width="${sz*0.06}"/>`,
-    ira:`<rect width="${sz}" height="${sz*0.33}" fill="#239f40"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#da0000"/>`,
-    rsa:`<rect width="${sz}" height="${sz*0.25}" fill="#E03C31"/><rect y="${sz*0.25}" width="${sz}" height="${sz*0.1}" fill="#fff"/><rect y="${sz*0.35}" width="${sz}" height="${sz*0.3}" fill="#007A4D"/><rect y="${sz*0.65}" width="${sz}" height="${sz*0.1}" fill="#fff"/><rect y="${sz*0.75}" width="${sz}" height="${sz*0.25}" fill="#001489"/><polygon points="0,0 0,${sz} ${sz*0.5},${sz/2}" fill="#000"/><polygon points="0,${sz*0.07} 0,${sz*0.93} ${sz*0.42},${sz/2}" fill="#FFB612"/><polygon points="0,${sz*0.16} 0,${sz*0.84} ${sz*0.34},${sz/2}" fill="#007A4D"/>`,
-    cze:`<rect width="${sz}" height="${sz*0.5}" fill="#fff"/><rect y="${sz*0.5}" width="${sz}" height="${sz*0.5}" fill="#D7141A"/><polygon points="0,0 ${sz*0.5},${sz/2} 0,${sz}" fill="#11457E"/>`,
-    bih:`<rect width="${sz}" height="${sz}" fill="#003DA5"/><polygon points="${sz*0.18},${sz} ${sz*0.82},0 ${sz},0 ${sz},${sz*0.18}" fill="#FCCA33"/><circle cx="${sz*0.2}" cy="${sz*0.91}" r="${sz*0.055}" fill="#fff"/><circle cx="${sz*0.3}" cy="${sz*0.74}" r="${sz*0.055}" fill="#fff"/><circle cx="${sz*0.4}" cy="${sz*0.57}" r="${sz*0.055}" fill="#fff"/><circle cx="${sz*0.5}" cy="${sz*0.4}" r="${sz*0.055}" fill="#fff"/><circle cx="${sz*0.6}" cy="${sz*0.23}" r="${sz*0.055}" fill="#fff"/><circle cx="${sz*0.7}" cy="${sz*0.06}" r="${sz*0.055}" fill="#fff"/>`,
-    qat:`<rect width="${sz}" height="${sz}" fill="#8D1B3D"/><polygon points="0,0 ${sz*0.25},0 ${sz*0.35},${sz*0.056} ${sz*0.25},${sz*0.111} ${sz*0.35},${sz*0.167} ${sz*0.25},${sz*0.222} ${sz*0.35},${sz*0.278} ${sz*0.25},${sz*0.333} ${sz*0.35},${sz*0.389} ${sz*0.25},${sz*0.444} ${sz*0.35},${sz*0.5} ${sz*0.25},${sz*0.556} ${sz*0.35},${sz*0.611} ${sz*0.25},${sz*0.667} ${sz*0.35},${sz*0.722} ${sz*0.25},${sz*0.778} ${sz*0.35},${sz*0.833} ${sz*0.25},${sz*0.889} ${sz*0.35},${sz*0.944} ${sz*0.25},${sz} 0,${sz}" fill="#fff"/>`,
-    hat:`<rect width="${sz}" height="${sz*0.5}" fill="#00209F"/><rect y="${sz*0.5}" width="${sz}" height="${sz*0.5}" fill="#D21034"/>`,
-    cur:`<rect width="${sz}" height="${sz}" fill="#002B7F"/><rect y="${sz*0.58}" width="${sz}" height="${sz*0.19}" fill="#F9E814"/><polygon points="${sz*0.28},${sz*0.11} ${sz*0.3},${sz*0.18} ${sz*0.37},${sz*0.18} ${sz*0.32},${sz*0.23} ${sz*0.34},${sz*0.3} ${sz*0.28},${sz*0.25} ${sz*0.22},${sz*0.3} ${sz*0.24},${sz*0.23} ${sz*0.19},${sz*0.18} ${sz*0.26},${sz*0.18}" fill="#fff"/><polygon points="${sz*0.48},${sz*0.06} ${sz*0.5},${sz*0.12} ${sz*0.56},${sz*0.12} ${sz*0.52},${sz*0.16} ${sz*0.54},${sz*0.22} ${sz*0.48},${sz*0.18} ${sz*0.42},${sz*0.22} ${sz*0.44},${sz*0.16} ${sz*0.4},${sz*0.12} ${sz*0.46},${sz*0.12}" fill="#fff"/>`,
-    tun:`<rect width="${sz}" height="${sz}" fill="#E70013"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz*0.3}" fill="#fff"/><circle cx="${sz/2}" cy="${sz/2}" r="${sz*0.24}" fill="#E70013"/>`,
-    swe:`<rect width="${sz}" height="${sz}" fill="#006AA7"/><rect x="${sz*0.31}" y="0" width="${sz*0.16}" height="${sz}" fill="#FECC02"/><rect y="${sz*0.42}" width="${sz}" height="${sz*0.16}" fill="#FECC02"/>`,
-    egy:`<rect width="${sz}" height="${sz*0.333}" fill="#CE1126"/><rect y="${sz*0.333}" width="${sz}" height="${sz*0.334}" fill="#fff"/><rect y="${sz*0.667}" width="${sz}" height="${sz*0.333}" fill="#000"/>`,
-    cpv:`<rect width="${sz}" height="${sz}" fill="#003893"/><rect y="${sz*0.55}" width="${sz}" height="${sz*0.1}" fill="#CE2028"/><rect y="${sz*0.7}" width="${sz}" height="${sz*0.1}" fill="#CE2028"/>`,
-    irq:`<rect width="${sz}" height="${sz*0.333}" fill="#CE1126"/><rect y="${sz*0.333}" width="${sz}" height="${sz*0.334}" fill="#fff"/><rect y="${sz*0.667}" width="${sz}" height="${sz*0.333}" fill="#000"/>`,
-    nor:`<rect width="${sz}" height="${sz}" fill="#EF2B2D"/><rect x="${sz*0.25}" y="0" width="${sz*0.16}" height="${sz}" fill="#fff"/><rect y="${sz*0.42}" width="${sz}" height="${sz*0.16}" fill="#fff"/><rect x="${sz*0.28}" y="0" width="${sz*0.1}" height="${sz}" fill="#002868"/><rect y="${sz*0.45}" width="${sz}" height="${sz*0.1}" fill="#002868"/>`,
-    alg:`<rect width="${sz*0.5}" height="${sz}" fill="#006233"/><rect x="${sz*0.5}" width="${sz*0.5}" height="${sz}" fill="#fff"/><circle cx="${sz*0.47}" cy="${sz/2}" r="${sz*0.2}" fill="#D21034"/><circle cx="${sz*0.53}" cy="${sz/2}" r="${sz*0.155}" fill="#006233"/>`,
-    jor:`<rect width="${sz}" height="${sz*0.333}" fill="#007A3D"/><rect y="${sz*0.333}" width="${sz}" height="${sz*0.334}" fill="#fff"/><rect y="${sz*0.667}" width="${sz}" height="${sz*0.333}" fill="#000"/><polygon points="0,0 ${sz*0.42},${sz/2} 0,${sz}" fill="#CE1126"/>`,
-    cod:`<rect width="${sz}" height="${sz}" fill="#007FFF"/><line x1="0" y1="${sz}" x2="${sz}" y2="0" stroke="#F7D618" stroke-width="${sz*0.18}"/><line x1="0" y1="${sz}" x2="${sz}" y2="0" stroke="#CE1021" stroke-width="${sz*0.1}"/>`,
-    uzb:`<rect width="${sz}" height="${sz*0.31}" fill="#1EB53A"/><rect y="${sz*0.31}" width="${sz}" height="${sz*0.05}" fill="#fff"/><rect y="${sz*0.36}" width="${sz}" height="${sz*0.28}" fill="#0099B5"/><rect y="${sz*0.64}" width="${sz}" height="${sz*0.05}" fill="#fff"/><rect y="${sz*0.69}" width="${sz}" height="${sz*0.31}" fill="#CE1126"/>`,
-    pan:`<rect width="${sz*0.5}" height="${sz*0.5}" fill="#fff"/><rect x="${sz*0.5}" width="${sz*0.5}" height="${sz*0.5}" fill="#D21034"/><rect y="${sz*0.5}" width="${sz*0.5}" height="${sz*0.5}" fill="#005293"/><rect x="${sz*0.5}" y="${sz*0.5}" width="${sz*0.5}" height="${sz*0.5}" fill="#fff"/>`,
-    den:`<rect width="${sz}" height="${sz}" fill="#C60C30"/><rect x="${sz*0.34}" y="0" width="${sz*0.16}" height="${sz}" fill="#fff"/><rect y="${sz*0.42}" width="${sz}" height="${sz*0.16}" fill="#fff"/>`,
-    ser:`<rect width="${sz}" height="${sz*0.33}" fill="#C6363C"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#0C4076"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#fff"/>`,
-    hun:`<rect width="${sz}" height="${sz*0.33}" fill="#CE2939"/><rect y="${sz*0.33}" width="${sz}" height="${sz*0.34}" fill="#fff"/><rect y="${sz*0.67}" width="${sz}" height="${sz*0.33}" fill="#477050"/>`,
-    per:`<rect width="${sz*0.33}" height="${sz}" fill="#D91023"/><rect x="${sz*0.33}" width="${sz*0.34}" height="${sz}" fill="#fff"/><rect x="${sz*0.67}" width="${sz*0.33}" height="${sz}" fill="#D91023"/>`,
-    chi:`<rect width="${sz}" height="${sz*0.5}" fill="#D52B1E"/><rect y="${sz*0.5}" width="${sz}" height="${sz*0.5}" fill="#fff"/><rect width="${sz*0.5}" height="${sz*0.5}" fill="#0035AD"/>`,
-  };
-  const inner = svgs[id];
-  if (!inner) {
-    const colors=['#2563EB','#DC2626','#16A34A','#D97706','#7C3AED','#0891B2'];
-    const h=id.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
-    const bc=colors[h%colors.length];
-    const lt=id.substring(0,2).toUpperCase();
-    return `<div class="${cls}" style="${s}"><svg viewBox="0 0 ${sz} ${sz}" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="fcc${id}${sz}"><circle cx="${sz/2}" cy="${sz/2}" r="${sz/2}"/></clipPath></defs><g clip-path="url(#fcc${id}${sz})"><rect width="${sz}" height="${sz}" fill="${bc}"/><text x="${sz/2}" y="${sz/2+4}" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="${sz*0.35}" font-weight="700" fill="rgba(255,255,255,0.9)">${lt}</text></g></svg></div>`;
+  const iso = {'usa':'us', 'can':'ca', 'mex':'mx', 'uru':'uy', 'arg':'ar', 'chi':'cl', 'per':'pe', 'bra':'br', 'esp':'es', 'mar':'ma', 'por':'pt', 'fra':'fr', 'ger':'de', 'sco':'gb-sct', 'sui':'ch', 'hun':'hu', 'bel':'be', 'eng':'gb-eng', 'ser':'rs', 'den':'dk', 'ned':'nl', 'aut':'at', 'tur':'tr', 'pol':'pl', 'cro':'hr', 'jpn':'jp', 'col':'co', 'ksa':'sa', 'gha':'gh', 'kor':'kr', 'aus':'au', 'sen':'sn', 'ecu':'ec', 'par':'py', 'ven':'ve', 'bol':'bo', 'cmr':'cm', 'cdi':'ci', 'nzl':'nz', 'ira':'ir', 'rsa':'za', 'cze':'cz', 'bih':'ba', 'qat':'qa', 'hat':'ht', 'cur':'cw', 'tun':'tn', 'swe':'se', 'cpv':'cv', 'irq':'iq', 'nor':'no', 'alg':'dz', 'jor':'jo', 'cod':'cd', 'uzb':'uz', 'pan':'pa', 'egy':'eg'};
+  const code = iso[id];
+  if (code) {
+    return `<div class="${cls}" style="${s}"><span class="fi fi-${code} fis" style="width:${sz}px;height:${sz}px;background-size:cover;"></span></div>`;
   }
-  return `<div class="${cls}" style="${s}"><svg viewBox="0 0 ${sz} ${sz}" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="fcc${id}${sz}"><circle cx="${sz/2}" cy="${sz/2}" r="${sz/2}"/></clipPath></defs><g clip-path="url(#fcc${id}${sz})">${inner}</g></svg></div>`;
+  // Fallback initials
+  const colors=['#2563EB','#DC2626','#16A34A','#D97706','#7C3AED','#0891B2'];
+  const h=id.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const bc=colors[h%colors.length];
+  const lt=id.substring(0,2).toUpperCase();
+  return `<div class="${cls}" style="${s}"><svg viewBox="0 0 ${sz} ${sz}" xmlns="http://www.w3.org/2000/svg"><defs><clipPath id="fcc${id}${sz}"><circle cx="${sz/2}" cy="${sz/2}" r="${sz/2}"/></clipPath></defs><g clip-path="url(#fcc${id}${sz})"><rect width="${sz}" height="${sz}" fill="${bc}"/><text x="${sz/2}" y="${sz/2+4}" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="${sz*0.35}" font-weight="700" fill="rgba(255,255,255,0.9)">${lt}</text></g></svg></div>`;
 }
 
 
