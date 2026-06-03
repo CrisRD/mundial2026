@@ -1638,25 +1638,23 @@ async function loadPlayerPhotos(teamLocalId, teamApiId){
   const team = TEAM_INFO[teamLocalId];
   if(!team || !team.squad) return 0;
   const norm = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-  let count = 0, page = 1, totalPages = 1;
-  do {
-    const data = await apiFetch(`/players?team=${teamApiId}&season=${WC_SEASON}&league=${WC_LEAGUE}&page=${page}`);
-    if(!data || !data.response) break;
-    totalPages = (data.paging && data.paging.total) || 1;
-    data.response.forEach(p => {
-      const apiName = norm(p.player.name);
-      const local = team.squad.find(s =>
-        norm(s.name).split(' ').some(w => w.length > 3 && apiName.includes(w))
-      );
-      if(local){
-        local.photo = p.player.photo;
-        local.age = p.player.age;
-        local.height = p.player.height;
-        count++;
-      }
-    });
-    page++;
-  } while(page <= totalPages && page <= 3);
+  // /players/squads: plantilla actual con foto, edad, dorsal y posición.
+  // No depende de temporada, así que responde ya (no como /players?season=2026).
+  const data = await apiFetch(`/players/squads?team=${teamApiId}`);
+  const players = data && data.response && data.response[0] && data.response[0].players;
+  if(!players || !players.length) return 0;
+  let count = 0;
+  players.forEach(p => {
+    const apiName = norm(p.name);
+    const local = team.squad.find(s =>
+      norm(s.name).split(' ').some(w => w.length > 3 && apiName.includes(w))
+    );
+    if(local){
+      if(p.photo) local.photo = p.photo;
+      if(p.age != null) local.age = p.age;
+      count++;
+    }
+  });
   return count;
 }
 
@@ -1666,11 +1664,19 @@ async function loadPlayerPhotos(teamLocalId, teamApiId){
 async function ensureSquadData(id){
   const t = TEAM_INFO[id], apiId = API_IDS[id];
   if(!t || !apiId || t._apiLoaded) return;
-  t._apiLoaded = true;
   showApiStatus('Cargando datos del equipo…');
-  const n = await loadPlayerPhotos(id, apiId);
-  hideApiStatus();
-  if(n > 0 && currentTeamId === id) openTeam(id);
+  let n = 0;
+  try { n = await loadPlayerPhotos(id, apiId); }
+  catch(e){ console.warn('Cargador:', e); }
+  if(n > 0){
+    t._apiLoaded = true;
+    showApiStatus(`Datos cargados (${n})`);
+    hideApiStatus();
+    if(currentTeamId === id) openTeam(id);
+  } else {
+    showApiStatus('La API no devolvió datos');
+    hideApiStatus();
+  }
 }
 
 function showApiStatus(msg){
