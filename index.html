@@ -979,7 +979,7 @@ function flag(id, sz) {
   sz = sz || 32;
   const s = `width:${sz}px;height:${sz}px;`;
   const cls = `fc${sz===40?' lg':sz===56?' xl':''}`;
-  const iso = {'usa':'us', 'can':'ca', 'mex':'mx', 'uru':'uy', 'arg':'ar', 'chi':'cl', 'per':'pe', 'bra':'br', 'esp':'es', 'mar':'ma', 'por':'pt', 'fra':'fr', 'ger':'de', 'sco':'gb-sct', 'sui':'ch', 'hun':'hu', 'bel':'be', 'eng':'gb-eng', 'ser':'rs', 'den':'dk', 'ned':'nl', 'aut':'at', 'tur':'tr', 'pol':'pl', 'cro':'hr', 'jpn':'jp', 'col':'co', 'ksa':'sa', 'gha':'gh', 'kor':'kr', 'aus':'au', 'sen':'sn', 'ecu':'ec', 'par':'py', 'ven':'ve', 'bol':'bo', 'cmr':'cm', 'cdi':'ci', 'nzl':'nz', 'ira':'ir', 'rsa':'za', 'cze':'cz', 'bih':'ba', 'qat':'qa', 'hat':'ht', 'cur':'cw', 'tun':'tn', 'swe':'se', 'cpv':'cv', 'irq':'iq', 'nor':'no', 'alg':'dz', 'jor':'jo', 'cod':'cd', 'uzb':'uz', 'pan':'pa', 'egy':'eg'};
+  const iso = {'usa':'us', 'can':'ca', 'mex':'mx', 'uru':'uy', 'arg':'ar', 'bra':'br', 'esp':'es', 'mar':'ma', 'por':'pt', 'fra':'fr', 'ger':'de', 'sco':'gb-sct', 'sui':'ch', 'bel':'be', 'eng':'gb-eng', 'ned':'nl', 'aut':'at', 'tur':'tr', 'cro':'hr', 'jpn':'jp', 'col':'co', 'ksa':'sa', 'gha':'gh', 'kor':'kr', 'aus':'au', 'sen':'sn', 'ecu':'ec', 'par':'py', 'cdi':'ci', 'nzl':'nz', 'ira':'ir', 'rsa':'za', 'cze':'cz', 'bih':'ba', 'qat':'qa', 'hat':'ht', 'cur':'cw', 'tun':'tn', 'swe':'se', 'cpv':'cv', 'irq':'iq', 'nor':'no', 'alg':'dz', 'jor':'jo', 'cod':'cd', 'uzb':'uz', 'pan':'pa', 'egy':'eg'};
   const code = iso[id];
   if (code) {
     return `<div class="${cls}" style="${s}"><span class="fi fi-${code} fis" style="width:${sz}px;height:${sz}px;background-size:cover;"></span></div>`;
@@ -998,132 +998,41 @@ function flag(id, sz) {
 // ══════════════════════════════════════
 const TEAM_INFO = {
   usa:{name:'Estados Unidos',group:'D',coach:'Mauricio Pochettino',titles:0,wcs:11,
-    squad:[{n:1,name:'Matt Turner',pos:'PO',club:'Nottingham Forest'},{n:12,name:'Chris Brady',pos:'PO',club:'Club Brugge'},{n:23,name:'Matt Freese',pos:'PO',club:'NYCFC'},{n:2,name:'Sergino Dest',pos:'DEF',club:'PSV'},{n:5,name:'Chris Richards',pos:'DEF',club:'Crystal Palace'},{n:6,name:'Miles Robinson',pos:'DEF',club:'FC Cincinnati'},{n:3,name:'Antonee Robinson',pos:'DEF',club:'Fulham'},{n:4,name:'Tim Ream',pos:'DEF',club:'Fulham'},{n:13,name:'Auston Trusty',pos:'DEF',club:'Celtic'},{n:14,name:'Alex Freeman',pos:'DEF',club:'Sin club'},{n:15,name:'Mark McKenzie',pos:'DEF',club:'Genk'},{n:16,name:'Joe Scally',pos:'DEF',club:'Mönchengladbach'},{n:8,name:'Tyler Adams',pos:'MED',club:'AFC Bournemouth'},{n:10,name:'Christian Pulisic',pos:'MED',club:'AC Milan'},{n:7,name:'Weston McKennie',pos:'MED',club:'Leeds'},{n:17,name:'Cristian Roldan',pos:'MED',club:'Seattle'},{n:18,name:'Sebastian Berhalter',pos:'MED',club:'Sin club'},{n:19,name:'Malik Tillman',pos:'MED',club:'PSV'},{n:9,name:'Gio Reyna',pos:'DEL',club:'Dortmund'},{n:11,name:'Brenden Aaronson',pos:'DEL',club:'Leeds'},{n:20,name:'Ricardo Pepi',pos:'DEL',club:'Groningen'},{n:21,name:'Haji Wright',pos:'DEL',club:'Antalyaspor'},{n:22,name:'Folarin Balogun',pos:'DEL',club:'Monaco'},{n:24,name:'Tim Weah',pos:'DEL',club:'Juventus'},{n:25,name:'Alex Zendejas',pos:'DEL',club:'Club América'},{n:26,name:'Max Arfsten',pos:'DEL',club:'Sin club'}]},
+    squad:[{n:1,name:'Matt Turner',pos:'PO',club:'New England Revolution'},{n:2,name:'Sergiño Dest',pos:'DEF',club:'PSV Eindhoven'},{n:3,name:'Chris Richards',pos:'DEF',club:'Crystal Palace'},{n:4,name:'Tyler Adams',pos:'MED',club:'AFC Bournemouth'},{n:5,name:'Antonee Robinson',pos:'DEF',club:'Fulham'},{n:6,name:'Auston Trusty',pos:'DEF',club:'Celtic'},{n:7,name:'Gio Reyna',pos:'DEL',club:'Borussia Mönchengladbach'},{n:8,name:'Weston McKennie',pos:'MED',club:'Juventus'},{n:9,name:'Ricardo Pepi',pos:'DEL',club:'PSV Eindhoven'},{n:10,name:'Christian Pulisic',pos:'MED',club:'AC Milan'},{n:11,name:'Brenden Aaronson',pos:'DEL',club:'Leeds United'},{n:12,name:'Miles Robinson',pos:'DEF',club:'FC Cincinnati'},{n:13,name:'Tim Ream',pos:'DEF',club:'Charlotte FC'},{n:14,name:'Sebastian Berhalter',pos:'MED',club:'Vancouver Whitecaps'},{n:15,name:'Cristian Roldan',pos:'MED',club:'Seattle Sounders'},{n:16,name:'Alex Freeman',pos:'DEF',club:'Villarreal'},{n:17,name:'Malik Tillman',pos:'MED',club:'Bayer Leverkusen'},{n:18,name:'Max Arfsten',pos:'DEL',club:'Columbus Crew'},{n:19,name:'Haji Wright',pos:'DEL',club:'Coventry City'},{n:20,name:'Folarin Balogun',pos:'DEL',club:'Monaco'},{n:21,name:'Timothy Weah',pos:'DEL',club:'Olympique Marseille'},{n:22,name:'Mark McKenzie',pos:'DEF',club:'Toulouse'},{n:23,name:'Joe Scally',pos:'DEF',club:'Borussia Mönchengladbach'},{n:24,name:'Matt Freese',pos:'PO',club:'New York City FC'},{n:25,name:'Chris Brady',pos:'PO',club:'Chicago Fire'},{n:26,name:'Alejandro Zendejas',pos:'DEL',club:'Club América'}]},
   can:{name:'Canadá',group:'B',coach:'Jesse Marsch',titles:0,wcs:3,
     squad:[{n:1,name:'Maxime Crépeau',pos:'PO',club:'Orlando City'},{n:12,name:'Dayne St. Clair',pos:'PO',club:'Inter Miami'},{n:23,name:'Owen Goodman',pos:'PO',club:'Barnsley'},{n:2,name:'Richie Laryea',pos:'DEF',club:'Toronto FC'},{n:5,name:'Kamal Miller',pos:'DEF',club:'Portland Timbers'},{n:6,name:'Derek Cornelius',pos:'DEF',club:'Rangers'},{n:3,name:'Joel Waterman',pos:'DEF',club:'Chicago Fire'},{n:4,name:'Ralph Priso',pos:'DEF',club:'Whitecaps'},{n:13,name:'Niko Sigur',pos:'DEF',club:'Hajduk Split'},{n:14,name:'Luc de Fougeroles',pos:'DEF',club:'Colorado Rapids'},{n:15,name:'J. Marshall-Rutty',pos:'DEF',club:'New York Red Bulls'},{n:8,name:'Ismaël Koné',pos:'MED',club:'Sassuolo'},{n:10,name:'Marcelo Flores',pos:'MED',club:'Tigres'},{n:7,name:'Junior Hoilett',pos:'MED',club:'Swindon'},{n:16,name:'Ali Ahmed',pos:'MED',club:'Norwich'},{n:17,name:'Nathan Saliba',pos:'MED',club:'Anderlecht'},{n:18,name:'Jonathan Osorio',pos:'MED',club:'Toronto FC'},{n:19,name:'Liam Millar',pos:'MED',club:'Hull City'},{n:20,name:'Mathieu Choinière',pos:'MED',club:'LAFC'},{n:9,name:'Jonathan David',pos:'DEL',club:'Juventus'},{n:11,name:'Tajon Buchanan',pos:'DEL',club:'Villarreal'},{n:21,name:'Cyle Larin',pos:'DEL',club:'Southampton'},{n:22,name:'Tani Oluwaseyi',pos:'DEL',club:'Villarreal'},{n:24,name:'Aribim Pepple',pos:'DEL',club:'Plymouth'},{n:25,name:'Daniel Jebbison',pos:'DEL',club:'Preston'},{n:26,name:'Jacen Russell-Rowe',pos:'DEL',club:'Toulouse'}]},
   mex:{name:'México',group:'A',coach:'Javier Aguirre',titles:0,wcs:17,
-    squad:[{n:1,name:'Guillermo Ochoa',pos:'PO',club:'Salernitana'},{n:12,name:'Luis Malagón',pos:'PO',club:'América'},{n:23,name:'Rodolfo Cota',pos:'PO',club:'Chivas'},{n:2,name:'Jorge Sánchez',pos:'DEF',club:'Ajax'},{n:5,name:'Johan Vásquez',pos:'DEF',club:'Génova'},{n:6,name:'César Montes',pos:'DEF',club:'Almería'},{n:3,name:'Jesús Gallardo',pos:'DEF',club:'Monterrey'},{n:4,name:'Gerardo Arteaga',pos:'DEF',club:'Getafe'},{n:13,name:'Israel Reyes',pos:'DEF',club:'América'},{n:14,name:'Gilberto Sepúlveda',pos:'DEF',club:'Guadalajara'},{n:15,name:'Kevin Álvarez',pos:'DEF',club:'Pachuca'},{n:16,name:'Alejandro Mayorga',pos:'DEF',club:'Cruz Azul'},{n:8,name:'Edson Álvarez',pos:'MED',club:'West Ham'},{n:10,name:'Rodolfo Pizarro',pos:'MED',club:'Inter Miami'},{n:7,name:'Hirving Lozano',pos:'MED',club:'PSV'},{n:17,name:'Uriel Antuna',pos:'MED',club:'Cruz Azul'},{n:18,name:'Luis Romo',pos:'MED',club:'Monterrey'},{n:19,name:'Carlos Rodríguez',pos:'MED',club:'Monterrey'},{n:20,name:'Orbelin Pineda',pos:'MED',club:'AEK Atenas'},{n:21,name:'Roberto Alvarado',pos:'MED',club:'Guadalajara'},{n:22,name:'Diego Lainez',pos:'MED',club:'Spartak Moscú'},{n:9,name:'Raúl Jiménez',pos:'DEL',club:'Fulham'},{n:11,name:'Henry Martín',pos:'DEL',club:'América'},{n:24,name:'Alexis Vega',pos:'DEL',club:'Guadalajara'},{n:25,name:'Santiago Giménez',pos:'DEL',club:'Feyenoord'},{n:26,name:'Alan Cervantes',pos:'DEL',club:'Pachuca'}]},
+    squad:[{n:1,name:'Raúl “Tala” Rangel',pos:'PO',club:'Guadalajara'},{n:2,name:'Jorge Sánchez',pos:'DEF',club:'PAOK'},{n:3,name:'César Montes',pos:'DEF',club:'Lokomotiv Moscow'},{n:4,name:'Edson Álvarez',pos:'MED',club:'Fenerbahçe'},{n:5,name:'Johan Vásquez',pos:'DEF',club:'Genoa'},{n:6,name:'Erik Lira',pos:'MED',club:'Cruz Azul'},{n:7,name:'Luis Romo',pos:'MED',club:'Guadalajara'},{n:8,name:'Álvaro Fidalgo',pos:'MED',club:'Real Betis'},{n:9,name:'Raúl Jiménez',pos:'DEL',club:'Fulham'},{n:10,name:'Alexis Vega',pos:'DEL',club:'Toluca'},{n:11,name:'Santiago Gimenez',pos:'DEL',club:'AC Milan'},{n:12,name:'Carlos Acevedo',pos:'PO',club:'Santos Laguna'},{n:13,name:'Guillermo Ochoa',pos:'PO',club:'AEL Limassol'},{n:14,name:'Armando “Hormiga” González',pos:'DEL',club:'Guadalajara'},{n:15,name:'Israel Reyes',pos:'DEF',club:'Club América'},{n:16,name:'Julián Quiñones',pos:'DEL',club:'Al-Qadisiyah'},{n:17,name:'Orbelín Pineda',pos:'MED',club:'AEK Athens'},{n:18,name:'Obed Vargas',pos:'MED',club:'Atlético de Madrid'},{n:19,name:'Gilberto Mora',pos:'MED',club:'Tijuana'},{n:20,name:'Mateo Chávez',pos:'DEF',club:'AZ Alkmaar'},{n:21,name:'César “Chino” Huerta',pos:'DEL',club:'Anderlecht'},{n:22,name:'Guillermo Martínez',pos:'DEL',club:'Pumas'},{n:23,name:'Jesús Gallardo',pos:'DEF',club:'Toluca'},{n:24,name:'Luis Chávez',pos:'MED',club:'Dynamo Moscow'},{n:25,name:'Roberto Alvarado',pos:'MED',club:'Guadalajara'},{n:26,name:'Brian Gutiérrez',pos:'MED',club:'Guadalajara'}]},
   uru:{name:'Uruguay',group:'H',coach:'Marcelo Bielsa',titles:2,wcs:14,
     squad:[{n:1,name:'Sergio Rochet',pos:'PO',club:'Nacional'},{n:12,name:'Sebastian Sosa',pos:'PO',club:'Independiente'},{n:23,name:'Augustín Rossi',pos:'PO',club:'Boca Juniors'},{n:2,name:'Matías Viña',pos:'DEF',club:'Flamingo'},{n:5,name:'José Giménez',pos:'DEF',club:'Atlético de Madrid'},{n:4,name:'Ronald Araújo',pos:'DEF',club:'Barcelona'},{n:3,name:'Mathías Olivera',pos:'DEF',club:'Nápoles'},{n:6,name:'Santiago Bueno',pos:'DEF',club:'Wolves'},{n:13,name:'Sebastián Coates',pos:'DEF',club:'Sporting'},{n:14,name:'Guillermo Varela',pos:'DEF',club:'Flamengo'},{n:15,name:'Lucas Olaza',pos:'DEF',club:'Argentinos Juniors'},{n:8,name:'Federico Valverde',pos:'MED',club:'Real Madrid'},{n:10,name:'Giorgian De Arrascaeta',pos:'MED',club:'Flamengo'},{n:7,name:'Rodrigo Bentancur',pos:'MED',club:'Tottenham'},{n:16,name:'Manuel Ugarte',pos:'MED',club:'Manchester United'},{n:17,name:'Nicolás De La Cruz',pos:'MED',club:'Flamengo'},{n:18,name:'Lucas Torreira',pos:'MED',club:'Galatasaray'},{n:19,name:'Facundo Pellistri',pos:'MED',club:'Manchester United'},{n:20,name:'Maximiliano Araújo',pos:'MED',club:'St. Louis City'},{n:9,name:'Darwin Núñez',pos:'DEL',club:'Liverpool'},{n:11,name:'Facundo Torres',pos:'DEL',club:'Inter Miami'},{n:21,name:'Maxi Gómez',pos:'DEL',club:'Rayo Vallecano'},{n:22,name:'Agustín Canobbio',pos:'DEL',club:'Athletico Paranaense'},{n:24,name:'Luciano Rodríguez',pos:'DEL',club:'Liverpool'},{n:25,name:'Matías Arezo',pos:'DEL',club:'Granada'},{n:26,name:'Brian Rodríguez',pos:'DEL',club:'LAFC'}]},
   arg:{name:'Argentina',group:'J',coach:'Lionel Scaloni',titles:3,wcs:18,
     squad:[{n:1,name:'Emiliano Martínez',pos:'PO',club:'Aston Villa'},{n:12,name:'Gerónimo Rulli',pos:'PO',club:'Marsella'},{n:23,name:'Juan Musso',pos:'PO',club:'Atlético de Madrid'},{n:4,name:'Gonzalo Montiel',pos:'DEF',club:'River Plate'},{n:2,name:'Nahuel Molina',pos:'DEF',club:'Atlético de Madrid'},{n:3,name:'Nicolás Tagliafico',pos:'DEF',club:'Lyon'},{n:13,name:'Cristian Romero',pos:'DEF',club:'Tottenham'},{n:19,name:'Nicolás Otamendi',pos:'DEF',club:'Benfica'},{n:14,name:'Lisandro Martínez',pos:'DEF',club:'Manchester United'},{n:6,name:'Leonardo Balerdi',pos:'DEF',club:'Marsella'},{n:21,name:'Facundo Medina',pos:'DEF',club:'Marsella'},{n:26,name:'Valentín Barco',pos:'MED',club:'Racing Estrasburgo'},{n:5,name:'Leandro Paredes',pos:'MED',club:'Boca Juniors'},{n:8,name:'Rodrigo De Paul',pos:'MED',club:'Inter Miami'},{n:20,name:'Alexis Mac Allister',pos:'MED',club:'Liverpool'},{n:7,name:'Enzo Fernández',pos:'MED',club:'Chelsea'},{n:18,name:'Exequiel Palacios',pos:'MED',club:'Leverkusen'},{n:17,name:'Giovani Lo Celso',pos:'MED',club:'Betis'},{n:10,name:'Lionel Messi',pos:'DEL',club:'Inter Miami'},{n:9,name:'Julián Álvarez',pos:'DEL',club:'Atlético de Madrid'},{n:22,name:'Lautaro Martínez',pos:'DEL',club:'Inter'},{n:11,name:'Nicolás González',pos:'DEL',club:'Atlético de Madrid'},{n:15,name:'Nicolás Paz',pos:'DEL',club:'Como'},{n:16,name:'Thiago Almada',pos:'DEL',club:'Atlético de Madrid'},{n:24,name:'Giuliano Simeone',pos:'DEL',club:'Atlético de Madrid'},{n:25,name:'José Manuel López',pos:'DEL',club:'Palmeiras'}]},
-  chi:{name:'Chile',group:'B',coach:'Ricardo Gareca',titles:2,wcs:9,
-    squad:[{n:1,name:'Claudio Bravo',pos:'PO'},{n:10,name:'Alexis Sánchez',pos:'DEL'},{n:8,name:'Charles Aránguiz',pos:'MED'},{n:6,name:'Erick Pulgar',pos:'MED'},{n:7,name:'Marcelino Núñez',pos:'MED'},{n:11,name:'Ben Brereton',pos:'DEL'},{n:3,name:'Guillermo Maripán',pos:'DEF'},{n:4,name:'Paulo Díaz',pos:'DEF'},{n:2,name:'Mauricio Isla',pos:'DEF'}]},
-  per:{name:'Perú',group:'B',coach:'Jorge Fossati',titles:0,wcs:5,
-    squad:[{n:1,name:'Pedro Gallese',pos:'PO'},{n:9,name:'Gianluca Lapadula',pos:'DEL'},{n:10,name:'Christian Cueva',pos:'MED'},{n:8,name:'Renato Tapia',pos:'MED'},{n:6,name:'Yoshimar Yotún',pos:'MED'},{n:2,name:'Luis Advíncula',pos:'DEF'},{n:3,name:'Miguel Trauco',pos:'DEF'},{n:4,name:'Alexander Callens',pos:'DEF'},{n:11,name:'Andy Polo',pos:'DEL'},{n:7,name:'Edison Flores',pos:'DEL'}]},
   bra:{name:'Brasil',group:'C',coach:'Carlo Ancelotti',titles:5,wcs:22,
-    squad:[
-      {n:1,name:'Alisson',pos:'PO',club:'Liverpool'},
-      {n:12,name:'Ederson',pos:'PO',club:'Manchester City'},
-      {n:23,name:'Bento',pos:'PO',club:'Al-Qadsiah'},
-      {n:2,name:'Danilo',pos:'DEF',club:'Botafogo'},
-      {n:6,name:'Alex Sandro',pos:'DEF',club:'Flamengo'},
-      {n:3,name:'Marquinhos',pos:'DEF',club:'PSG'},
-      {n:4,name:'Bremer',pos:'DEF',club:'Juventus'},
-      {n:13,name:'Gabriel Magalhães',pos:'DEF',club:'Arsenal'},
-      {n:14,name:'Léo Pereira',pos:'DEF',club:'Flamengo'},
-      {n:22,name:'Wesley',pos:'DEF',club:'Roma'},
-      {n:5,name:'Casemiro',pos:'MED',club:'Manchester United'},
-      {n:8,name:'Bruno Guimarães',pos:'MED',club:'Newcastle'},
-      {n:15,name:'Fabinho',pos:'MED',club:'Al-Ittihad'},
-      {n:20,name:'Lucas Paquetá',pos:'MED',club:'Flamengo'},
-      {n:16,name:'Danilo',pos:'MED',club:'Botafogo'},
-      {n:7,name:'Vinícius Jr.',pos:'DEL',club:'Real Madrid'},
-      {n:11,name:'Raphinha',pos:'DEL',club:'Barcelona'},
-      {n:10,name:'Neymar',pos:'DEL',club:'Santos'},
-      {n:9,name:'Endrick',pos:'DEL',club:'Olympique Lyon'},
-      {n:19,name:'Gabriel Martinelli',pos:'DEL',club:'Arsenal'},
-      {n:17,name:'Matheus Cunha',pos:'DEL',club:'Manchester United'},
-      {n:18,name:'Igor Thiago',pos:'DEL',club:'Brentford'},
-      {n:21,name:'Luiz Henrique',pos:'DEL',club:'Zenit'},
-      {n:24,name:'Rayan',pos:'DEL',club:'Bournemouth'},
-      {n:25,name:'Rodrygo',pos:'DEL',club:'Real Madrid'}
-    ]},
+    squad:[{n:1,name:'Alisson',pos:'PO',club:'Liverpool'},{n:2,name:'Wesley',pos:'DEF',club:'Roma'},{n:3,name:'Gabriel Magalhães',pos:'DEF',club:'Arsenal'},{n:4,name:'Marquinhos',pos:'DEF',club:'Paris Saint-Germain'},{n:5,name:'Casemiro',pos:'MED',club:'Manchester United'},{n:6,name:'Alex Sandro',pos:'DEF',club:'Flamengo'},{n:7,name:'Vinicius Jr.',pos:'DEL',club:'Real Madrid'},{n:8,name:'Bruno Guimarães',pos:'MED',club:'Newcastle United'},{n:9,name:'Matheus Cunha',pos:'DEL',club:'Manchester United'},{n:10,name:'Neymar Jr.',pos:'DEL',club:'Santos'},{n:11,name:'Raphinha',pos:'DEL',club:'Barcelona'},{n:12,name:'Weverton',pos:'PO',club:'Grêmio'},{n:13,name:'Danilo',pos:'DEF',club:'Flamengo'},{n:14,name:'Bremer',pos:'DEF',club:'Juventus'},{n:15,name:'Léo Pereira',pos:'DEF',club:'Flamengo'},{n:16,name:'Douglas Santos',pos:'DEF',club:'Zenit'},{n:17,name:'Fabinho',pos:'MED',club:'Al-Ittihad'},{n:18,name:'Danilo Santos',pos:'MED',club:'Botafogo'},{n:19,name:'Endrick',pos:'DEL',club:'Lyon'},{n:20,name:'Lucas Paquetá',pos:'MED',club:'Flamengo'},{n:21,name:'Luiz Henrique',pos:'DEL',club:'Zenit'},{n:22,name:'Gabriel Martinelli',pos:'DEL',club:'Arsenal'},{n:23,name:'Ederson',pos:'PO',club:'Fenerbahçe'},{n:24,name:'Ibañez',pos:'DEF',club:'Al-Ahli'},{n:25,name:'Igor Thiago',pos:'DEL',club:'Brentford'},{n:26,name:'Rayan',pos:'DEL',club:'Bournemouth'}]},
   esp:{name:'España',group:'H',coach:'Luis de la Fuente',titles:1,wcs:15,
-    squad:[
-      {n:1,name:'Unai Simón',pos:'PO',club:'Athletic Club'},
-      {n:2,name:'David Raya',pos:'PO',club:'Arsenal'},
-      {n:3,name:'Joan García',pos:'PO',club:'Barcelona'},
-      {n:4,name:'Marc Cucurella',pos:'DEF',club:'Chelsea'},
-      {n:5,name:'Alejandro Grimaldo',pos:'DEF',club:'Leverkusen'},
-      {n:6,name:'Marc Pubill',pos:'DEF',club:'Almería'},
-      {n:7,name:'Eric García',pos:'DEF',club:'Barcelona'},
-      {n:8,name:'Aymeric Laporte',pos:'DEF',club:'Athletic Club'},
-      {n:9,name:'Pau Cubarsí',pos:'DEF',club:'Barcelona'},
-      {n:10,name:'Marcos Llorente',pos:'DEF',club:'Atlético de Madrid'},
-      {n:11,name:'Pedro Porro',pos:'DEF',club:'Tottenham'},
-      {n:12,name:'Pedri',pos:'MED',club:'Barcelona'},
-      {n:13,name:'Fabián Ruiz',pos:'MED',club:'PSG'},
-      {n:14,name:'Martín Zubimendi',pos:'MED',club:'Arsenal'},
-      {n:15,name:'Gavi',pos:'MED',club:'Barcelona'},
-      {n:16,name:'Rodri',pos:'MED',club:'Manchester City'},
-      {n:17,name:'Mikel Merino',pos:'MED',club:'Arsenal'},
-      {n:18,name:'Álex Baena',pos:'MED',club:'Atlético de Madrid'},
-      {n:19,name:'Mikel Oyarzabal',pos:'DEL',club:'Real Sociedad'},
-      {n:20,name:'Dani Olmo',pos:'DEL',club:'Barcelona'},
-      {n:21,name:'Nico Williams',pos:'DEL',club:'Athletic Club'},
-      {n:22,name:'Yeremy Pino',pos:'DEL',club:'Villarreal'},
-      {n:23,name:'Ferran Torres',pos:'DEL',club:'Barcelona'},
-      {n:24,name:'Borja Iglesias',pos:'DEL',club:'Celta'},
-      {n:25,name:'Víctor Muñoz',pos:'DEL',club:'Osasuna'},
-      {n:26,name:'Lamine Yamal',pos:'DEL',club:'Barcelona'}
-    ]},
+    squad:[{n:1,name:'David Raya',pos:'PO',club:'Arsenal'},{n:2,name:'Marc Pubill',pos:'DEF',club:'Atlético de Madrid'},{n:3,name:'Álex Grimaldo',pos:'DEF',club:'Bayer Leverkusen'},{n:4,name:'Eric García',pos:'DEF',club:'Barcelona'},{n:5,name:'Marcos Llorente',pos:'DEF',club:'Atlético de Madrid'},{n:6,name:'Mikel Merino',pos:'MED',club:'Arsenal'},{n:7,name:'Ferran Torres',pos:'DEL',club:'Barcelona'},{n:8,name:'Fabián Ruiz',pos:'MED',club:'Paris Saint-Germain'},{n:9,name:'Gavi',pos:'MED',club:'Barcelona'},{n:10,name:'Dani Olmo',pos:'DEL',club:'Barcelona'},{n:11,name:'Yeremy Pino',pos:'DEL',club:'Crystal Palace'},{n:12,name:'Pedro Porro',pos:'DEF',club:'Tottenham Hotspur'},{n:13,name:'Joan Garcia',pos:'PO',club:'Barcelona'},{n:14,name:'Aymeric Laporte',pos:'DEF',club:'Athletic Club'},{n:15,name:'Álex Baena',pos:'MED',club:'Atlético de Madrid'},{n:16,name:'Rodri',pos:'MED',club:'Manchester City'},{n:17,name:'Nico Williams',pos:'DEL',club:'Athletic Club'},{n:18,name:'Martín Zubimendi',pos:'MED',club:'Arsenal'},{n:19,name:'Lamine Yamal',pos:'DEL',club:'Barcelona'},{n:20,name:'Pedri',pos:'MED',club:'Barcelona'},{n:21,name:'Mikel Oyarzabal',pos:'DEL',club:'Real Sociedad'},{n:22,name:'Pau Cubarsí',pos:'DEF',club:'Barcelona'},{n:23,name:'Unai Simón',pos:'PO',club:'Athletic Club'},{n:24,name:'Marc Cucurella',pos:'DEF',club:'Chelsea'},{n:25,name:'Víctor Muñoz',pos:'DEL',club:'Osasuna'},{n:26,name:'Borja Iglesias',pos:'DEL',club:'Celta'}]},
   mar:{name:'Marruecos',group:'C',coach:'Walid Regragui',titles:0,wcs:6,
     squad:[{n:1,name:'Yassine Bounou',pos:'PO',club:'Al-Hilal'},{n:12,name:'Ahmed Reda Tagnaouti',pos:'PO',club:'FAR'},{n:23,name:'Munir El Kajoui',pos:'PO',club:'Berkane'},{n:2,name:'Achraf Hakimi',pos:'DEF',club:'PSG'},{n:5,name:'Nayef Aguerd',pos:'DEF',club:'Crystal Palace'},{n:6,name:'Romain Saïss',pos:'DEF',club:'Al-Shabab'},{n:3,name:'Noussair Mazraoui',pos:'DEF',club:'Manchester United'},{n:4,name:'Jawad El Yamiq',pos:'DEF',club:'Real Valladolid'},{n:13,name:'Badr Benoun',pos:'DEF',club:'Qatar SC'},{n:14,name:'Yahia Attiat-Allah',pos:'DEF',club:'Wydad'},{n:8,name:'Sofyan Amrabat',pos:'MED',club:'Man United'},{n:10,name:'Hakim Ziyech',pos:'MED',club:'Galatasaray'},{n:7,name:'Azzedine Ounahi',pos:'MED',club:'Olympique Marsella'},{n:15,name:'Selim Amallah',pos:'MED',club:'Estrasburgo'},{n:16,name:'Bilal El Khannouss',pos:'MED',club:'Genk'},{n:17,name:'Abde Ezzalzouli',pos:'MED',club:'Betis'},{n:18,name:'Ilias Chair',pos:'MED',club:'Leicester'},{n:9,name:'Youssef En-Nesyri',pos:'DEL',club:'Fenerbahce'},{n:11,name:'Sofiane Boufal',pos:'DEL',club:'Angers'},{n:19,name:'Ayoub El Kaabi',pos:'DEL',club:'Olympiakos'},{n:20,name:'Abderrazak Hamdallah',pos:'DEL',club:'Al-Ittihad'},{n:21,name:'Ibrahim Diaz',pos:'DEL',club:'Levante'},{n:22,name:'Zakaria Aboukhlal',pos:'DEL',club:'Toulouse'},{n:24,name:'Ilyass Bouzok',pos:'DEL',club:'NEC Nijmegen'},{n:25,name:'Ryan Mmaee',pos:'DEL',club:'Sparta Praga'},{n:26,name:'Amine Harit',pos:'MED',club:'Marsella'}]},
   por:{name:'Portugal',group:'K',coach:'Roberto Martínez',titles:1,wcs:8,
-    squad:[{n:1,name:'Diogo Costa',pos:'PO',club:'Porto'},{n:12,name:'Rui Silva',pos:'PO',club:'Betis'},{n:23,name:'José Sá',pos:'PO',club:'Wolverhampton'},{n:2,name:'João Cancelo',pos:'DEF',club:'Barcelona'},{n:5,name:'Rúben Dias',pos:'DEF',club:'Manchester City'},{n:6,name:'Danilo Pereira',pos:'DEF',club:'Al-Qadsiah'},{n:3,name:'Nuno Mendes',pos:'DEF',club:'PSG'},{n:4,name:'Gonçalo Inácio',pos:'DEF',club:'Sporting'},{n:13,name:'António Silva',pos:'DEF',club:'Benfica'},{n:14,name:'Diogo Dalot',pos:'DEF',club:'Manchester United'},{n:15,name:'Nelson Semedo',pos:'DEF',club:'Wolverhampton'},{n:8,name:'Bruno Fernandes',pos:'MED',club:'Manchester United'},{n:10,name:'Bernardo Silva',pos:'MED',club:'Manchester City'},{n:7,name:'Cristiano Ronaldo',pos:'DEL',club:'Al-Nassr'},{n:16,name:'Vitinha',pos:'MED',club:'PSG'},{n:17,name:'João Neves',pos:'MED',club:'PSG'},{n:18,name:'Rúben Neves',pos:'MED',club:'Al-Hilal'},{n:19,name:'Palhinha',pos:'MED',club:'Bayern Munich'},{n:20,name:'Matheus Nunes',pos:'MED',club:'Manchester City'},{n:9,name:'Gonçalo Ramos',pos:'DEL',club:'PSG'},{n:11,name:'Rafael Leão',pos:'DEL',club:'AC Milan'},{n:21,name:'Pedro Neto',pos:'DEL',club:'Chelsea'},{n:22,name:'Francisco Conceição',pos:'DEL',club:'Juventus'},{n:24,name:'Diogo Jota',pos:'DEL',club:'Liverpool'},{n:25,name:'João Félix',pos:'DEL',club:'Chelsea'},{n:26,name:'Fábio Silva',pos:'DEL',club:'Las Palmas'}]},
+    squad:[{n:1,name:'Diogo Costa',pos:'PO',club:'Porto'},{n:2,name:'Nélson Semedo',pos:'DEF',club:'Fenerbahçe'},{n:3,name:'Rúben Dias',pos:'DEF',club:'Manchester City'},{n:4,name:'Tomás Araújo',pos:'DEF',club:'Benfica'},{n:5,name:'Diogo Dalot',pos:'DEF',club:'Manchester United'},{n:6,name:'Matheus Nunes',pos:'MED',club:'Manchester City'},{n:7,name:'Cristiano Ronaldo',pos:'DEL',club:'Al-Nassr'},{n:8,name:'Bruno Fernandes',pos:'MED',club:'Manchester United'},{n:9,name:'Gonçalo Ramos',pos:'DEL',club:'Paris Saint-Germain'},{n:10,name:'Bernardo Silva',pos:'MED',club:'Manchester City'},{n:11,name:'João Félix',pos:'DEL',club:'Al-Nassr'},{n:12,name:'José Sá',pos:'PO',club:'Wolverhampton Wanderers'},{n:13,name:'Renato Veiga',pos:'DEF',club:'Villarreal'},{n:14,name:'Gonçalo Inácio',pos:'DEF',club:'Sporting CP'},{n:15,name:'João Neves',pos:'MED',club:'Paris Saint-Germain'},{n:16,name:'Francisco Trincão',pos:'DEL',club:'Sporting CP'},{n:17,name:'Rafael Leão',pos:'DEL',club:'AC Milan'},{n:18,name:'Pedro Neto',pos:'DEL',club:'Chelsea'},{n:19,name:'Gonçalo Guedes',pos:'DEL',club:'Real Sociedad'},{n:20,name:'João Cancelo',pos:'DEF',club:'Barcelona'},{n:21,name:'Rúben Neves',pos:'MED',club:'Al-Hilal'},{n:22,name:'Rui Silva',pos:'PO',club:'Sporting CP'},{n:23,name:'Vitinha',pos:'MED',club:'Paris Saint-Germain'},{n:24,name:'Samu Costa',pos:'MED',club:'Mallorca'},{n:25,name:'Nuno Mendes',pos:'DEF',club:'Paris Saint-Germain'},{n:26,name:'Francisco Conceição',pos:'DEL',club:'Juventus'}]},
   fra:{name:'Francia',group:'I',coach:'Didier Deschamps',titles:2,wcs:16,
     squad:[{n:1,name:'Mike Maignan',pos:'PO',club:'AC Milan'},{n:16,name:'Brice Samba',pos:'PO',club:'Lens'},{n:23,name:'Robin Risser',pos:'PO',club:'Lille'},{n:2,name:'Malo Gusto',pos:'DEF',club:'Chelsea'},{n:5,name:'William Saliba',pos:'DEF',club:'Arsenal'},{n:6,name:'Ibrahima Konaté',pos:'DEF',club:'Liverpool'},{n:3,name:'Theo Hernández',pos:'DEF',club:'AC Milan'},{n:4,name:'Dayot Upamecano',pos:'DEF',club:'Bayern Munich'},{n:13,name:'Jules Koundé',pos:'DEF',club:'Barcelona'},{n:14,name:'Lucas Hernández',pos:'DEF',club:'PSG'},{n:15,name:'Lucas Digne',pos:'DEF',club:'Aston Villa'},{n:17,name:'Maxence Lacroix',pos:'DEF',club:'Wolfsburgo'},{n:8,name:'Aurélien Tchouaméni',pos:'MED',club:'Real Madrid'},{n:10,name:'Kylian Mbappé',pos:'DEL',club:'Real Madrid'},{n:7,name:'Ousmane Dembélé',pos:'DEL',club:'PSG'},{n:18,name:'Adrien Rabiot',pos:'MED',club:'Marsella'},{n:19,name:'N`Golo Kanté',pos:'MED',club:'Al-Ittihad'},{n:20,name:'Manu Koné',pos:'MED',club:'Roma'},{n:21,name:'Warren Zaïre-Emery',pos:'MED',club:'PSG'},{n:9,name:'Randal Kolo Muani',pos:'DEL',club:'Juventus'},{n:11,name:'Marcus Thuram',pos:'DEL',club:'Inter'},{n:22,name:'Bradley Barcola',pos:'DEL',club:'PSG'},{n:24,name:'Michael Olise',pos:'DEL',club:'Bayern Munich'},{n:25,name:'Maghnes Akliouche',pos:'DEL',club:'Monaco'},{n:26,name:'Désiré Doué',pos:'DEL',club:'PSG'},{n:17,name:'Rayan Cherki',pos:'DEL',club:'Liverpool'}]},
   ger:{name:'Alemania',group:'E',coach:'Julian Nagelsmann',titles:4,wcs:20,
-    squad:[{n:1,name:'Oliver Baumann',pos:'PO',club:'Hoffenheim'},{n:12,name:'Manuel Neuer',pos:'PO',club:'Bayern Munich'},{n:23,name:'Alexander Nübel',pos:'PO',club:'Stuttgart'},{n:2,name:'Joshua Kimmich',pos:'DEF',club:'Bayern Munich'},{n:5,name:'Antonio Rüdiger',pos:'DEF',club:'Real Madrid'},{n:4,name:'Jonathan Tah',pos:'DEF',club:'Bayern Munich'},{n:3,name:'David Raum',pos:'DEF',club:'RB Leipzig'},{n:6,name:'Nico Schlotterbeck',pos:'DEF',club:'Dortmund'},{n:7,name:'Waldemar Anton',pos:'DEF',club:'Dortmund'},{n:15,name:'Nathaniel Brown',pos:'DEF',club:'Eintracht Frankfurt'},{n:16,name:'Malick Thiaw',pos:'DEF',club:'Newcastle'},{n:8,name:'Jamal Musiala',pos:'MED',club:'Bayern Munich'},{n:10,name:'Florian Wirtz',pos:'MED',club:'Liverpool'},{n:14,name:'Aleksandar Pavlovic',pos:'MED',club:'Bayern Munich'},{n:18,name:'Leon Goretzka',pos:'MED',club:'Bayern Munich'},{n:19,name:'Pascal Groß',pos:'MED',club:'Brighton'},{n:20,name:'Felix Nmecha',pos:'MED',club:'Dortmund'},{n:21,name:'Angelo Stiller',pos:'MED',club:'Stuttgart'},{n:22,name:'Nadiem Amiri',pos:'MED',club:'Maguncia'},{n:11,name:'Kai Havertz',pos:'DEL',club:'Arsenal'},{n:9,name:'Maximilian Beier',pos:'DEL',club:'Dortmund'},{n:17,name:'Leroy Sané',pos:'DEL',club:'Galatasaray'},{n:13,name:'Deniz Undav',pos:'DEL',club:'Stuttgart'},{n:24,name:'Florian Wirtz',pos:'DEL',club:'Liverpool'},{n:25,name:'Nick Woltemade',pos:'DEL',club:'Newcastle'},{n:26,name:'Jamie Leweling',pos:'DEL',club:'Stuttgart'}]},
+    squad:[{n:1,name:'Manuel Neuer',pos:'PO',club:'Bayern Munich'},{n:2,name:'Antonio Rüdiger',pos:'DEF',club:'Real Madrid'},{n:3,name:'Waldemar Anton',pos:'DEF',club:'Borussia Dortmund'},{n:4,name:'Jonathan Tah',pos:'DEF',club:'Bayern Munich'},{n:5,name:'Aleksandar Pavlovic',pos:'MED',club:'Bayern Munich'},{n:6,name:'Joshua Kimmich',pos:'DEF',club:'Bayern Munich'},{n:7,name:'Kai Havertz',pos:'DEL',club:'Arsenal'},{n:8,name:'Leon Goretzka',pos:'MED',club:'Bayern Munich'},{n:9,name:'Jamie Leweling',pos:'DEL',club:'VfB Stuttgart'},{n:10,name:'Jamal Musiala',pos:'MED',club:'Bayern Munich'},{n:11,name:'Nick Woltemade',pos:'DEL',club:'Newcastle United'},{n:12,name:'Oliver Baumann',pos:'PO',club:'TSG Hoffenheim'},{n:13,name:'Pascal Groß',pos:'MED',club:'Brighton & Hove Albion'},{n:14,name:'Maximilian Beier',pos:'DEL',club:'Borussia Dortmund'},{n:15,name:'Nico Schlotterbeck',pos:'DEF',club:'Borussia Dortmund'},{n:16,name:'Angelo Stiller',pos:'MED',club:'VfB Stuttgart'},{n:17,name:'Florian Wirtz',pos:'MED',club:'Liverpool'},{n:18,name:'Nathaniel Brown',pos:'DEF',club:'Eintracht Frankfurt'},{n:19,name:'Leroy Sané',pos:'DEL',club:'Galatasaray'},{n:20,name:'Nadiem Amiri',pos:'MED',club:'Mainz 05'},{n:21,name:'Alexander Nübel',pos:'PO',club:'VfB Stuttgart'},{n:22,name:'David Raum',pos:'DEF',club:'RB Leipzig'},{n:23,name:'Felix Nmecha',pos:'MED',club:'Borussia Dortmund'},{n:24,name:'Malick Thiaw',pos:'DEF',club:'Newcastle United'},{n:25,name:'Lennart Karl',pos:'DEL',club:'Bayern Munich'},{n:26,name:'Deniz Undav',pos:'DEL',club:'VfB Stuttgart'}]},
   sco:{name:'Escocia',group:'C',coach:'Steve Clarke',titles:0,wcs:8,
     squad:[{n:1,name:'Angus Gunn',pos:'PO',club:'Norwich'},{n:12,name:'Craig Gordon',pos:'PO',club:'Hearts'},{n:23,name:'Liam Kelly',pos:'PO',club:'Motherwell'},{n:2,name:'Anthony Ralston',pos:'DEF',club:'Celtic'},{n:5,name:'Grant Hanley',pos:'DEF',club:'Norwich'},{n:6,name:'Scott McKenna',pos:'DEF',club:'Nottingham Forest'},{n:3,name:'Andy Robertson',pos:'DEF',club:'Liverpool'},{n:4,name:'John Souttar',pos:'DEF',club:'Rangers'},{n:13,name:'Jack Hendry',pos:'DEF',club:'Club Brugge'},{n:14,name:'Aaron Hickey',pos:'DEF',club:'Brentford'},{n:15,name:'Nathan Patterson',pos:'DEF',club:'Everton'},{n:16,name:'Kieran Tierney',pos:'DEF',club:'Arsenal'},{n:17,name:'Dominic Hyam',pos:'DEF',club:'Coventry'},{n:8,name:'Scott McTominay',pos:'MED',club:'Nápoles'},{n:10,name:'John McGinn',pos:'MED',club:'Aston Villa'},{n:7,name:'Billy Gilmour',pos:'MED',club:'Brighton'},{n:18,name:'Kenny McLean',pos:'MED',club:'Norwich'},{n:19,name:'Lewis Ferguson',pos:'MED',club:'Bologna'},{n:20,name:'Ryan Christie',pos:'MED',club:'Bournemouth'},{n:21,name:'Findlay Curtis',pos:'MED',club:'Kilmarnock'},{n:22,name:'Ben Gannon-Doak',pos:'MED',club:'Celtic'},{n:9,name:'Lawrence Shankland',pos:'DEL',club:'Hearts'},{n:11,name:'Che Adams',pos:'DEL',club:'Southampton'},{n:24,name:'Ross Stewart',pos:'DEL',club:'Sunderland'},{n:25,name:'Lyndon Dykes',pos:'DEL',club:'QPR'},{n:26,name:'George Hirst',pos:'DEL',club:'Leicester'}]},
   sui:{name:'Suiza',group:'B',coach:'Murat Yakin',titles:0,wcs:12,
     squad:[{n:1,name:'Yann Sommer',pos:'PO',club:'Inter'},{n:12,name:'Gregor Kobel',pos:'PO',club:'Dortmund'},{n:23,name:'Philipp Köhn',pos:'PO',club:'Monaco'},{n:2,name:'Silvan Widmer',pos:'DEF',club:'Mainz'},{n:5,name:'Manuel Akanji',pos:'DEF',club:'Manchester City'},{n:6,name:'Fabian Schär',pos:'DEF',club:'Newcastle'},{n:3,name:'Ricardo Rodríguez',pos:'DEF',club:'Torino'},{n:4,name:'Leonidas Stergiou',pos:'DEF',club:'Stuttgart'},{n:13,name:'Nico Elvedi',pos:'DEF',club:'Mönchengladbach'},{n:14,name:'Kevin Mbabu',pos:'DEF',club:'Augsburg'},{n:15,name:'Edimilson Fernandes',pos:'MED',club:'Mainz'},{n:8,name:'Granit Xhaka',pos:'MED',club:'Bayer Leverkusen'},{n:10,name:'Xherdan Shaqiri',pos:'MED',club:'Chicago Fire'},{n:7,name:'Remo Freuler',pos:'MED',club:'Bologna'},{n:16,name:'Djibril Sow',pos:'MED',club:'Eintracht Frankfurt'},{n:17,name:'Denis Zakaria',pos:'MED',club:'Monaco'},{n:18,name:'Michel Aebischer',pos:'MED',club:'Bologna'},{n:19,name:'Fabian Rieder',pos:'MED',club:'Stade Rennais'},{n:20,name:'Dan Ndoye',pos:'MED',club:'Bologna'},{n:9,name:'Breel Embolo',pos:'DEL',club:'Monaco'},{n:11,name:'Noah Okafor',pos:'DEL',club:'RB Leipzig'},{n:21,name:'Zeki Amdouni',pos:'DEL',club:'Burnley'},{n:22,name:'Ruben Vargas',pos:'DEL',club:'Augsburg'},{n:24,name:'Joel Monteiro',pos:'DEL',club:'Young Boys'},{n:25,name:'Andi Zeqiri',pos:'DEL',club:'Genk'},{n:26,name:'Vincent Sierro',pos:'MED',club:'Toulouse'}]},
-  hun:{name:'Hungría',group:'D',coach:'Marco Rossi',titles:0,wcs:9,
-    squad:[{n:1,name:'Péter Gulácsi',pos:'PO'},{n:6,name:'Dominik Szoboszlai',pos:'MED'},{n:10,name:'Roland Sallai',pos:'MED'},{n:9,name:'Martin Ádám',pos:'DEL'},{n:5,name:'Willi Orbán',pos:'DEF'},{n:3,name:'Attila Fiola',pos:'DEF'},{n:8,name:'Ádám Nagy',pos:'MED'}]},
   bel:{name:'Bélgica',group:'G',coach:'Domenico Tedesco',titles:0,wcs:14,
     squad:[{n:1,name:'Thibaut Courtois',pos:'PO',club:'Real Madrid'},{n:12,name:'Senne Lammens',pos:'PO',club:'Manchester United'},{n:23,name:'Mike Penders',pos:'PO',club:'Estrasburgo'},{n:2,name:'Timothy Castagne',pos:'DEF',club:'Fulham'},{n:3,name:'Maxim De Cuyper',pos:'DEF',club:'Brighton'},{n:4,name:'Thomas Meunier',pos:'DEF',club:'Lille'},{n:5,name:'Arthur Theate',pos:'DEF',club:'Eintracht Frankfurt'},{n:6,name:'Zeno Debast',pos:'DEF',club:'Sporting'},{n:15,name:'Nathan Ngoy',pos:'DEF',club:'Lille'},{n:16,name:'Koni De Winter',pos:'DEF',club:'AC Milan'},{n:17,name:'Brandon Mechele',pos:'DEF',club:'Brujas'},{n:8,name:'Kevin De Bruyne',pos:'MED',club:'Nápoles'},{n:7,name:'Youri Tielemans',pos:'MED',club:'Aston Villa'},{n:14,name:'Amadou Onana',pos:'MED',club:'Aston Villa'},{n:18,name:'Nicolas Raskin',pos:'MED',club:'Rangers'},{n:20,name:'Hans Vanaken',pos:'MED',club:'Brujas'},{n:21,name:'Axel Witsel',pos:'MED',club:'Girona'},{n:11,name:'Romelu Lukaku',pos:'DEL',club:'Nápoles'},{n:19,name:'Leandro Trossard',pos:'DEL',club:'Arsenal'},{n:10,name:'Jérémy Doku',pos:'DEL',club:'Manchester City'},{n:9,name:'Charles De Ketelaere',pos:'DEL',club:'Atalanta'},{n:22,name:'Alexis Saelemaekers',pos:'DEL',club:'AC Milan'},{n:13,name:'Dodi Lukebakio',pos:'DEL',club:'Benfica'},{n:24,name:'Diego Moreira',pos:'DEL',club:'Estrasburgo'},{n:25,name:'Matías Fernández-Pardo',pos:'DEL',club:'Lille'},{n:26,name:'Joaquin Seys',pos:'DEF',club:'Brujas'}]},
   eng:{name:'Inglaterra',group:'L',coach:'Thomas Tuchel',titles:1,wcs:16,
-    squad:[
-      {n:1,name:'Jordan Pickford',pos:'PO',club:'Everton'},
-      {n:13,name:'Dean Henderson',pos:'PO',club:'Crystal Palace'},
-      {n:22,name:'James Trafford',pos:'PO',club:'Manchester City'},
-      {n:2,name:'Reece James',pos:'DEF',club:'Chelsea'},
-      {n:5,name:'John Stones',pos:'DEF',club:'Manchester City'},
-      {n:6,name:'Marc Guéhi',pos:'DEF',club:'Manchester City'},
-      {n:12,name:'Ezri Konsa',pos:'DEF',club:'Aston Villa'},
-      {n:14,name:'Jarell Quansah',pos:'DEF',club:'Bayer Leverkusen'},
-      {n:3,name:'Dan Burn',pos:'DEF',club:'Newcastle'},
-      {n:23,name:'Djed Spence',pos:'DEF',club:'Tottenham'},
-      {n:15,name:'Tino Livramento',pos:'DEF',club:'Newcastle'},
-      {n:16,name:'Nico OReilly',pos:'DEF',club:'Manchester City'},
-      {n:4,name:'Declan Rice',pos:'MED',club:'Arsenal'},
-      {n:8,name:'Jude Bellingham',pos:'MED',club:'Real Madrid'},
-      {n:10,name:'Eberechi Eze',pos:'MED',club:'Arsenal'},
-      {n:7,name:'Kobbie Mainoo',pos:'MED',club:'Manchester United'},
-      {n:17,name:'Jordan Henderson',pos:'MED',club:'Brentford'},
-      {n:18,name:'Elliot Anderson',pos:'MED',club:'Nottingham Forest'},
-      {n:19,name:'Morgan Rogers',pos:'MED',club:'Aston Villa'},
-      {n:9,name:'Harry Kane',pos:'DEL',club:'Bayern Munich'},
-      {n:11,name:'Bukayo Saka',pos:'DEL',club:'Arsenal'},
-      {n:21,name:'Marcus Rashford',pos:'DEL',club:'Barcelona'},
-      {n:20,name:'Ollie Watkins',pos:'DEL',club:'Aston Villa'},
-      {n:24,name:'Ivan Toney',pos:'DEL',club:'Al-Ahli'},
-      {n:25,name:'Anthony Gordon',pos:'DEL',club:'Newcastle'},
-      {n:26,name:'Noni Madueke',pos:'DEL',club:'Chelsea'}
-    ]},
-  ser:{name:'Serbia',group:'E',coach:'Dragan Stojković',titles:0,wcs:13,
-    squad:[{n:1,name:'Predrag Rajkovic',pos:'PO',club:'Mallorca'},{n:12,name:'Vanja Milinkovic-Savic',pos:'PO',club:'Torino'},{n:23,name:'Djordje Petrovic',pos:'PO',club:'Chelsea'},{n:2,name:'Strahinja Pavlovic',pos:'DEF',club:'Monaco'},{n:5,name:'Nikola Milenkovic',pos:'DEF',club:'Nottingham Forest'},{n:6,name:'Stefan Mitrovic',pos:'DEF',club:'Getafe'},{n:3,name:'Milos Veljkovic',pos:'DEF',club:'Werder Bremen'},{n:4,name:'Strahinja Erakovic',pos:'DEF',club:'Red Bull Salzburg'},{n:13,name:'Nemanja Maksimovic',pos:'DEF',club:'Sin club'},{n:14,name:'Andrijja Zivkovic',pos:'DEF',club:'Sin club'},{n:15,name:'Srdan Babic',pos:'DEF',club:'Almería'},{n:16,name:'Erhan Masovic',pos:'DEF',club:'Sin club'},{n:8,name:'Sergej Milinkovic-Savic',pos:'MED',club:'Al-Hilal'},{n:10,name:'Dusan Tadic',pos:'MED',club:'Fenerbahce'},{n:7,name:'Filip Kostic',pos:'MED',club:'Juventus'},{n:17,name:'Sasa Lukic',pos:'MED',club:'Fulham'},{n:18,name:'Nemanja Gudelj',pos:'MED',club:'Sevilla'},{n:19,name:'Ivan Ilic',pos:'MED',club:'Torino'},{n:20,name:'Luka Ilic',pos:'MED',club:'Sin club'},{n:21,name:'Marko Grujic',pos:'MED',club:'Porto'},{n:22,name:'Darko Lazovic',pos:'MED',club:'Sin club'},{n:9,name:'Aleksandar Mitrovic',pos:'DEL',club:'Al-Hilal'},{n:11,name:'Dusan Vlahovic',pos:'DEL',club:'Juventus'},{n:24,name:'Luka Jovic',pos:'DEL',club:'AC Milan'},{n:25,name:'Aleksandar Zivkovic',pos:'DEL',club:'PAOK'},{n:26,name:'Milos Degenek',pos:'DEF',club:'Columbus Crew'}]},
-  den:{name:'Dinamarca',group:'E',coach:'Brian Riemer',titles:0,wcs:5,
-    squad:[{n:1,name:'Kasper Schmeichel',pos:'PO',club:'Anderlecht'},{n:12,name:'Frederik Ronnow',pos:'PO',club:'Union Berlín'},{n:23,name:'Oliver Christensen',pos:'PO',club:'Hertha BSC'},{n:2,name:'Kevin Stoger',pos:'DEF',club:'Monchengladbach'},{n:5,name:'Andreas Christensen',pos:'DEF',club:'Barcelona'},{n:6,name:'Simon Kjaer',pos:'DEF',club:'AC Milan'},{n:3,name:'Joakim Maehle',pos:'DEF',club:'Atalanta'},{n:4,name:'Victor Nelsson',pos:'DEF',club:'Galatasaray'},{n:13,name:'Daniel Wass',pos:'DEF',club:'Sin club'},{n:14,name:'Alexander Bah',pos:'DEF',club:'Benfica'},{n:15,name:'Jannik Vestergaard',pos:'DEF',club:'Leicester'},{n:16,name:'Nicolai Boilesen',pos:'DEF',club:'FC Copenhagen'},{n:8,name:'Thomas Delaney',pos:'MED',club:'Sin club'},{n:10,name:'Christian Eriksen',pos:'MED',club:'Manchester United'},{n:7,name:'Pierre-Emile Hojbjerg',pos:'MED',club:'Marsella'},{n:17,name:'Mathias Jensen',pos:'MED',club:'Brentford'},{n:18,name:'Mikkel Damsgaard',pos:'MED',club:'Brentford'},{n:19,name:'Anders Dreyer',pos:'MED',club:'Anderlecht'},{n:20,name:'Jonas Wind',pos:'MED',club:'Wolfsburg'},{n:21,name:'William Boving',pos:'MED',club:'FC Copenhagen'},{n:22,name:'Jacob Bruun Larsen',pos:'MED',club:'Sin club'},{n:9,name:'Martin Braithwaite',pos:'DEL',club:'Español'},{n:11,name:'Rasmus Hojlund',pos:'DEL',club:'Manchester United'},{n:24,name:'Andreas Skov Olsen',pos:'DEL',club:'Club Brugge'},{n:25,name:'Kasper Dolberg',pos:'DEL',club:'Anderlecht'},{n:26,name:'Yussuf Poulsen',pos:'DEL',club:'Leipzig'}]},
+    squad:[{n:1,name:'Jordan Pickford',pos:'PO',club:'Everton'},{n:2,name:'Ezri Konsa',pos:'DEF',club:'Aston Villa'},{n:3,name:'Nico O’Reilly',pos:'DEF',club:'Manchester City'},{n:4,name:'Declan Rice',pos:'MED',club:'Arsenal'},{n:5,name:'John Stones',pos:'DEF',club:'Manchester City'},{n:6,name:'Marc Guéhi',pos:'DEF',club:'Manchester City'},{n:7,name:'Bukayo Saka',pos:'DEL',club:'Arsenal'},{n:8,name:'Elliot Anderson',pos:'MED',club:'Nottingham Forest'},{n:9,name:'Harry Kane',pos:'DEL',club:'Bayern Munich'},{n:10,name:'Jude Bellingham',pos:'MED',club:'Real Madrid'},{n:11,name:'Marcus Rashford',pos:'DEL',club:'Barcelona'},{n:12,name:'Tino Livramento',pos:'DEF',club:'Newcastle United'},{n:13,name:'Dean Henderson',pos:'PO',club:'Crystal Palace'},{n:14,name:'Jordan Henderson',pos:'MED',club:'Brentford'},{n:15,name:'Dan Burn',pos:'DEF',club:'Newcastle United'},{n:16,name:'Kobbie Mainoo',pos:'MED',club:'Manchester United'},{n:17,name:'Morgan Rogers',pos:'MED',club:'Aston Villa'},{n:18,name:'Anthony Gordon',pos:'DEL',club:'Newcastle United'},{n:19,name:'Ollie Watkins',pos:'DEL',club:'Aston Villa'},{n:20,name:'Noni Madueke',pos:'DEL',club:'Arsenal'},{n:21,name:'Eberechi Eze',pos:'MED',club:'Arsenal'},{n:22,name:'Ivan Toney',pos:'DEL',club:'Al-Ahli'},{n:23,name:'James Trafford',pos:'PO',club:'Manchester City'},{n:24,name:'Reece James',pos:'DEF',club:'Chelsea'},{n:25,name:'Djed Spence',pos:'DEF',club:'Tottenham Hotspur'},{n:26,name:'Jarell Quansah',pos:'DEF',club:'Bayer Leverkusen'}]},
   ned:{name:'Países Bajos',group:'F',coach:'Ronald Koeman',titles:0,wcs:11,
     squad:[{n:1,name:'Mark Flekken',pos:'PO',club:'Bayer Leverkusen'},{n:12,name:'Robin Roefs',pos:'PO',club:'Sunderland'},{n:23,name:'Bart Verbruggen',pos:'PO',club:'Brighton'},{n:2,name:'Denzel Dumfries',pos:'DEF',club:'Inter'},{n:5,name:'Virgil van Dijk',pos:'DEF',club:'Liverpool'},{n:3,name:'Nathan Aké',pos:'DEF',club:'Manchester City'},{n:4,name:'Stefan de Vrij',pos:'DEF',club:'Inter'},{n:6,name:'Jurriën Timber',pos:'DEF',club:'Arsenal'},{n:13,name:'Lutsharel Geertruida',pos:'DEF',club:'RB Leipzig'},{n:14,name:'Devyne Rensch',pos:'DEF',club:'Eintracht Frankfurt'},{n:15,name:'Ian Maatsen',pos:'DEF',club:'Aston Villa'},{n:8,name:'Frenkie de Jong',pos:'MED',club:'Barcelona'},{n:10,name:'Memphis Depay',pos:'MED',club:'Corinthians'},{n:7,name:'Ryan Gravenberch',pos:'MED',club:'Liverpool'},{n:16,name:'Tijjani Reijnders',pos:'MED',club:'AC Milan'},{n:17,name:'Teun Koopmeiners',pos:'MED',club:'Juventus'},{n:18,name:'Marten de Roon',pos:'MED',club:'Atalanta'},{n:19,name:'Quinten Timber',pos:'MED',club:'Fulham'},{n:20,name:'Kenneth Taylor',pos:'MED',club:'Ajax'},{n:9,name:'Wout Weghorst',pos:'DEL',club:'Hoffenheim'},{n:11,name:'Cody Gakpo',pos:'DEL',club:'Liverpool'},{n:21,name:'Donyell Malen',pos:'DEL',club:'Dortmund'},{n:22,name:'Brian Brobbey',pos:'DEL',club:'Ajax'},{n:24,name:'Noa Lang',pos:'DEL',club:'PSV'},{n:25,name:'Myron Boadu',pos:'DEL',club:'Monaco'},{n:26,name:'Jeremie Frimpong',pos:'DEF',club:'Bayer Leverkusen'}]},
   aut:{name:'Austria',group:'J',coach:'Ralf Rangnick',titles:0,wcs:7,
     squad:[{n:1,name:'Patrick Pentz',pos:'PO',club:'Brøndby'},{n:12,name:'Alexander Schlager',pos:'PO',club:'RB Salzburg'},{n:23,name:'Florian Wiegele',pos:'PO',club:'Viktoria Plzen'},{n:5,name:'David Alaba',pos:'DEF',club:'Real Madrid'},{n:6,name:'Kevin Danso',pos:'DEF',club:'Tottenham'},{n:3,name:'Marco Friedl',pos:'DEF',club:'Werder Bremen'},{n:4,name:'Philipp Lienhart',pos:'DEF',club:'Friburgo'},{n:2,name:'Stefan Posch',pos:'DEF',club:'Maguncia'},{n:13,name:'Alexander Prass',pos:'DEF',club:'Hoffenheim'},{n:15,name:'Phillipp Mwene',pos:'DEF',club:'Maguncia'},{n:16,name:'David Affengruber',pos:'DEF',club:'Elche'},{n:17,name:'Michael Svoboda',pos:'DEF',club:'Venezia'},{n:8,name:'Marcel Sabitzer',pos:'MED',club:'Dortmund'},{n:10,name:'Christoph Baumgartner',pos:'MED',club:'RB Leipzig'},{n:14,name:'Konrad Laimer',pos:'MED',club:'Bayern Munich'},{n:18,name:'Xaver Schlager',pos:'MED',club:'RB Leipzig'},{n:19,name:'Nicolas Seiwald',pos:'MED',club:'RB Leipzig'},{n:20,name:'Romano Schmid',pos:'MED',club:'Werder Bremen'},{n:21,name:'Florian Grillitsch',pos:'MED',club:'Braga'},{n:22,name:'Paul Wanner',pos:'MED',club:'PSV'},{n:24,name:'Patrick Wimmer',pos:'MED',club:'Wolfsburg'},{n:7,name:'Carney Chukwuemeka',pos:'MED',club:'Dortmund'},{n:9,name:'Marko Arnautovic',pos:'DEL',club:'Estrella Roja'},{n:11,name:'Michael Gregoritsch',pos:'DEL',club:'Augsburg'},{n:25,name:'Saša Kalajdžić',pos:'DEL',club:'LASK Linz'},{n:26,name:'Alessandro Schöpf',pos:'MED',club:'Wolfsberger'}]},
   tur:{name:'Turquía',group:'D',coach:'Vincenzo Montella',titles:0,wcs:2,
     squad:[{n:1,name:'Ugurcan Cakir',pos:'PO',club:'Trabzonspor'},{n:12,name:'Mert Gunok',pos:'PO',club:'Besiktas'},{n:23,name:'Altay Bayindir',pos:'PO',club:'Manchester United'},{n:2,name:'Zeki Celik',pos:'DEF',club:'Roma'},{n:5,name:'Merih Demiral',pos:'DEF',club:'Al-Ahli'},{n:6,name:'Samet Akaydin',pos:'DEF',club:'Fenerbahce'},{n:3,name:'Ferdi Kadioglu',pos:'DEF',club:'Brighton'},{n:4,name:'Abdulkerim Bardakci',pos:'DEF',club:'Galatasaray'},{n:13,name:'Kaan Ayhan',pos:'DEF',club:'Galatasaray'},{n:14,name:'Mert Muldur',pos:'DEF',club:'Sassuolo'},{n:15,name:'Cenk Ozkacar',pos:'DEF',club:'Valencia'},{n:16,name:'Ismail Yuksek',pos:'DEF',club:'Fenerbahce'},{n:8,name:'Hakan Calhanoglu',pos:'MED',club:'Inter'},{n:10,name:'Kenan Yildiz',pos:'MED',club:'Juventus'},{n:7,name:'Arda Guler',pos:'MED',club:'Real Madrid'},{n:17,name:'Salih Ozcan',pos:'MED',club:'Dortmund'},{n:18,name:'Kaan Kanak',pos:'MED',club:'Galatasaray'},{n:19,name:'Okay Yokuslu',pos:'MED',club:'Swansea'},{n:20,name:'Baris Alper Yilmaz',pos:'MED',club:'Galatasaray'},{n:21,name:'Dorukhan Tokoz',pos:'MED',club:'Sin club'},{n:22,name:'Yunus Akgun',pos:'MED',club:'Galatasaray'},{n:9,name:'Cenk Tosun',pos:'DEL',club:'Sin club'},{n:11,name:'Cengiz Under',pos:'DEL',club:'Fenerbahce'},{n:24,name:'Kerem Akturkoglu',pos:'DEL',club:'Galatasaray'},{n:25,name:'Serdar Dursun',pos:'DEL',club:'Fenerbahce'},{n:26,name:'Semih Kilicsoy',pos:'DEL',club:'Besiktas'}]},
-  pol:{name:'Polonia',group:'F',coach:'Michał Probierz',titles:0,wcs:8,squad:[{n:1,name:'Wojciech Szczęsny',pos:'PO',club:'Barcelona'},{n:12,name:'Łukasz Skorupski',pos:'PO',club:'Bologna'},{n:23,name:'Bartłomiej Drągowski',pos:'PO',club:'Spezia'},{n:2,name:'Matty Cash',pos:'DEF',club:'Aston Villa'},{n:5,name:'Jan Bednarek',pos:'DEF',club:'Southampton'},{n:6,name:'Kamil Glik',pos:'DEF',club:'Sin club'},{n:3,name:'Bartosz Bereszyński',pos:'DEF',club:'Sampdoria'},{n:4,name:'Michał Helik',pos:'DEF',club:'Huddersfield'},{n:13,name:'Arkadiusz Reca',pos:'DEF',club:'Sin club'},{n:14,name:'Paweł Dawidowicz',pos:'DEF',club:'Hellas Verona'},{n:15,name:'Tymoteusz Puchacz',pos:'DEF',club:'Union Berlín'},{n:16,name:'Mateusz Wieteska',pos:'DEF',club:'Clermont'},{n:8,name:'Piotr Zieliński',pos:'MED',club:'Nápoles'},{n:10,name:'Sebastian Szymański',pos:'MED',club:'Fenerbahçe'},{n:7,name:'Kamil Grosicki',pos:'MED',club:'Pogoń'},{n:17,name:'Grzegorz Krychowiak',pos:'MED',club:'Sin club'},{n:18,name:'Jacek Góralski',pos:'MED',club:'Sin club'},{n:19,name:'Nicola Zalewski',pos:'MED',club:'Roma'},{n:20,name:'Michał Skóraś',pos:'MED',club:'Club Brugge'},{n:21,name:'Jakub Moder',pos:'MED',club:'Sin club'},{n:22,name:'Krzysztof Piątek',pos:'MED',club:'Salernitana'},{n:9,name:'Robert Lewandowski',pos:'DEL',club:'Barcelona'},{n:11,name:'Arkadiusz Milik',pos:'DEL',club:'Juventus'},{n:24,name:'Karol Świderski',pos:'DEL',club:'Charlotte FC'},{n:25,name:'Adam Buksa',pos:'DEL',club:'RC Lens'},{n:26,name:'Dawid Kownacki',pos:'DEL',club:'Sin club'}]},
   cro:{name:'Croacia',group:'L',coach:'Zlatko Dalić',titles:0,wcs:6,
     squad:[{n:1,name:'Dominik Livaković',pos:'PO',club:'Dinamo Zagreb'},{n:12,name:'Dominik Kotarski',pos:'PO',club:'Copenhagen'},{n:23,name:'Ivor Pandur',pos:'PO',club:'Hull City'},{n:2,name:'Josip Stanišić',pos:'DEF',club:'Bayern Munich'},{n:5,name:'Joško Gvardiol',pos:'DEF',club:'Manchester City'},{n:6,name:'Duje Caleta-Car',pos:'DEF',club:'Real Sociedad'},{n:3,name:'Martin Erlić',pos:'DEF',club:'Midtjylland'},{n:4,name:'Josip Šutalo',pos:'DEF',club:'Ajax'},{n:13,name:'Marin Pongračić',pos:'DEF',club:'Fiorentina'},{n:14,name:'Luka Vušković',pos:'DEF',club:'HSV'},{n:10,name:'Luka Modrić',pos:'MED',club:'AC Milan'},{n:8,name:'Mateo Kovačić',pos:'MED',club:'Manchester City'},{n:7,name:'Mario Pašalić',pos:'MED',club:'Atalanta'},{n:11,name:'Nikola Vlašić',pos:'MED',club:'Torino'},{n:15,name:'Luka Sučić',pos:'MED',club:'Real Sociedad'},{n:16,name:'Martin Baturina',pos:'MED',club:'Como'},{n:17,name:'Kristijan Jakić',pos:'MED',club:'Augsburgo'},{n:18,name:'Petar Sučić',pos:'MED',club:'Inter'},{n:19,name:'Nikola Moro',pos:'MED',club:'Bologna'},{n:20,name:'Toni Fruk',pos:'MED',club:'Rijeka'},{n:9,name:'Andrej Kramarić',pos:'DEL',club:'Hoffenheim'},{n:21,name:'Ivan Perišić',pos:'DEL',club:'PSV'},{n:22,name:'Ante Budimir',pos:'DEL',club:'Osasuna'},{n:24,name:'Petar Musa',pos:'DEL',club:'Dallas'},{n:25,name:'Marco Pašalić',pos:'DEL',club:'Orlando City'},{n:26,name:'Igor Matanović',pos:'DEL',club:'Friburgo'}]},
   jpn:{name:'Japón',group:'F',coach:'Hajime Moriyasu',titles:0,wcs:7,
@@ -1137,10 +1046,7 @@ const TEAM_INFO = {
   aus:{name:'Australia',group:'D',coach:'Tony Popovic',titles:0,wcs:6,squad:[{n:1,name:'Mathew Ryan',pos:'PO',club:'Levante'},{n:12,name:'Joe Gauci',pos:'PO',club:'Port Vale'},{n:23,name:'Patrick Beach',pos:'PO',club:'Melbourne City'},{n:2,name:'Ryan Strain',pos:'DEF',club:'Dundee United'},{n:5,name:'Harry Souttar',pos:'DEF',club:'Leicester'},{n:3,name:'Cameron Burgess',pos:'DEF',club:'Swansea'},{n:4,name:'Alessandro Circati',pos:'DEF',club:'Parma'},{n:6,name:'Jordan Bos',pos:'DEF',club:'Feyenoord'},{n:13,name:'Kasey Bos',pos:'DEF',club:'Mainz'},{n:14,name:'Jake Gordwood-Reich',pos:'DEF',club:'Auckland FC'},{n:15,name:'Jacob Farrell',pos:'DEF',club:'Western Sydney'},{n:16,name:'Kai Trewin',pos:'DEF',club:'NYCFC'},{n:8,name:'Riley McGree',pos:'MED',club:'Middlesbrough'},{n:10,name:'Anthony Cáceres',pos:'MED',club:'Macarthur FC'},{n:7,name:'Nestory Irankunda',pos:'MED',club:'Watford'},{n:17,name:'Alex Robertson',pos:'MED',club:'Cardiff'},{n:18,name:'Aiden O`Neill',pos:'MED',club:'NYCFC'},{n:19,name:'Patrick Yazbek',pos:'MED',club:'Nashville'},{n:20,name:'Ryan Teague',pos:'MED',club:'Melbourne City'},{n:21,name:'Ethan Alagich',pos:'MED',club:'Adelaide United'},{n:9,name:'Marco Tilio',pos:'DEL',club:'Rapid Viena'},{n:11,name:'Martin Boyle',pos:'DEL',club:'Hibernian'},{n:22,name:'Connor Metcalfe',pos:'DEL',club:'St. Pauli'},{n:24,name:'Mohamed Touré',pos:'DEL',club:'Norwich'},{n:25,name:'Adam Taggart',pos:'DEL',club:'Perth Glory'},{n:26,name:'Nestory Irankunda',pos:'DEL',club:'Watford'}]},
   sen:{name:'Senegal',group:'I',coach:'Aliou Cissé',titles:0,wcs:3,squad:[{n:1,name:'Édouard Mendy',pos:'PO',club:'Al-Ahli'},{n:12,name:'Mory Diaw',pos:'PO',club:'Clermont'},{n:23,name:'Yehvann Diouf',pos:'PO',club:'Reims'},{n:2,name:'Krepin Diatta',pos:'DEF',club:'Monaco'},{n:5,name:'Kalidou Koulibaly',pos:'DEF',club:'Al-Hilal'},{n:6,name:'Moussa Niakhaté',pos:'DEF',club:'Nottingham Forest'},{n:3,name:'Ismail Jakobs',pos:'DEF',club:'Monaco'},{n:4,name:'Abdoulaye Seck',pos:'DEF',club:'Angers'},{n:13,name:'Mamadou Sarr',pos:'DEF',club:'Chelsea'},{n:14,name:'El Hadj Malick Diouf',pos:'DEF',club:'Salzbourg'},{n:15,name:'Antoine Mendy',pos:'DEF',club:'Sin club'},{n:16,name:'Moustapha Mbow',pos:'DEF',club:'Montpellier'},{n:17,name:'Ilay Camara',pos:'DEF',club:'Stade Reims'},{n:8,name:'Idrissa Gueye',pos:'MED',club:'Everton'},{n:10,name:'Pape Matar Sarr',pos:'MED',club:'Tottenham'},{n:7,name:'Pape Gueye',pos:'MED',club:'Marsella'},{n:18,name:'Lamine Camara',pos:'MED',club:'Monaco'},{n:19,name:'Pathé Ciss',pos:'MED',club:'Rayo Vallecano'},{n:20,name:'Habib Diarra',pos:'MED',club:'Estrasburgo'},{n:21,name:'Bara Sapoko Ndiaye',pos:'MED',club:'Sin club'},{n:9,name:'Sadio Mané',pos:'DEL',club:'Al-Nassr'},{n:11,name:'Ismaila Sarr',pos:'DEL',club:'Crystal Palace'},{n:22,name:'Iliman Ndiaye',pos:'DEL',club:'Everton'},{n:24,name:'Nicolas Jackson',pos:'DEL',club:'Chelsea'},{n:25,name:'Bamba Dieng',pos:'DEL',club:'Marsella'},{n:26,name:'Assane Diao',pos:'DEL',club:'Betis'}]},
   ecu:{name:'Ecuador',group:'E',coach:'Sebastián Beccacece',titles:0,wcs:4,squad:[{n:1,name:'Hernán Galíndez',pos:'PO',club:'Sin club'},{n:12,name:'Alexander Domínguez',pos:'PO',club:'Liga de Quito'},{n:23,name:'Wellington Ramírez',pos:'PO',club:'Sin club'},{n:2,name:'Angelo Preciado',pos:'DEF',club:'Genk'},{n:5,name:'Piero Hincapié',pos:'DEF',club:'Bayer Leverkusen'},{n:6,name:'Felix Torres',pos:'DEF',club:'Santos Laguna'},{n:3,name:'Pervis Estupiñán',pos:'DEF',club:'Brighton'},{n:4,name:'Diego Palacios',pos:'DEF',club:'LA Galaxy'},{n:13,name:'William Pacho',pos:'DEF',club:'PSG'},{n:14,name:'Jackson Porozo',pos:'DEF',club:'Troyes'},{n:15,name:'Byron Castillo',pos:'DEF',club:'Basel'},{n:16,name:'Esteban Dreer',pos:'DEF',club:'Sin club'},{n:8,name:'Carlos Gruezo',pos:'MED',club:'Augsburg'},{n:10,name:'Moises Caicedo',pos:'MED',club:'Chelsea'},{n:7,name:'Jeremy Sarmiento',pos:'MED',club:'Brighton'},{n:17,name:'Jhegson Méndez',pos:'MED',club:'LA Galaxy'},{n:18,name:'José Cifuentes',pos:'MED',club:'LA Galaxy'},{n:19,name:'Romario Ibarra',pos:'MED',club:'Pachuca'},{n:20,name:'Alan Minda',pos:'MED',club:'Sin club'},{n:21,name:'Kevin Rodríguez',pos:'MED',club:'Ipswich'},{n:22,name:'Djorkaeff Reasco',pos:'MED',club:'Nottingham Forest'},{n:9,name:'Enner Valencia',pos:'DEL',club:'Internacional'},{n:11,name:'Michael Estrada',pos:'DEL',club:'Cruz Azul'},{n:24,name:'Gonzalo Plata',pos:'DEL',club:'Al-Qadsiah'},{n:25,name:'Kendry Páez',pos:'DEL',club:'Chelsea'},{n:26,name:'Jordan Rezabala',pos:'DEL',club:'Sin club'}]},
-  ven:{name:'Venezuela',group:'I',coach:'Fernando Batista',titles:0,wcs:0,squad:[{n:1,name:'Wuilker Faríñez',pos:'PO',club:'Millonarios'},{n:12,name:'Rafael Romo',pos:'PO',club:'Sin club'},{n:23,name:'Daniel Martínez',pos:'PO',club:'Sin club'},{n:2,name:'Nahuel Ferraresi',pos:'DEF',club:'Manchester City'},{n:5,name:'Jhon Chancellor',pos:'DEF',club:'Sin club'},{n:6,name:'Mikel Villanueva',pos:'DEF',club:'Sin club'},{n:3,name:'Yordan Osorio',pos:'DEF',club:'Sin club'},{n:4,name:'Dani Osorio',pos:'DEF',club:'Charlotte FC'},{n:13,name:'Alejandro Báez',pos:'DEF',club:'Sin club'},{n:14,name:'Yohan Cumana',pos:'DEF',club:'Sin club'},{n:15,name:'Sherwin Noray',pos:'DEF',club:'Sin club'},{n:16,name:'Héctor Rodríguez',pos:'DEF',club:'Sin club'},{n:8,name:'Tomás Rincón',pos:'MED',club:'Sin club'},{n:10,name:'Yangel Herrera',pos:'MED',club:'Girona'},{n:7,name:'Junior Moreno',pos:'MED',club:'DC United'},{n:17,name:'Jefferson Savarino',pos:'MED',club:'Real Salt Lake'},{n:18,name:'Yeferson Soteldo',pos:'MED',club:'Santos'},{n:19,name:'Edson Castillo',pos:'MED',club:'Sin club'},{n:20,name:'Rómulo Otero',pos:'MED',club:'Corinthians'},{n:21,name:'José Martínez',pos:'MED',club:'Philadelphia Union'},{n:22,name:'Samuel Sosa',pos:'MED',club:'Sin club'},{n:9,name:'Salomón Rondón',pos:'DEL',club:'Sin club'},{n:11,name:'Darwin Machís',pos:'DEL',club:'Granada'},{n:24,name:'Jhonder Cádiz',pos:'DEL',club:'Sin club'},{n:25,name:'Eric Ramírez',pos:'DEL',club:'Sin club'},{n:26,name:'Adalberto Peñaranda',pos:'DEL',club:'Sin club'}]},
   par:{name:'Paraguay',group:'D',coach:'Daniel Garnero',titles:0,wcs:8,squad:[{n:1,name:'Antony Silva',pos:'PO',club:'Sin club'},{n:12,name:'Alfredo Aguilar',pos:'PO',club:'Olimpia'},{n:23,name:'Rodrigo Muñoz',pos:'PO',club:'Sin club'},{n:2,name:'Robert Rojas',pos:'DEF',club:'River Plate'},{n:5,name:'Gustavo Gómez',pos:'DEF',club:'Palmeiras'},{n:6,name:'Fabián Balbuena',pos:'DEF',club:'Sin club'},{n:3,name:'Junior Alonso',pos:'DEF',club:'Atlético Mineiro'},{n:4,name:'Omar Alderete',pos:'DEF',club:'Celta de Vigo'},{n:13,name:'Santiago Arzamendia',pos:'DEF',club:'Cádiz'},{n:14,name:'Matías Rojas',pos:'DEF',club:'Sin club'},{n:15,name:'Adrián Martínez',pos:'DEF',club:'Sin club'},{n:16,name:'Jorge Morel',pos:'DEF',club:'Olimpia'},{n:8,name:'Miguel Almirón',pos:'MED',club:'Newcastle'},{n:10,name:'Ángel Romero',pos:'MED',club:'Sin club'},{n:7,name:'Braian Samudio',pos:'MED',club:'Sin club'},{n:17,name:'Andrés Cubas',pos:'MED',club:'Niza'},{n:18,name:'Richard Sánchez',pos:'MED',club:'Sin club'},{n:19,name:'Mathías Villasanti',pos:'MED',club:'Grêmio'},{n:20,name:'Alan Benítez',pos:'MED',club:'Sin club'},{n:21,name:'Juan Villalba',pos:'MED',club:'Sin club'},{n:22,name:'Marcelo Palau',pos:'MED',club:'Sin club'},{n:9,name:'Antonio Sanabria',pos:'DEL',club:'Torino'},{n:11,name:'Alex Arce',pos:'DEL',club:'Olimpia'},{n:24,name:'Julio Enciso',pos:'DEL',club:'Brighton'},{n:25,name:'Ramón Sosa',pos:'DEL',club:'Nottingham Forest'},{n:26,name:'Alejandro Romero Gamarra',pos:'DEL',club:'Sin club'}]},
-  bol:{name:'Bolivia',group:'I',coach:'Oscar Villegas',titles:0,wcs:4,squad:[{n:1,name:'Carlos Lampe',pos:'PO',club:'Sin club'},{n:12,name:'Guillermo Viscarra',pos:'PO',club:'Always Ready'},{n:23,name:'Rubén Cordano',pos:'PO',club:'Sin club'},{n:2,name:'Luis Haquín',pos:'DEF',club:'Sin club'},{n:5,name:'Adrián Jusino',pos:'DEF',club:'Olimpia'},{n:6,name:'Héctor Cuellar',pos:'DEF',club:'Sin club'},{n:3,name:'Marvin Bejarano',pos:'DEF',club:'Sin club'},{n:4,name:'Jesús Sagredo',pos:'DEF',club:'Sin club'},{n:13,name:'Diego Wayar',pos:'DEF',club:'Sin club'},{n:14,name:'José Sagredo',pos:'DEF',club:'Sin club'},{n:15,name:'Gonzalo Melgarejo',pos:'DEF',club:'Sin club'},{n:16,name:'Paulo Da Silva',pos:'DEF',club:'Sin club'},{n:8,name:'Ramiro Vaca',pos:'MED',club:'Sin club'},{n:10,name:'Henry Vaca',pos:'MED',club:'Bolívar'},{n:7,name:'Rodrigo Ramallo',pos:'MED',club:'Sin club'},{n:17,name:'Jeyson Chura',pos:'MED',club:'Sin club'},{n:18,name:'Erwin Saavedra',pos:'MED',club:'Sin club'},{n:19,name:'Víctor Añez',pos:'MED',club:'Sin club'},{n:20,name:'Fernando Saucedo',pos:'MED',club:'Sin club'},{n:21,name:'Leonardo Vaca',pos:'MED',club:'Bolívar'},{n:22,name:'Eryc Castillo',pos:'MED',club:'Sin club'},{n:9,name:'Marcelo Martins',pos:'DEL',club:'Sin club'},{n:11,name:'Bruno Miranda',pos:'DEL',club:'Sin club'},{n:24,name:'Juan Carlos Arce',pos:'DEL',club:'Sin club'},{n:25,name:'Rodrigo Vargas',pos:'DEL',club:'Sin club'},{n:26,name:'Carmelo Algarañaz',pos:'DEL',club:'Sin club'}]},
-  cmr:{name:'Camerún',group:'J',coach:'Rigobert Song',titles:0,wcs:8,squad:[{n:1,name:'André Onana',pos:'PO',club:'Manchester United'},{n:12,name:'Simon Ngapandouetnbu',pos:'PO',club:'Marseille'},{n:23,name:'Fabrice Ondoa',pos:'PO',club:'Sin club'},{n:2,name:'Harold Moukoudi',pos:'DEF',club:'Le Havre'},{n:5,name:'Michael Ngadeu',pos:'DEF',club:'Sin club'},{n:6,name:'Jean-Charles Castelletto',pos:'DEF',club:'Nantes'},{n:3,name:'Nouhou Tolo',pos:'DEF',club:'Seattle Sounders'},{n:4,name:'Enzo Tchato',pos:'DEF',club:'Toulouse'},{n:13,name:'Collins Fai',pos:'DEF',club:'Sin club'},{n:14,name:'Ambroise Oyongo',pos:'DEF',club:'Sin club'},{n:15,name:'Christopher Wooh',pos:'DEF',club:'Rennes'},{n:16,name:'Olivier Mbaizo',pos:'DEF',club:'Philadelphia Union'},{n:8,name:'Andre-Frank Zambo Anguissa',pos:'MED',club:'Nápoles'},{n:10,name:'Christian Bassogog',pos:'MED',club:'Sin club'},{n:7,name:'Samuel Gouet',pos:'MED',club:'Mechelen'},{n:17,name:'Martin Hongla',pos:'MED',club:'Hellas Verona'},{n:18,name:'Pierre Kunde',pos:'MED',club:'Sin club'},{n:19,name:'Gaël Ondoua',pos:'MED',club:'Sin club'},{n:20,name:'Yvan Neyou',pos:'MED',club:'Sin club'},{n:21,name:'Dango Ouattara',pos:'MED',club:'Bournemouth'},{n:22,name:'Arnaud Djoum',pos:'MED',club:'Sin club'},{n:9,name:'Eric Maxim Choupo-Moting',pos:'DEL',club:'Sin club'},{n:11,name:'Karl Toko Ekambi',pos:'DEL',club:'Rennes'},{n:24,name:'Bryan Mbeumo',pos:'DEL',club:'Brentford'},{n:25,name:'Vincent Aboubakar',pos:'DEL',club:'Sin club'},{n:26,name:'Stephane Bahoken',pos:'DEL',club:'Sin club'}]},
   cdi:{name:'Costa de Marfil',group:'E',coach:'Emerse Faé',titles:0,wcs:4,squad:[{n:1,name:'Yahia Fofana',pos:'PO',club:'Rizespor'},{n:12,name:'Mohamed Koné',pos:'PO',club:'Charleroi'},{n:23,name:'Alban Lafont',pos:'PO',club:'Panathinaikos'},{n:2,name:'Wilfried Singo',pos:'DEF',club:'Galatasaray'},{n:5,name:'Ousmane Diomandé',pos:'DEF',club:'Sporting'},{n:6,name:'Evan Ndicka',pos:'DEF',club:'Roma'},{n:3,name:'Ghislain Konan',pos:'DEF',club:'Gil Vicente'},{n:4,name:'Emmanuel Agbadou',pos:'DEF',club:'Besiktas'},{n:13,name:'Odilon Kossounou',pos:'DEF',club:'Atalanta'},{n:14,name:'Guéla Doué',pos:'DEF',club:'Estrasburgo'},{n:15,name:'Clément Akpa',pos:'DEF',club:'Auxerre'},{n:8,name:'Franck Kessié',pos:'MED',club:'Al-Ahli'},{n:10,name:'Seko Fofana',pos:'MED',club:'Porto'},{n:7,name:'Ibrahim Sangaré',pos:'MED',club:'Nottingham'},{n:16,name:'Jean-Michael Seri',pos:'MED',club:'NK Maribor'},{n:17,name:'Christ Inao-Ounai',pos:'MED',club:'Trabzonspor'},{n:18,name:'Parfait Guiagon',pos:'MED',club:'Charleroi'},{n:9,name:'Amad Diallo',pos:'DEL',club:'Manchester United'},{n:11,name:'Simon Adingra',pos:'DEL',club:'Monaco'},{n:19,name:'Elye Wahi',pos:'DEL',club:'Niza'},{n:20,name:'Nicolas Pépé',pos:'DEL',club:'Villarreal'},{n:21,name:'Ange-Yoan Bonny',pos:'DEL',club:'Inter'},{n:22,name:'Evann Guessand',pos:'DEL',club:'Crystal Palace'},{n:24,name:'Yan Diomandé',pos:'DEL',club:'RB Leipzig'},{n:25,name:'Bazoumana Touré',pos:'DEL',club:'Hoffenheim'},{n:26,name:'Oumar Diakité',pos:'DEL',club:'Cercle Bruges'}]},
   nzl:{name:'Nueva Zelanda',group:'G',coach:'Darren Bazeley',titles:0,wcs:3,squad:[{n:1,name:'Max Crocombe',pos:'PO',club:'Almería'},{n:12,name:'Alex Paulsen',pos:'PO',club:'Wellington Phoenix'},{n:23,name:'Michael Woud',pos:'PO',club:'Sin club'},{n:2,name:'Tommy Smith',pos:'DEF',club:'Sin club'},{n:5,name:'Michael Boxall',pos:'DEF',club:'Minnesota United'},{n:6,name:'Nando Pijnaker',pos:'DEF',club:'Sin club'},{n:3,name:'Liberato Cacace',pos:'DEF',club:'Empoli'},{n:4,name:'Tim Payne',pos:'DEF',club:'Sin club'},{n:13,name:'Tyler Bindon',pos:'DEF',club:'Wellington Phoenix'},{n:14,name:'Francis de Vries',pos:'DEF',club:'Aucas'},{n:15,name:'Callan Elliot',pos:'DEF',club:'Sin club'},{n:16,name:'Finn Surman',pos:'DEF',club:'Sin club'},{n:8,name:'Joe Bell',pos:'MED',club:'Millwall'},{n:10,name:'Marko Stamenic',pos:'MED',club:'FC Kopenhagen'},{n:7,name:'Sarpreet Singh',pos:'MED',club:'Jahn Regensburg'},{n:17,name:'Matthew Garbett',pos:'MED',club:'Torino'},{n:18,name:'Elijah Just',pos:'MED',club:'Sin club'},{n:19,name:'Alex Rufer',pos:'MED',club:'Sin club'},{n:20,name:'Ben Old',pos:'MED',club:'FC Nordsjaelland'},{n:21,name:'Callum McCowatt',pos:'MED',club:'FC Kopenhagen'},{n:22,name:'Ryan Thomas',pos:'MED',club:'PEC Zwolle'},{n:9,name:'Chris Wood',pos:'DEL',club:'Nottingham Forest'},{n:11,name:'Kosta Barbarouses',pos:'DEL',club:'Seattle Sounders'},{n:24,name:'Ben Waine',pos:'DEL',club:'Sin club'},{n:25,name:'Jesse Randall',pos:'DEL',club:'Sin club'},{n:26,name:'Lachlan Bayliss',pos:'MED',club:'Sin club'}]},
   ira:{name:'Irán',group:'G',coach:'Amir Ghalenoei',titles:0,wcs:6,squad:[{n:1,name:'Alireza Beiranvand',pos:'PO',club:'Angers'},{n:12,name:'Hossein Hosseini',pos:'PO',club:'Sin club'},{n:23,name:'Payam Niazmand',pos:'PO',club:'Sin club'},{n:2,name:'Sadegh Moharrami',pos:'DEF',club:'Dinamo Zagreb'},{n:5,name:'Majid Hosseini',pos:'DEF',club:'Trabzonspor'},{n:6,name:'Ramin Rezaeian',pos:'DEF',club:'Sin club'},{n:3,name:'Milad Mohammadi',pos:'DEF',club:'AZ Alkmaar'},{n:4,name:'Shojae Khalilzadeh',pos:'DEF',club:'Sin club'},{n:13,name:'Morteza Pouraliganji',pos:'DEF',club:'Sin club'},{n:14,name:'Abolfazl Jalali',pos:'DEF',club:'Sin club'},{n:15,name:'Hassan Kamyabinia',pos:'DEF',club:'Sin club'},{n:16,name:'Mohammad Kanaanizadegan',pos:'DEF',club:'Sin club'},{n:8,name:'Saeid Ezatolahi',pos:'MED',club:'Sin club'},{n:10,name:'Alireza Jahanbakhsh',pos:'MED',club:'Feyenoord'},{n:7,name:'Ali Gholizadeh',pos:'MED',club:'Sin club'},{n:17,name:'Ahmad Noorollahi',pos:'MED',club:'Sin club'},{n:18,name:'Omid Ebrahimi',pos:'MED',club:'Sin club'},{n:19,name:'Mehdi Torabi',pos:'MED',club:'Sin club'},{n:20,name:'Allahyar Sayyadmanesh',pos:'MED',club:'Hull City'},{n:21,name:'Kaveh Rezaei',pos:'MED',club:'Sin club'},{n:22,name:'Ali Karimi',pos:'MED',club:'Sin club'},{n:9,name:'Sardar Azmoun',pos:'DEL',club:'Roma'},{n:11,name:'Mehdi Taremi',pos:'DEL',club:'Inter'},{n:24,name:'Karim Ansarifard',pos:'DEL',club:'Sin club'},{n:25,name:'Vahid Amiri',pos:'DEL',club:'Sin club'},{n:26,name:'Shahriyar Moghanlou',pos:'DEL',club:'Sin club'}]},
@@ -1167,109 +1073,109 @@ const TEAM_INFO = {
 
 const MATCHES = [
   {id:'m1', home:'mex', away:'rsa', date:'2026-06-11', time:'21:00', venue:'Estadio Azteca, Ciudad de México', group:'A', phase:'groups'},
-  {id:'m2', home:'kor', away:'cze', date:'2026-06-12', time:'04:00', venue:'Estadio Akron, Guadalajara', group:'A', phase:'groups'},
-  {id:'m3', home:'cze', away:'rsa', date:'2026-06-18', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', group:'A', phase:'groups'},
-  {id:'m4', home:'mex', away:'kor', date:'2026-06-19', time:'03:00', venue:'Estadio Akron, Guadalajara', group:'A', phase:'groups'},
-  {id:'m5', home:'cze', away:'mex', date:'2026-06-25', time:'03:00', venue:'Estadio Azteca, Ciudad de México', group:'A', phase:'groups'},
-  {id:'m6', home:'rsa', away:'kor', date:'2026-06-25', time:'03:00', venue:'Estadio BBVA, Monterrey', group:'A', phase:'groups'},
-  {id:'m7', home:'can', away:'bih', date:'2026-06-12', time:'21:00', venue:'BMO Field, Toronto', group:'B', phase:'groups'},
-  {id:'m8', home:'qat', away:'sui', date:'2026-06-13', time:'21:00', venue:'Levis Stadium, Santa Clara', group:'B', phase:'groups'},
-  {id:'m9', home:'can', away:'qat', date:'2026-06-19', time:'00:00', venue:'BC Place, Vancouver', group:'B', phase:'groups'},
-  {id:'m10', home:'sui', away:'bih', date:'2026-06-18', time:'21:00', venue:'SoFi Stadium, Los Ángeles', group:'B', phase:'groups'},
-  {id:'m11', home:'bih', away:'qat', date:'2026-06-24', time:'21:00', venue:'Lumen Field, Seattle', group:'B', phase:'groups'},
-  {id:'m12', home:'sui', away:'can', date:'2026-06-24', time:'21:00', venue:'BC Place, Vancouver', group:'B', phase:'groups'},
-  {id:'m13', home:'bra', away:'mar', date:'2026-06-14', time:'00:00', venue:'MetLife Stadium, Nueva Jersey', group:'C', phase:'groups'},
-  {id:'m14', home:'hat', away:'sco', date:'2026-06-14', time:'03:00', venue:'Gillette Stadium, Boston', group:'C', phase:'groups'},
-  {id:'m15', home:'sco', away:'mar', date:'2026-06-20', time:'00:00', venue:'Gillette Stadium, Boston', group:'C', phase:'groups'},
-  {id:'m16', home:'bra', away:'hat', date:'2026-06-20', time:'02:30', venue:'Lincoln Financial Field, Filadelfia', group:'C', phase:'groups'},
-  {id:'m17', home:'mar', away:'hat', date:'2026-06-25', time:'00:00', venue:'Mercedes-Benz Stadium, Atlanta', group:'C', phase:'groups'},
-  {id:'m18', home:'sco', away:'bra', date:'2026-06-25', time:'00:00', venue:'Hard Rock Stadium, Miami', group:'C', phase:'groups'},
-  {id:'m19', home:'usa', away:'par', date:'2026-06-13', time:'03:00', venue:'SoFi Stadium, Los Ángeles', group:'D', phase:'groups'},
-  {id:'m20', home:'aus', away:'tur', date:'2026-06-14', time:'06:00', venue:'BC Place, Vancouver', group:'D', phase:'groups'},
-  {id:'m21', home:'usa', away:'aus', date:'2026-06-19', time:'21:00', venue:'Lumen Field, Seattle', group:'D', phase:'groups'},
-  {id:'m22', home:'tur', away:'par', date:'2026-06-20', time:'05:00', venue:'Levis Stadium, Santa Clara', group:'D', phase:'groups'},
-  {id:'m23', home:'par', away:'aus', date:'2026-06-26', time:'04:00', venue:'Levis Stadium, Santa Clara', group:'D', phase:'groups'},
-  {id:'m24', home:'tur', away:'usa', date:'2026-06-26', time:'04:00', venue:'SoFi Stadium, Los Ángeles', group:'D', phase:'groups'},
-  {id:'m25', home:'ger', away:'cur', date:'2026-06-14', time:'19:00', venue:'NRG Stadium, Houston', group:'E', phase:'groups'},
-  {id:'m26', home:'cdi', away:'ecu', date:'2026-06-15', time:'01:00', venue:'Lincoln Financial Field, Filadelfia', group:'E', phase:'groups'},
-  {id:'m27', home:'ger', away:'cdi', date:'2026-06-20', time:'22:00', venue:'BMO Field, Toronto', group:'E', phase:'groups'},
-  {id:'m28', home:'ecu', away:'cur', date:'2026-06-21', time:'02:00', venue:'Arrowhead Stadium, Kansas City', group:'E', phase:'groups'},
-  {id:'m29', home:'cur', away:'cdi', date:'2026-06-25', time:'22:00', venue:'Lincoln Financial Field, Filadelfia', group:'E', phase:'groups'},
-  {id:'m30', home:'ecu', away:'ger', date:'2026-06-25', time:'22:00', venue:'MetLife Stadium, Nueva Jersey', group:'E', phase:'groups'},
-  {id:'m31', home:'ned', away:'jpn', date:'2026-06-14', time:'22:00', venue:'AT&T Stadium, Dallas', group:'F', phase:'groups'},
-  {id:'m32', home:'swe', away:'tun', date:'2026-06-15', time:'04:00', venue:'Estadio BBVA, Monterrey', group:'F', phase:'groups'},
+  {id:'m2', home:'kor', away:'cze', date:'2026-06-12', time:'04:00', venue:'Estadio Akron, Zapopan', group:'A', phase:'groups'},
+  {id:'m3', home:'can', away:'bih', date:'2026-06-12', time:'21:00', venue:'BMO Field, Toronto', group:'B', phase:'groups'},
+  {id:'m4', home:'usa', away:'par', date:'2026-06-13', time:'03:00', venue:'SoFi Stadium, Los Ángeles', group:'D', phase:'groups'},
+  {id:'m5', home:'qat', away:'sui', date:'2026-06-13', time:'21:00', venue:'Levi\'s Stadium, Santa Clara', group:'B', phase:'groups'},
+  {id:'m6', home:'bra', away:'mar', date:'2026-06-14', time:'00:00', venue:'MetLife Stadium, Nueva Jersey', group:'C', phase:'groups'},
+  {id:'m7', home:'hat', away:'sco', date:'2026-06-14', time:'03:00', venue:'Gillette Stadium, Foxborough', group:'C', phase:'groups'},
+  {id:'m8', home:'aus', away:'tur', date:'2026-06-14', time:'06:00', venue:'BC Place, Vancouver', group:'D', phase:'groups'},
+  {id:'m9', home:'ger', away:'cur', date:'2026-06-14', time:'19:00', venue:'NRG Stadium, Houston', group:'E', phase:'groups'},
+  {id:'m10', home:'ned', away:'jpn', date:'2026-06-14', time:'22:00', venue:'AT&T Stadium, Arlington', group:'F', phase:'groups'},
+  {id:'m11', home:'cdi', away:'ecu', date:'2026-06-15', time:'01:00', venue:'Lincoln Financial Field, Filadelfia', group:'E', phase:'groups'},
+  {id:'m12', home:'swe', away:'tun', date:'2026-06-15', time:'04:00', venue:'Estadio BBVA, Guadalupe', group:'F', phase:'groups'},
+  {id:'m13', home:'esp', away:'cpv', date:'2026-06-15', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', group:'H', phase:'groups'},
+  {id:'m14', home:'bel', away:'egy', date:'2026-06-15', time:'21:00', venue:'Lumen Field, Seattle', group:'G', phase:'groups'},
+  {id:'m15', home:'ksa', away:'uru', date:'2026-06-16', time:'00:00', venue:'Hard Rock Stadium, Miami', group:'H', phase:'groups'},
+  {id:'m16', home:'ira', away:'nzl', date:'2026-06-16', time:'03:00', venue:'SoFi Stadium, Los Ángeles', group:'G', phase:'groups'},
+  {id:'m17', home:'fra', away:'sen', date:'2026-06-16', time:'21:00', venue:'MetLife Stadium, Nueva Jersey', group:'I', phase:'groups'},
+  {id:'m18', home:'irq', away:'nor', date:'2026-06-17', time:'00:00', venue:'Gillette Stadium, Foxborough', group:'I', phase:'groups'},
+  {id:'m19', home:'arg', away:'alg', date:'2026-06-17', time:'03:00', venue:'Arrowhead Stadium, Kansas City', group:'J', phase:'groups'},
+  {id:'m20', home:'aut', away:'jor', date:'2026-06-17', time:'06:00', venue:'Levi\'s Stadium, Santa Clara', group:'J', phase:'groups'},
+  {id:'m21', home:'por', away:'cod', date:'2026-06-17', time:'19:00', venue:'NRG Stadium, Houston', group:'K', phase:'groups'},
+  {id:'m22', home:'eng', away:'cro', date:'2026-06-17', time:'22:00', venue:'AT&T Stadium, Arlington', group:'L', phase:'groups'},
+  {id:'m23', home:'gha', away:'pan', date:'2026-06-18', time:'01:00', venue:'BMO Field, Toronto', group:'L', phase:'groups'},
+  {id:'m24', home:'uzb', away:'col', date:'2026-06-18', time:'04:00', venue:'Estadio Azteca, Ciudad de México', group:'K', phase:'groups'},
+  {id:'m25', home:'cze', away:'rsa', date:'2026-06-18', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', group:'A', phase:'groups'},
+  {id:'m26', home:'sui', away:'bih', date:'2026-06-18', time:'21:00', venue:'SoFi Stadium, Los Ángeles', group:'B', phase:'groups'},
+  {id:'m27', home:'can', away:'qat', date:'2026-06-19', time:'00:00', venue:'BC Place, Vancouver', group:'B', phase:'groups'},
+  {id:'m28', home:'mex', away:'kor', date:'2026-06-19', time:'03:00', venue:'Estadio Akron, Zapopan', group:'A', phase:'groups'},
+  {id:'m29', home:'usa', away:'aus', date:'2026-06-19', time:'21:00', venue:'Lumen Field, Seattle', group:'D', phase:'groups'},
+  {id:'m30', home:'sco', away:'mar', date:'2026-06-20', time:'00:00', venue:'Gillette Stadium, Foxborough', group:'C', phase:'groups'},
+  {id:'m31', home:'bra', away:'hat', date:'2026-06-20', time:'02:30', venue:'Lincoln Financial Field, Filadelfia', group:'C', phase:'groups'},
+  {id:'m32', home:'tur', away:'par', date:'2026-06-20', time:'05:00', venue:'Levi\'s Stadium, Santa Clara', group:'D', phase:'groups'},
   {id:'m33', home:'ned', away:'swe', date:'2026-06-20', time:'19:00', venue:'NRG Stadium, Houston', group:'F', phase:'groups'},
-  {id:'m34', home:'tun', away:'jpn', date:'2026-06-21', time:'06:00', venue:'Estadio BBVA, Monterrey', group:'F', phase:'groups'},
-  {id:'m35', home:'jpn', away:'swe', date:'2026-06-26', time:'01:00', venue:'AT&T Stadium, Dallas', group:'F', phase:'groups'},
-  {id:'m36', home:'tun', away:'ned', date:'2026-06-26', time:'01:00', venue:'Arrowhead Stadium, Kansas City', group:'F', phase:'groups'},
-  {id:'m37', home:'bel', away:'egy', date:'2026-06-15', time:'21:00', venue:'Lumen Field, Seattle', group:'G', phase:'groups'},
-  {id:'m38', home:'ira', away:'nzl', date:'2026-06-16', time:'03:00', venue:'SoFi Stadium, Los Ángeles', group:'G', phase:'groups'},
-  {id:'m39', home:'bel', away:'ira', date:'2026-06-21', time:'21:00', venue:'SoFi Stadium, Los Ángeles', group:'G', phase:'groups'},
+  {id:'m34', home:'ger', away:'cdi', date:'2026-06-20', time:'22:00', venue:'BMO Field, Toronto', group:'E', phase:'groups'},
+  {id:'m35', home:'ecu', away:'cur', date:'2026-06-21', time:'02:00', venue:'Arrowhead Stadium, Kansas City', group:'E', phase:'groups'},
+  {id:'m36', home:'tun', away:'jpn', date:'2026-06-21', time:'06:00', venue:'Estadio BBVA, Guadalupe', group:'F', phase:'groups'},
+  {id:'m37', home:'esp', away:'ksa', date:'2026-06-21', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', group:'H', phase:'groups'},
+  {id:'m38', home:'bel', away:'ira', date:'2026-06-21', time:'21:00', venue:'SoFi Stadium, Los Ángeles', group:'G', phase:'groups'},
+  {id:'m39', home:'uru', away:'cpv', date:'2026-06-22', time:'00:00', venue:'Hard Rock Stadium, Miami', group:'H', phase:'groups'},
   {id:'m40', home:'nzl', away:'egy', date:'2026-06-22', time:'03:00', venue:'BC Place, Vancouver', group:'G', phase:'groups'},
-  {id:'m41', home:'egy', away:'ira', date:'2026-06-27', time:'05:00', venue:'Lumen Field, Seattle', group:'G', phase:'groups'},
-  {id:'m42', home:'nzl', away:'bel', date:'2026-06-27', time:'05:00', venue:'BC Place, Vancouver', group:'G', phase:'groups'},
-  {id:'m43', home:'esp', away:'cpv', date:'2026-06-15', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', group:'H', phase:'groups'},
-  {id:'m44', home:'ksa', away:'uru', date:'2026-06-16', time:'00:00', venue:'Hard Rock Stadium, Miami', group:'H', phase:'groups'},
-  {id:'m45', home:'esp', away:'ksa', date:'2026-06-21', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', group:'H', phase:'groups'},
-  {id:'m46', home:'uru', away:'cpv', date:'2026-06-22', time:'00:00', venue:'Hard Rock Stadium, Miami', group:'H', phase:'groups'},
-  {id:'m47', home:'cpv', away:'ksa', date:'2026-06-27', time:'02:00', venue:'NRG Stadium, Houston', group:'H', phase:'groups'},
-  {id:'m48', home:'uru', away:'esp', date:'2026-06-27', time:'02:00', venue:'Estadio Akron, Guadalajara', group:'H', phase:'groups'},
-  {id:'m49', home:'fra', away:'sen', date:'2026-06-16', time:'21:00', venue:'MetLife Stadium, Nueva Jersey', group:'I', phase:'groups'},
-  {id:'m50', home:'irq', away:'nor', date:'2026-06-17', time:'00:00', venue:'Gillette Stadium, Boston', group:'I', phase:'groups'},
-  {id:'m51', home:'fra', away:'irq', date:'2026-06-22', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', group:'I', phase:'groups'},
-  {id:'m52', home:'nor', away:'sen', date:'2026-06-23', time:'02:00', venue:'BMO Field, Toronto', group:'I', phase:'groups'},
-  {id:'m53', home:'nor', away:'fra', date:'2026-06-26', time:'21:00', venue:'Gillette Stadium, Boston', group:'I', phase:'groups'},
-  {id:'m54', home:'sen', away:'irq', date:'2026-06-26', time:'21:00', venue:'BMO Field, Toronto', group:'I', phase:'groups'},
-  {id:'m55', home:'arg', away:'alg', date:'2026-06-17', time:'03:00', venue:'Arrowhead Stadium, Kansas City', group:'J', phase:'groups'},
-  {id:'m56', home:'aut', away:'jor', date:'2026-06-17', time:'06:00', venue:'Levis Stadium, Santa Clara', group:'J', phase:'groups'},
-  {id:'m57', home:'arg', away:'aut', date:'2026-06-22', time:'19:00', venue:'AT&T Stadium, Dallas', group:'J', phase:'groups'},
-  {id:'m58', home:'jor', away:'alg', date:'2026-06-23', time:'05:00', venue:'Levis Stadium, Santa Clara', group:'J', phase:'groups'},
-  {id:'m59', home:'alg', away:'aut', date:'2026-06-28', time:'04:00', venue:'Arrowhead Stadium, Kansas City', group:'J', phase:'groups'},
-  {id:'m60', home:'jor', away:'arg', date:'2026-06-28', time:'04:00', venue:'AT&T Stadium, Dallas', group:'J', phase:'groups'},
-  {id:'m61', home:'por', away:'cod', date:'2026-06-17', time:'19:00', venue:'NRG Stadium, Houston', group:'K', phase:'groups'},
-  {id:'m62', home:'uzb', away:'col', date:'2026-06-18', time:'04:00', venue:'Estadio Azteca, Ciudad de México', group:'K', phase:'groups'},
-  {id:'m63', home:'por', away:'uzb', date:'2026-06-23', time:'19:00', venue:'NRG Stadium, Houston', group:'K', phase:'groups'},
-  {id:'m64', home:'col', away:'cod', date:'2026-06-24', time:'04:00', venue:'Estadio Akron, Guadalajara', group:'K', phase:'groups'},
-  {id:'m65', home:'col', away:'por', date:'2026-06-28', time:'01:30', venue:'Hard Rock Stadium, Miami', group:'K', phase:'groups'},
-  {id:'m66', home:'cod', away:'uzb', date:'2026-06-28', time:'01:30', venue:'Mercedes-Benz Stadium, Atlanta', group:'K', phase:'groups'},
-  {id:'m67', home:'eng', away:'cro', date:'2026-06-17', time:'22:00', venue:'AT&T Stadium, Dallas', group:'L', phase:'groups'},
-  {id:'m68', home:'gha', away:'pan', date:'2026-06-18', time:'01:00', venue:'BMO Field, Toronto', group:'L', phase:'groups'},
-  {id:'m69', home:'eng', away:'gha', date:'2026-06-23', time:'22:00', venue:'Gillette Stadium, Boston', group:'L', phase:'groups'},
-  {id:'m70', home:'pan', away:'cro', date:'2026-06-24', time:'01:00', venue:'Gillette Stadium, Boston', group:'L', phase:'groups'},
-  {id:'m71', home:'cro', away:'gha', date:'2026-06-27', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', group:'L', phase:'groups'},
-  {id:'m72', home:'pan', away:'eng', date:'2026-06-27', time:'23:00', venue:'MetLife Stadium, Nueva Jersey', group:'L', phase:'groups'},
-  {id:'m73', home:'2º Grupo A', away:'2º Grupo B', date:'2026-06-28', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'r32'},
-  {id:'m74', home:'1º Grupo C', away:'2º Grupo F', date:'2026-06-29', time:'19:00', venue:'NRG Stadium, Houston', phase:'r32'},
-  {id:'m75', home:'1º Grupo E', away:'3º A/B/C/D/F', date:'2026-06-29', time:'22:30', venue:'Gillette Stadium, Boston', phase:'r32'},
-  {id:'m76', home:'1º Grupo F', away:'2º Grupo C', date:'2026-06-30', time:'03:00', venue:'Estadio BBVA, Monterrey', phase:'r32'},
-  {id:'m77', home:'2º Grupo E', away:'2º Grupo I', date:'2026-06-30', time:'19:00', venue:'AT&T Stadium, Dallas', phase:'r32'},
-  {id:'m78', home:'1º Grupo I', away:'3º C/D/F/G/H', date:'2026-06-30', time:'23:00', venue:'MetLife Stadium, Nueva Jersey', phase:'r32'},
-  {id:'m79', home:'1º Grupo A', away:'3º C/E/F/H/I', date:'2026-07-01', time:'03:00', venue:'Estadio Azteca, Ciudad de México', phase:'r32'},
-  {id:'m80', home:'1º Grupo L', away:'3º E/H/I/J/K', date:'2026-07-01', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r32'},
-  {id:'m81', home:'1º Grupo G', away:'3º A/E/H/I/J', date:'2026-07-01', time:'22:00', venue:'Lumen Field, Seattle', phase:'r32'},
-  {id:'m82', home:'1º Grupo D', away:'3º B/E/F/I/J', date:'2026-07-02', time:'02:00', venue:'Levis Stadium, Santa Clara', phase:'r32'},
-  {id:'m83', home:'1º Grupo H', away:'2º Grupo J', date:'2026-07-02', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'r32'},
-  {id:'m84', home:'2º Grupo K', away:'2º Grupo L', date:'2026-07-03', time:'01:00', venue:'BMO Field, Toronto', phase:'r32'},
-  {id:'m85', home:'1º Grupo B', away:'3º E/F/G/I/J', date:'2026-07-03', time:'05:00', venue:'BC Place, Vancouver', phase:'r32'},
-  {id:'m86', home:'2º Grupo D', away:'2º Grupo G', date:'2026-07-03', time:'20:00', venue:'AT&T Stadium, Dallas', phase:'r32'},
-  {id:'m87', home:'1º Grupo J', away:'2º Grupo H', date:'2026-07-04', time:'00:00', venue:'Hard Rock Stadium, Miami', phase:'r32'},
-  {id:'m88', home:'1º Grupo K', away:'3º D/E/I/J/L', date:'2026-07-04', time:'03:30', venue:'Arrowhead Stadium, Kansas City', phase:'r32'},
-  {id:'m89', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-04', time:'19:00', venue:'NRG Stadium, Houston', phase:'r16'},
-  {id:'m90', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-04', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', phase:'r16'},
-  {id:'m91', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-05', time:'22:00', venue:'MetLife Stadium, Nueva Jersey', phase:'r16'},
-  {id:'m92', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-06', time:'02:00', venue:'Estadio Azteca, Ciudad de México', phase:'r16'},
-  {id:'m93', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-06', time:'21:00', venue:'AT&T Stadium, Dallas', phase:'r16'},
-  {id:'m94', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-07', time:'02:00', venue:'Lumen Field, Seattle', phase:'r16'},
-  {id:'m95', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-07', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r16'},
-  {id:'m96', home:'G. Dieciseisavos', away:'G. Dieciseisavos', date:'2026-07-07', time:'22:00', venue:'BC Place, Vancouver', phase:'r16'},
-  {id:'m97', home:'G. Octavos', away:'G. Octavos', date:'2026-07-09', time:'22:00', venue:'Gillette Stadium, Boston', phase:'qf'},
-  {id:'m98', home:'G. Octavos', away:'G. Octavos', date:'2026-07-10', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'qf'},
-  {id:'m99', home:'G. Octavos', away:'G. Octavos', date:'2026-07-11', time:'23:00', venue:'Hard Rock Stadium, Miami', phase:'qf'},
-  {id:'m100', home:'G. Octavos', away:'G. Octavos', date:'2026-07-12', time:'03:00', venue:'Arrowhead Stadium, Kansas City', phase:'qf'},
-  {id:'m101', home:'G. Cuartos', away:'G. Cuartos', date:'2026-07-14', time:'21:00', venue:'AT&T Stadium, Dallas', phase:'sf'},
-  {id:'m102', home:'G. Cuartos', away:'G. Cuartos', date:'2026-07-15', time:'21:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'sf'},
-  {id:'m103', home:'Perdedor Semi', away:'Perdedor Semi', date:'2026-07-18', time:'23:00', venue:'Hard Rock Stadium, Miami', phase:'3rd'},
-  {id:'m104', home:'G. Semifinal', away:'G. Semifinal', date:'2026-07-19', time:'21:00', venue:'MetLife Stadium, Nueva Jersey', phase:'final'},
+  {id:'m41', home:'arg', away:'aut', date:'2026-06-22', time:'19:00', venue:'AT&T Stadium, Arlington', group:'J', phase:'groups'},
+  {id:'m42', home:'fra', away:'irq', date:'2026-06-22', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', group:'I', phase:'groups'},
+  {id:'m43', home:'nor', away:'sen', date:'2026-06-23', time:'02:00', venue:'BMO Field, Toronto', group:'I', phase:'groups'},
+  {id:'m44', home:'jor', away:'alg', date:'2026-06-23', time:'05:00', venue:'Levi\'s Stadium, Santa Clara', group:'J', phase:'groups'},
+  {id:'m45', home:'por', away:'uzb', date:'2026-06-23', time:'19:00', venue:'NRG Stadium, Houston', group:'K', phase:'groups'},
+  {id:'m46', home:'eng', away:'gha', date:'2026-06-23', time:'22:00', venue:'Gillette Stadium, Foxborough', group:'L', phase:'groups'},
+  {id:'m47', home:'pan', away:'cro', date:'2026-06-24', time:'01:00', venue:'Gillette Stadium, Foxborough', group:'L', phase:'groups'},
+  {id:'m48', home:'col', away:'cod', date:'2026-06-24', time:'04:00', venue:'Estadio Akron, Zapopan', group:'K', phase:'groups'},
+  {id:'m49', home:'bih', away:'qat', date:'2026-06-24', time:'21:00', venue:'Lumen Field, Seattle', group:'B', phase:'groups'},
+  {id:'m50', home:'sui', away:'can', date:'2026-06-24', time:'21:00', venue:'BC Place, Vancouver', group:'B', phase:'groups'},
+  {id:'m51', home:'mar', away:'hat', date:'2026-06-25', time:'00:00', venue:'Mercedes-Benz Stadium, Atlanta', group:'C', phase:'groups'},
+  {id:'m52', home:'sco', away:'bra', date:'2026-06-25', time:'00:00', venue:'Hard Rock Stadium, Miami', group:'C', phase:'groups'},
+  {id:'m53', home:'cze', away:'mex', date:'2026-06-25', time:'03:00', venue:'Estadio Azteca, Ciudad de México', group:'A', phase:'groups'},
+  {id:'m54', home:'rsa', away:'kor', date:'2026-06-25', time:'03:00', venue:'Estadio BBVA, Guadalupe', group:'A', phase:'groups'},
+  {id:'m55', home:'cur', away:'cdi', date:'2026-06-25', time:'22:00', venue:'Lincoln Financial Field, Filadelfia', group:'E', phase:'groups'},
+  {id:'m56', home:'ecu', away:'ger', date:'2026-06-25', time:'22:00', venue:'MetLife Stadium, Nueva Jersey', group:'E', phase:'groups'},
+  {id:'m57', home:'jpn', away:'swe', date:'2026-06-26', time:'01:00', venue:'AT&T Stadium, Arlington', group:'F', phase:'groups'},
+  {id:'m58', home:'tun', away:'ned', date:'2026-06-26', time:'01:00', venue:'Arrowhead Stadium, Kansas City', group:'F', phase:'groups'},
+  {id:'m59', home:'par', away:'aus', date:'2026-06-26', time:'04:00', venue:'Levi\'s Stadium, Santa Clara', group:'D', phase:'groups'},
+  {id:'m60', home:'tur', away:'usa', date:'2026-06-26', time:'04:00', venue:'SoFi Stadium, Los Ángeles', group:'D', phase:'groups'},
+  {id:'m61', home:'nor', away:'fra', date:'2026-06-26', time:'21:00', venue:'Gillette Stadium, Foxborough', group:'I', phase:'groups'},
+  {id:'m62', home:'sen', away:'irq', date:'2026-06-26', time:'21:00', venue:'BMO Field, Toronto', group:'I', phase:'groups'},
+  {id:'m63', home:'cpv', away:'ksa', date:'2026-06-27', time:'02:00', venue:'NRG Stadium, Houston', group:'H', phase:'groups'},
+  {id:'m64', home:'uru', away:'esp', date:'2026-06-27', time:'02:00', venue:'Estadio Akron, Zapopan', group:'H', phase:'groups'},
+  {id:'m65', home:'egy', away:'ira', date:'2026-06-27', time:'05:00', venue:'Lumen Field, Seattle', group:'G', phase:'groups'},
+  {id:'m66', home:'nzl', away:'bel', date:'2026-06-27', time:'05:00', venue:'BC Place, Vancouver', group:'G', phase:'groups'},
+  {id:'m67', home:'cro', away:'gha', date:'2026-06-27', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', group:'L', phase:'groups'},
+  {id:'m68', home:'pan', away:'eng', date:'2026-06-27', time:'23:00', venue:'MetLife Stadium, Nueva Jersey', group:'L', phase:'groups'},
+  {id:'m69', home:'col', away:'por', date:'2026-06-28', time:'01:30', venue:'Hard Rock Stadium, Miami', group:'K', phase:'groups'},
+  {id:'m70', home:'cod', away:'uzb', date:'2026-06-28', time:'01:30', venue:'Mercedes-Benz Stadium, Atlanta', group:'K', phase:'groups'},
+  {id:'m71', home:'alg', away:'aut', date:'2026-06-28', time:'04:00', venue:'Arrowhead Stadium, Kansas City', group:'J', phase:'groups'},
+  {id:'m72', home:'jor', away:'arg', date:'2026-06-28', time:'04:00', venue:'AT&T Stadium, Arlington', group:'J', phase:'groups'},
+  {id:'m73', home:'2.º Grupo A', away:'2.º Grupo B', date:'2026-06-28', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'r32'},
+  {id:'m74', home:'Ganador Grupo C', away:'2.º Grupo F', date:'2026-06-29', time:'19:00', venue:'NRG Stadium, Houston', phase:'r32'},
+  {id:'m75', home:'Ganador Grupo E', away:'3.º Grupo A/B/C/D/F', date:'2026-06-29', time:'22:30', venue:'Gillette Stadium, Foxborough', phase:'r32'},
+  {id:'m76', home:'Ganador Grupo F', away:'2.º Grupo C', date:'2026-06-30', time:'03:00', venue:'Estadio BBVA, Guadalupe', phase:'r32'},
+  {id:'m77', home:'2.º Grupo E', away:'2.º Grupo I', date:'2026-06-30', time:'19:00', venue:'AT&T Stadium, Arlington', phase:'r32'},
+  {id:'m78', home:'Ganador Grupo I', away:'3.º Grupo C/D/F/G/H', date:'2026-06-30', time:'23:00', venue:'MetLife Stadium, Nueva Jersey', phase:'r32'},
+  {id:'m79', home:'Ganador Grupo A', away:'3.º Grupo C/E/F/H/I', date:'2026-07-01', time:'03:00', venue:'Estadio Azteca, Ciudad de México', phase:'r32'},
+  {id:'m80', home:'Ganador Grupo L', away:'3.º Grupo E/H/I/J/K', date:'2026-07-01', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r32'},
+  {id:'m81', home:'Ganador Grupo G', away:'3.º Grupo A/E/H/I/J', date:'2026-07-01', time:'22:00', venue:'Lumen Field, Seattle', phase:'r32'},
+  {id:'m82', home:'Ganador Grupo D', away:'3.º Grupo B/E/F/I/J', date:'2026-07-02', time:'02:00', venue:'Levi\'s Stadium, Santa Clara', phase:'r32'},
+  {id:'m83', home:'Ganador Grupo H', away:'2.º Grupo J', date:'2026-07-02', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'r32'},
+  {id:'m84', home:'2.º Grupo K', away:'2.º Grupo L', date:'2026-07-03', time:'01:00', venue:'BMO Field, Toronto', phase:'r32'},
+  {id:'m85', home:'Ganador Grupo B', away:'3.º Grupo E/F/G/I/J', date:'2026-07-03', time:'05:00', venue:'BC Place, Vancouver', phase:'r32'},
+  {id:'m86', home:'2.º Grupo D', away:'2.º Grupo G', date:'2026-07-03', time:'20:00', venue:'AT&T Stadium, Arlington', phase:'r32'},
+  {id:'m87', home:'Ganador Grupo J', away:'2.º Grupo H', date:'2026-07-04', time:'00:00', venue:'Hard Rock Stadium, Miami', phase:'r32'},
+  {id:'m88', home:'Ganador Grupo K', away:'3.º Grupo D/E/I/J/L', date:'2026-07-04', time:'03:30', venue:'Arrowhead Stadium, Kansas City', phase:'r32'},
+  {id:'m89', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-04', time:'19:00', venue:'NRG Stadium, Houston', phase:'r16'},
+  {id:'m90', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-04', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', phase:'r16'},
+  {id:'m91', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-05', time:'22:00', venue:'MetLife Stadium, Nueva Jersey', phase:'r16'},
+  {id:'m92', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-06', time:'02:00', venue:'Estadio Azteca, Ciudad de México', phase:'r16'},
+  {id:'m93', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-06', time:'21:00', venue:'AT&T Stadium, Arlington', phase:'r16'},
+  {id:'m94', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-07', time:'02:00', venue:'Lumen Field, Seattle', phase:'r16'},
+  {id:'m95', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-07', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r16'},
+  {id:'m96', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-07', time:'22:00', venue:'BC Place, Vancouver', phase:'r16'},
+  {id:'m97', home:'Ganador de octavos', away:'Ganador de octavos', date:'2026-07-09', time:'22:00', venue:'Gillette Stadium, Foxborough', phase:'qf'},
+  {id:'m98', home:'Ganador de octavos', away:'Ganador de octavos', date:'2026-07-10', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'qf'},
+  {id:'m99', home:'Ganador de octavos', away:'Ganador de octavos', date:'2026-07-11', time:'23:00', venue:'Hard Rock Stadium, Miami', phase:'qf'},
+  {id:'m100', home:'Ganador de octavos', away:'Ganador de octavos', date:'2026-07-12', time:'03:00', venue:'Arrowhead Stadium, Kansas City', phase:'qf'},
+  {id:'m101', home:'Ganador de cuartos', away:'Ganador de cuartos', date:'2026-07-14', time:'21:00', venue:'AT&T Stadium, Arlington', phase:'sf'},
+  {id:'m102', home:'Ganador de cuartos', away:'Ganador de cuartos', date:'2026-07-15', time:'21:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'sf'},
+  {id:'m103', home:'Perdedor de semifinal', away:'Perdedor de semifinal', date:'2026-07-18', time:'23:00', venue:'Hard Rock Stadium, Miami', phase:'3rd'},
+  {id:'m104', home:'Ganador de semifinal', away:'Ganador de semifinal', date:'2026-07-19', time:'21:00', venue:'MetLife Stadium, Nueva Jersey', phase:'final'},
 ];
 
 function tname(id){return(TEAM_INFO[id]||{name:id.toUpperCase()}).name;}
@@ -1548,6 +1454,8 @@ function openTeam(id){
     <div style="height:20px"></div>
   `;
   requestAnimationFrame(()=>document.getElementById('team-detail').classList.add('open'));
+  currentTeamId = id;
+  ensureSquadData(id);
 }
 
 function openPlayerSheet(teamId, playerIdx){
@@ -1562,8 +1470,19 @@ function openPlayerSheet(teamId, playerIdx){
     ? `<img src="${p.photo}" onerror="this.parentElement.textContent='${initials}'">`
     : initials;
 
-  // Bio data — placeholder until API
   const posLabel = {PO:'Portero', DEF:'Defensa', MED:'Centrocampista', DEL:'Delantero'}[p.pos] || p.pos;
+
+  // Edad y altura (la API devuelve "187 cm" → mostramos "1,87 m")
+  const fmtHeight = h => {
+    const cm = parseInt(String(h).replace(/[^0-9]/g,''), 10);
+    return cm ? (cm/100).toFixed(2).replace('.', ',') + ' m' : '';
+  };
+  const metaBits = [];
+  if(p.age) metaBits.push(p.age + ' años');
+  if(p.height && fmtHeight(p.height)) metaBits.push(fmtHeight(p.height));
+  const metaExtra = metaBits.length
+    ? `<span style="font-size:12px;color:var(--text2);">· ${metaBits.join(' · ')}</span>`
+    : '';
 
   document.getElementById('player-sheet-content').innerHTML = `
     <div class="ps-handle"></div>
@@ -1572,8 +1491,9 @@ function openPlayerSheet(teamId, playerIdx){
       <div class="ps-hero-info">
         <div class="ps-num">${p.n}</div>
         <div class="ps-name">${p.name}</div>
-        <div class="ps-meta" style="margin-top:6px; gap:6px;">
+        <div class="ps-meta" style="margin-top:6px; gap:8px; align-items:center;">
           <span class="ps-tag-pos">${posLabel}</span>
+          ${metaExtra}
         </div>
         ${p.club ? `<div class="ps-club">· ${p.club} ·</div>` : ''}
       </div>
@@ -1604,7 +1524,7 @@ function closePlayerSheet(){
   document.getElementById('player-sheet').classList.remove('open');
 }
 
-function closeTeam(){document.getElementById('team-detail').classList.remove('open');}
+function closeTeam(){currentTeamId=null;document.getElementById('team-detail').classList.remove('open');}
 
 // ══════════════════════════════════════
 // NAV
@@ -1640,6 +1560,15 @@ const API_KEY = '31d66c2cbb8035670e626538f5213c41';
 const API_BASE = 'https://v3.football.api-sports.io';
 const WC_LEAGUE = 1;
 const WC_SEASON = 2026;
+
+// Mapa selección (código local) -> ID de equipo en API-Football.
+// Si una selección no está aquí, el cargador simplemente no se ejecuta para ella.
+const API_IDS = {
+  esp:9, eng:10, usa:13, ger:25, bra:6, por:27, mex:16,
+  arg:26, fra:2, ned:1, bel:24, jpn:29, kor:35, mar:32,
+  cro:3, uru:4, col:8, ecu:36, sen:33, tur:21, sui:12, can:84
+};
+let currentTeamId = null;
 let liveRefreshTimer = null;
 
 async function apiFetch(endpoint){
@@ -1705,22 +1634,43 @@ async function loadFixtures(){
 }
 
 async function loadPlayerPhotos(teamLocalId, teamApiId){
-  if(!teamApiId) return;
-  const data = await apiFetch(`/players?team=${teamApiId}&season=${WC_SEASON}&league=${WC_LEAGUE}`);
-  if(!data || !data.response) return;
+  if(!teamApiId) return 0;
   const team = TEAM_INFO[teamLocalId];
-  if(!team || !team.squad) return;
-  data.response.forEach(p => {
-    const apiName = p.player.name.toLowerCase();
-    const local = team.squad.find(s =>
-      s.name.toLowerCase().split(' ').some(w => w.length > 3 && apiName.includes(w))
-    );
-    if(local){
-      local.photo = p.player.photo;
-      local.age = p.player.age;
-      local.height = p.player.height;
-    }
-  });
+  if(!team || !team.squad) return 0;
+  const norm = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  let count = 0, page = 1, totalPages = 1;
+  do {
+    const data = await apiFetch(`/players?team=${teamApiId}&season=${WC_SEASON}&league=${WC_LEAGUE}&page=${page}`);
+    if(!data || !data.response) break;
+    totalPages = (data.paging && data.paging.total) || 1;
+    data.response.forEach(p => {
+      const apiName = norm(p.player.name);
+      const local = team.squad.find(s =>
+        norm(s.name).split(' ').some(w => w.length > 3 && apiName.includes(w))
+      );
+      if(local){
+        local.photo = p.player.photo;
+        local.age = p.player.age;
+        local.height = p.player.height;
+        count++;
+      }
+    });
+    page++;
+  } while(page <= totalPages && page <= 3);
+  return count;
+}
+
+// Orquestador del cargador: al abrir una selección, pide sus datos a la API una
+// sola vez y, si llegan, repinta la ficha para mostrar foto, edad y altura.
+// Nunca toca dorsales ni clubes: lo manual manda siempre.
+async function ensureSquadData(id){
+  const t = TEAM_INFO[id], apiId = API_IDS[id];
+  if(!t || !apiId || t._apiLoaded) return;
+  t._apiLoaded = true;
+  showApiStatus('Cargando datos del equipo…');
+  const n = await loadPlayerPhotos(id, apiId);
+  hideApiStatus();
+  if(n > 0 && currentTeamId === id) openTeam(id);
 }
 
 function showApiStatus(msg){
