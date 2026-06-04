@@ -1564,9 +1564,14 @@ const WC_SEASON = 2026;
 // Mapa selección (código local) -> ID de equipo en API-Football.
 // Si una selección no está aquí, el cargador simplemente no se ejecuta para ella.
 const API_IDS = {
-  esp:9, eng:10, usa:13, ger:25, bra:6, por:27, mex:16,
-  arg:26, fra:2, ned:1, bel:24, jpn:29, kor:35, mar:32,
-  cro:3, uru:4, col:8, ecu:36, sen:33, tur:21, sui:12, can:84
+  // 48/48 verificados desde /teams?league=1&season=2026 (descubrimiento del 04/06/2026).
+  // Corrige 12 IDs que antes apuntaban al equipo equivocado (p. ej. ned, bel, sui, jpn, kor).
+  usa:2384, can:5529, mex:16, uru:7, arg:26, bra:6, esp:9, mar:31,
+  por:27, fra:2, ger:25, sco:1108, sui:15, bel:1, eng:10, ned:1118,
+  aut:775, tur:777, cro:3, jpn:12, col:8, ksa:23, gha:1504, kor:17,
+  aus:20, sen:13, ecu:2382, par:2380, cdi:1501, nzl:4673, ira:22, rsa:1531,
+  cze:770, bih:1113, qat:1569, hat:2386, cur:5530, tun:28, swe:5, cpv:1533,
+  irq:1567, nor:1090, alg:1532, jor:1548, cod:1508, uzb:1568, pan:11, egy:32
 };
 let currentTeamId = null;
 let liveRefreshTimer = null;
