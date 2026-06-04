@@ -1695,10 +1695,106 @@ function hideApiStatus(){
   if(el) setTimeout(()=>el.style.display='none', 1200);
 }
 
+// ── HELPER de un solo uso: descubre los IDs de equipo de API-Football para las
+// 48 selecciones con UNA sola llamada (/teams?league=1&season=2026). No se
+// ejecuta solo (no gasta cuota en cada carga): se dispara abriendo la app con
+// "#discover" al final de la URL (cómodo en móvil) o con discoverApiIds() en
+// consola. Vuelca en pantalla y en consola un bloque API_IDS listo para pegar,
+// y avisa de conflictos con los IDs actuales y de lo que no consiguió casar.
+const API_NAME_ALIASES = {
+  usa:['united states','usa'], can:['canada'], mex:['mexico'], uru:['uruguay'],
+  arg:['argentina'], bra:['brazil'], esp:['spain'], mar:['morocco'],
+  por:['portugal'], fra:['france'], ger:['germany'], sco:['scotland'],
+  sui:['switzerland'], bel:['belgium'], eng:['england'], ned:['netherlands','holland'],
+  aut:['austria'], tur:['turkey','turkiye'], cro:['croatia'], jpn:['japan'],
+  col:['colombia'], ksa:['saudi arabia'], gha:['ghana'],
+  kor:['south korea','korea republic','korea'], aus:['australia'], sen:['senegal'],
+  ecu:['ecuador'], par:['paraguay'], cdi:['ivory coast','cote divoire'],
+  nzl:['new zealand'], ira:['iran'], rsa:['south africa'],
+  cze:['czech republic','czechia'], bih:['bosnia and herzegovina','bosnia'],
+  qat:['qatar'], hat:['haiti'], cur:['curacao'], tun:['tunisia'], swe:['sweden'],
+  cpv:['cape verde','cabo verde'], irq:['iraq'], nor:['norway'], alg:['algeria'],
+  jor:['jordan'], cod:['dr congo','congo dr','democratic republic of congo'],
+  uzb:['uzbekistan'], pan:['panama'], egy:['egypt']
+};
+
+async function discoverApiIds(){
+  const norm = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+  const squash = s => norm(s).replace(/[^a-z]/g,'');
+  showApiStatus('Descubriendo IDs (1 llamada)…');
+  const data = await apiFetch(`/teams?league=${WC_LEAGUE}&season=${WC_SEASON}`);
+  hideApiStatus();
+  if(!data || !data.response || !data.response.length){
+    const msg = 'La API no devolvió equipos para league=' + WC_LEAGUE + ' season=' + WC_SEASON +
+      '.\nPosible causa: la temporada aún no tiene equipos cargados. Reintenta más cerca del 11 de junio.';
+    console.warn('discoverApiIds:', msg);
+    showDiscoverResult(msg);
+    return;
+  }
+  const apiTeams = data.response.map(r => r.team).filter(Boolean);
+  const found = {}, conflicts = [], unmatched = [];
+  Object.keys(TEAM_INFO).forEach(code => {
+    const aliases = API_NAME_ALIASES[code] || [TEAM_INFO[code].name];
+    const hit = apiTeams.find(t => {
+      const N = squash(t.name);
+      const C = squash(t.code || '');
+      if(C && C === code) return true;
+      return aliases.some(a => {
+        const A = squash(a);
+        return A === N || N.includes(A) || A.includes(N);
+      });
+    });
+    if(hit){
+      found[code] = hit.id;
+      if(API_IDS[code] && API_IDS[code] !== hit.id)
+        conflicts.push(code + ': actual ' + API_IDS[code] + ' vs API ' + hit.id + ' (' + hit.name + ')');
+    } else {
+      unmatched.push(code + ' (' + TEAM_INFO[code].name + ')');
+    }
+  });
+  const order = Object.keys(TEAM_INFO).filter(c => found[c]);
+  const block = 'const API_IDS = {\n  ' + order.map(c => c + ':' + found[c]).join(', ') + '\n};';
+  let out = block + '\n\nResumen: ' + order.length + '/48 encontrados.';
+  if(conflicts.length) out += '\n\nConflictos con IDs actuales (revisar a mano):\n- ' + conflicts.join('\n- ');
+  if(unmatched.length) out += '\n\nSin casar (resolver con /teams?search=):\n- ' + unmatched.join('\n- ');
+  console.log('\n' + out);
+  showDiscoverResult(out);
+  return found;
+}
+
+function showDiscoverResult(text){
+  let o = document.getElementById('discover-overlay');
+  if(!o){
+    o = document.createElement('div');
+    o.id = 'discover-overlay';
+    o.style.cssText = 'position:fixed;inset:0;background:var(--bg1);z-index:9999;display:flex;flex-direction:column;padding:14px;box-sizing:border-box;';
+    const bar = document.createElement('div');
+    bar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;';
+    const title = document.createElement('b');
+    title.textContent = 'Descubrir API_IDs';
+    title.style.cssText = 'color:var(--text1);font-family:var(--sans);font-size:15px;';
+    const close = document.createElement('button');
+    close.textContent = 'Cerrar';
+    close.style.cssText = 'background:var(--text1);color:var(--bg2);border:0;border-radius:8px;padding:7px 14px;font-family:var(--sans);font-size:13px;';
+    close.addEventListener('click', () => o.remove());
+    bar.appendChild(title); bar.appendChild(close);
+    const ta = document.createElement('textarea');
+    ta.id = 'discover-text';
+    ta.readOnly = true;
+    ta.style.cssText = 'flex:1;width:100%;box-sizing:border-box;font-size:12px;font-family:monospace;white-space:pre;border-radius:8px;padding:10px;border:1px solid var(--border);background:var(--bg2);color:var(--text1);';
+    o.appendChild(bar); o.appendChild(ta);
+    document.getElementById('app').appendChild(o);
+  }
+  const ta = document.getElementById('discover-text');
+  ta.value = text;
+  ta.focus(); ta.select();
+}
+
 // ── INIT
 render();
 loadFixtures();
 setInterval(loadFixtures, 300000); // refresh every 5min passively
+if(location.hash === '#discover') discoverApiIds();
 </script>
 </body>
 </html>
