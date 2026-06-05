@@ -1179,6 +1179,22 @@ const MATCHES = [
 ];
 
 function tname(id){return(TEAM_INFO[id]||{name:id.toUpperCase()}).name;}
+// Normaliza para búsquedas: minúsculas + sin tildes/acentos.
+const normTxt = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+// ¿Coincide una selección (por id) con la consulta ya normalizada? Casa por
+// nombre sin tildes y por código de 3 letras (bel, bél, BÉLGICA, belgica…).
+function teamHit(id, ql){
+  if(!ql) return true;
+  return normTxt(tname(id)).includes(ql) || id.toLowerCase().includes(ql);
+}
+// Orden de convocatoria: por posición (PO→DEF→MED→DEL) y dentro de cada
+// posición por dorsal ascendente. Devuelve una copia; no muta el array original.
+const POS_ORDER = {PO:0, DEF:1, MED:2, DEL:3};
+function sortSquad(squad){
+  const rank = p => (p.pos in POS_ORDER) ? POS_ORDER[p.pos] : 9;
+  const num = p => (typeof p.n === 'number') ? p.n : 999;
+  return squad.slice().sort((a,b) => (rank(a) - rank(b)) || (num(a) - num(b)));
+}
 
 function fmtDate(d){
   const dt=new Date(d+'T00:00:00');
@@ -1196,7 +1212,7 @@ let view='matches', phase='all', q='', calMo=new Date(2026,5,1);
 // RENDER MATCHES
 // ══════════════════════════════════════
 function matchRowHTML(m, ql) {
-  const hi=ql&&(tname(m.home).toLowerCase().includes(ql)||tname(m.away).toLowerCase().includes(ql));
+  const hi=ql&&(teamHit(m.home,ql)||teamHit(m.away,ql));
   const isGroup = m.phase==='groups';
   const homeName = isGroup ? tname(m.home) : m.home;
   const awayName = isGroup ? tname(m.away) : m.away;
@@ -1225,10 +1241,10 @@ function matchRowHTML(m, ql) {
 }
 
 function renderMatches(){
-  const ql=q.toLowerCase();
+  const ql=normTxt(q);
   let ms=MATCHES.filter(m=>{
     if(phase!=='all'&&m.phase!==phase)return false;
-    if(ql){const h=tname(m.home).toLowerCase(),a=tname(m.away).toLowerCase();return h.includes(ql)||a.includes(ql);}
+    if(ql){return teamHit(m.home,ql)||teamHit(m.away,ql);}
     return true;
   });
   const el=document.getElementById('matches-list');
@@ -1275,7 +1291,7 @@ function renderCalendar(){
   const first=new Date(yr,mo,1).getDay();
   const days=new Date(yr,mo+1,0).getDate();
   const off=(first===0)?6:first-1;
-  const ql=q.toLowerCase();
+  const ql=normTxt(q);
 
   const mdays={};
   MATCHES.forEach(m=>{
@@ -1288,11 +1304,11 @@ function renderCalendar(){
   });
 
   const teamDays=new Set();
-  if(ql){Object.entries(mdays).forEach(([d,ms])=>{ms.forEach(m=>{if(tname(m.home).toLowerCase().includes(ql)||tname(m.away).toLowerCase().includes(ql))teamDays.add(+d);});});}
+  if(ql){Object.entries(mdays).forEach(([d,ms])=>{ms.forEach(m=>{if(teamHit(m.home,ql)||teamHit(m.away,ql))teamDays.add(+d);});});}
 
   const dows=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
   const legend=Object.entries(mdays).sort((a,b)=>a[0]-b[0]).flatMap(([,ms])=>ms)
-    .filter(m=>!ql||(tname(m.home).toLowerCase().includes(ql)||tname(m.away).toLowerCase().includes(ql)));
+    .filter(m=>!ql||(teamHit(m.home,ql)||teamHit(m.away,ql)));
 
   document.getElementById('calendar-view').innerHTML=`
     <div class="cal-nav">
@@ -1326,7 +1342,7 @@ function renderCalendar(){
           return `<div class="cal-day-header">${dayLabel}</div>
             <div class="cal-day-group">`+
             ms.map(m=>{
-              const isH=ql&&(tname(m.home).toLowerCase().includes(ql)||tname(m.away).toLowerCase().includes(ql));
+              const isH=ql&&(teamHit(m.home,ql)||teamHit(m.away,ql));
               return `<div class="cal-match-item${isH?' h':''}" onclick="jumpDate('${m.date}')">
                 <div class="cal-mi-left">
                   <div class="cal-mi-teams">${tname(m.home)} · ${tname(m.away)}</div>
@@ -1385,10 +1401,10 @@ function jumpDate(date){ openDayModal(date); }
 // RENDER TEAMS
 // ══════════════════════════════════════
 function renderTeams(){
-  const ql=q.toLowerCase();
+  const ql=normTxt(q);
   const groups={};
   Object.entries(TEAM_INFO).forEach(([id,t])=>{
-    if(ql&&!t.name.toLowerCase().includes(ql))return;
+    if(ql&&!teamHit(id,ql))return;
     if(!groups[t.group])groups[t.group]=[];
     groups[t.group].push({...t,id});
   });
@@ -1443,7 +1459,7 @@ function openTeam(id){
     </div>`:''}
     ${sq.length?`<div class="sec-title">Convocatoria</div>
     <div class="squad-grid">
-      ${sq.map((p,i)=>`<div class="player-card" onclick="openPlayerSheet('${id}',${i})">
+      ${sortSquad(sq).map(p=>`<div class="player-card" onclick="openPlayerSheet('${id}',${sq.indexOf(p)})">
         <div class="player-avatar">${p.photo?`<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.style.display='none'">`:''}<span style="${p.photo?'display:none':''}">${p.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()}</span></div>
         <div class="p-num">${p.n}</div>
         <div class="p-name">${p.name}</div>
