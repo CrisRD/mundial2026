@@ -913,7 +913,8 @@ html, body {
 .tm-chip.sel .mk::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;}
 .tm-counter{font-size:12px;color:var(--text2);text-align:center;margin:13px 0 2px;}
 .tm-counter b{color:var(--gold);}
-.tm-tie{background:var(--bg2);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:8px;}
+.tm-tie{background:var(--bg2);border:1.5px solid var(--border);border-radius:13px;overflow:hidden;margin-bottom:13px;box-shadow:0 2px 8px rgba(0,0,0,.05);position:relative;}
+.tm-vs{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--bg1);border:1px solid var(--border);color:var(--text3);font-size:8.5px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:20px;z-index:2;}
 .tm-team{display:flex;align-items:center;gap:10px;padding:9px 11px;cursor:pointer;transition:background .15s;}
 .tm-team+.tm-team{border-top:1px solid var(--border2);}
 .tm-team .tn{flex:1;font-size:13.5px;font-weight:500;}
@@ -1652,18 +1653,36 @@ function tmLoad(){
 function tmSave(){ try{ localStorage.setItem(TM_KEY, JSON.stringify(TM)); }catch(e){} }
 let TM = tmLoad();
 
-// ── Motor de cruces ──
-// Los dieciseisavos referencian slots de grupo. Resolvemos ganador/2.º directo,
-// y los 8 huecos de tercero por emparejamiento (cada tercero elegido a un hueco
-// cuyo conjunto de grupos lo permita), 1-a-1.
-function tmThirdSlots(){
-  const slots = [];
-  MATCHES.filter(m => m.phase==='r32').forEach(m => ['home','away'].forEach(side => {
-    const mm = m[side].match(/^3\.º Grupo (.+)$/);
-    if(mm) slots.push({ match:m.id, side, allowed:mm[1].split('/') });
-  }));
-  return slots;
-}
+// ── Motor de cruces (cuadro OFICIAL del Mundial 2026) ──
+// w = ganador de grupo (1.º), r = 2.º de grupo, third = mejor 3.º de esos grupos.
+const TM_R32 = [
+  { id:'m73', home:{w:'A',pos:2}, away:{w:'B',pos:2} },
+  { id:'m74', home:{w:'E',pos:1}, away:{third:['A','B','C','D','F']} },
+  { id:'m75', home:{w:'F',pos:1}, away:{w:'C',pos:2} },
+  { id:'m76', home:{w:'C',pos:1}, away:{w:'F',pos:2} },
+  { id:'m77', home:{w:'I',pos:1}, away:{third:['C','D','F','G','H']} },
+  { id:'m78', home:{w:'E',pos:2}, away:{w:'I',pos:2} },
+  { id:'m79', home:{w:'A',pos:1}, away:{third:['C','E','F','H','I']} },
+  { id:'m80', home:{w:'L',pos:1}, away:{third:['E','H','I','J','K']} },
+  { id:'m81', home:{w:'D',pos:1}, away:{third:['B','E','F','I','J']} },
+  { id:'m82', home:{w:'G',pos:1}, away:{third:['A','E','H','I','J']} },
+  { id:'m83', home:{w:'K',pos:2}, away:{w:'L',pos:2} },
+  { id:'m84', home:{w:'H',pos:1}, away:{w:'J',pos:2} },
+  { id:'m85', home:{w:'B',pos:1}, away:{third:['E','F','G','I','J']} },
+  { id:'m86', home:{w:'J',pos:1}, away:{w:'H',pos:2} },
+  { id:'m87', home:{w:'K',pos:1}, away:{third:['D','E','I','J','L']} },
+  { id:'m88', home:{w:'D',pos:2}, away:{w:'G',pos:2} }
+];
+// Adyacencia oficial de cada ronda: id -> [partido que aporta el local, el visitante].
+const TM_ADJ = {
+  r16:   { ids:['m89','m90','m91','m92','m93','m94','m95','m96'],
+           from:[['m73','m75'],['m74','m77'],['m76','m78'],['m79','m80'],['m83','m84'],['m81','m82'],['m86','m88'],['m85','m87']] },
+  qf:    { ids:['m97','m98','m99','m100'],
+           from:[['m89','m90'],['m93','m94'],['m91','m92'],['m95','m96']] },
+  sf:    { ids:['m101','m102'], from:[['m97','m98'],['m99','m100']] },
+  final: { ids:['m104'], from:[['m101','m102']] }
+};
+// Empareja los 8 terceros elegidos con los 8 huecos de tercero (1-a-1).
 function tmMatchThirds(slots, groups){
   const matchG = {}, result = new Array(slots.length).fill(null);
   function aug(i, vis){
@@ -1675,46 +1694,33 @@ function tmMatchThirds(slots, groups){
     return false;
   }
   for(let i=0;i<slots.length;i++) aug(i, new Set());
-  return result; // result[i] = letra de grupo asignada al slot i
+  return result;
 }
 function tmBuildR32(){
   const order = TM.order;
-  const slots = tmThirdSlots();
+  const slots = TM_R32.filter(t => t.away.third).map(t => ({ id:t.id, allowed:t.away.third }));
   const assign = tmMatchThirds(slots, TM.thirds);
-  const slotGroup = {};
-  slots.forEach((s,i) => { slotGroup[s.match+'|'+s.side] = assign[i]; });
-  return MATCHES.filter(m => m.phase==='r32').map(m => {
-    const res = side => {
-      const d = m[side]; let mm;
-      if(mm = d.match(/^Ganador Grupo (.)$/)) return (order[mm[1]]||[])[0] || null;
-      if(mm = d.match(/^2\.º Grupo (.)$/)) return (order[mm[1]]||[])[1] || null;
-      if(d.match(/^3\.º Grupo/)){ const g = slotGroup[m.id+'|'+side]; return g ? ((order[g]||[])[2]||null) : null; }
-      return null;
-    };
-    return { id:m.id, home:res('home'), away:res('away') };
-  });
+  const slotGroup = {}; slots.forEach((s,i) => slotGroup[s.id] = assign[i]);
+  const resolve = (spec, id) => {
+    if(spec.w) return (order[spec.w] || [])[spec.pos-1] || null;
+    const g = slotGroup[id]; return g ? ((order[g]||[])[2]||null) : null;
+  };
+  return TM_R32.map(t => ({ id:t.id, home:resolve(t.home, t.id), away:resolve(t.away, t.id) }));
 }
-const TM_R16 = ['m89','m90','m91','m92','m93','m94','m95','m96'];
-const TM_QF  = ['m97','m98','m99','m100'];
-const TM_SF  = ['m101','m102'];
-const TM_FINAL = 'm104';
 // Ganador efectivo: el elegido si sigue siendo válido en este cruce; si no, el local.
 function tmWin(tie){
   if(!tie || !tie.home || !tie.away) return null;
   const p = TM.picks[tie.id];
   return (p===tie.home || p===tie.away) ? p : tie.home;
 }
-function tmNext(prev, ids){
-  const out = [];
-  for(let k=0;k<ids.length;k++) out.push({ id:ids[k], home:tmWin(prev[2*k]), away:tmWin(prev[2*k+1]) });
-  return out;
-}
 function tmAllRounds(){
-  const r32 = tmBuildR32();
-  const r16 = tmNext(r32, TM_R16);
-  const qf  = tmNext(r16, TM_QF);
-  const sf  = tmNext(qf, TM_SF);
-  const fin = [{ id:TM_FINAL, home:tmWin(sf[0]), away:tmWin(sf[1]) }];
+  const byId = {};
+  const r32 = tmBuildR32(); r32.forEach(t => byId[t.id] = t);
+  const build = adj => adj.ids.map((id,k) => {
+    const t = { id, home:tmWin(byId[adj.from[k][0]]), away:tmWin(byId[adj.from[k][1]]) };
+    byId[id] = t; return t;
+  });
+  const r16 = build(TM_ADJ.r16), qf = build(TM_ADJ.qf), sf = build(TM_ADJ.sf), fin = build(TM_ADJ.final);
   return { r32, r16, qf, sf, fin };
 }
 
@@ -1724,6 +1730,7 @@ function renderTuMundial(){
   if(TM.step==='groups')      host.innerHTML = tmGroupsHTML();
   else if(TM.step==='thirds') host.innerHTML = tmThirdsHTML();
   else if(TM.step==='bracket')host.innerHTML = tmBracketHTML();
+  else if(TM.step==='score')  host.innerHTML = tmScoreHTML();
   else                        host.innerHTML = tmIntroHTML();
 }
 function tmIntroHTML(){
@@ -1775,7 +1782,7 @@ function tmTieHTML(tie){
     if(!id) return `<div class="tm-team tbd"><span class="tn" style="color:var(--text3)">Por definir</span></div>`;
     return `<div class="tm-team ${w===id?'win':''}" onclick="tmPick('${tie.id}','${id}')">${flag(id,26)}<span class="tn">${tname(id)}</span><span class="pk"></span></div>`;
   };
-  return `<div class="tm-tie">${side(tie.home)}${side(tie.away)}</div>`;
+  return `<div class="tm-tie">${side(tie.home)}${side(tie.away)}<span class="tm-vs">VS</span></div>`;
 }
 function tmBracketHTML(){
   const R = tmAllRounds();
@@ -1793,7 +1800,8 @@ function tmBracketHTML(){
     h += `<div class="tm-subh">Semifinales</div>` + R.sf.map(tmTieHTML).join('');
     h += `<div class="tm-subh">Final</div>` + R.fin.map(tmTieHTML).join('');
     h += `<div class="tm-champ"><div class="k">Tu campeón</div><div class="r2">${champ?flag(champ,34):''}<span class="nm2">${champ?tname(champ):'—'}</span></div></div>`;
-    h += `<div class="tm-nav"><button class="tm-btn back" onclick="tmRoundBack()">←</button><button class="tm-btn ghost" onclick="tmReset()">↻ Reiniciar</button></div>`;
+    h += `<div class="tm-nav"><button class="tm-btn back" onclick="tmRoundBack()">←</button><button class="tm-btn" onclick="tmScoreOpen()">Tu Mundial vs el real →</button></div>`;
+    h += `<button class="tm-btn ghost" onclick="tmReset()">↻ Reiniciar</button>`;
   }
   return h + '</div>';
 }
@@ -1801,6 +1809,123 @@ function tmPick(matchId, teamId){ TM.picks[matchId]=teamId; tmSave(); render(); 
 function tmRoundNext(){ if(TM.ri<3){ TM.ri++; tmSave(); render(); } }
 function tmRoundBack(){ if(TM.ri>0) TM.ri--; else TM.step='thirds'; tmSave(); render(); }
 function tmReset(){ TM = tmDefault(); tmSave(); render(); }
+
+// ── Fase 2: Tu Mundial vs el real ──
+let TM_REAL;            // undefined = sin consultar; null = sin datos aún; objeto = datos
+let tmRealLoading = false;
+// Nombre de equipo de la API -> código local (reusa los alias de países).
+function tmCodeFromName(name){
+  if(!name) return null;
+  const sq = s => apiNorm(s).replace(/[^a-z]/g,'');
+  const target = sq(name);
+  for(const code in API_NAME_ALIASES){
+    for(const a of API_NAME_ALIASES[code]){
+      const A = sq(a);
+      if(A===target || target.includes(A) || A.includes(target)) return code;
+    }
+  }
+  for(const code in TEAM_INFO){ if(sq(tname(code))===target) return code; }
+  return null;
+}
+function tmRoundKey(roundStr){
+  const r = (roundStr||'').toLowerCase();
+  if(r.indexOf('round of 32')!==-1) return 'r32';
+  if(r.indexOf('round of 16')!==-1) return 'r16';
+  if(r.indexOf('quarter')!==-1) return 'qf';
+  if(r.indexOf('semi')!==-1) return 'sf';
+  if(r.indexOf('final')!==-1 && r.indexOf('3rd')===-1 && r.indexOf('third')===-1) return 'final';
+  return null;
+}
+async function tmFetchReal(){
+  const out = { groups:null, r32:new Set(), r16:new Set(), qf:new Set(), sf:new Set(), final:new Set(), champion:null, started:false };
+  try{
+    const st = await apiFetch(`/standings?league=${WC_LEAGUE}&season=${WC_SEASON}`);
+    const arr = st && st.response && st.response[0] && st.response[0].league && st.response[0].league.standings;
+    if(arr && arr.length){
+      out.groups = {}; const thirds = [];
+      arr.forEach(rows => {
+        if(!rows || !rows.length) return;
+        const gm = (rows[0].group||'').match(/Group ([A-L])/i);
+        const g = gm ? gm[1].toUpperCase() : null;
+        const codes = rows.map(r => tmCodeFromName(r.team && r.team.name));
+        if(g) out.groups[g] = codes;
+        if(rows.some(r => (r.points||0) > 0 || (r.all && r.all.played > 0))) out.started = true;
+        if(codes[0]) out.r32.add(codes[0]);
+        if(codes[1]) out.r32.add(codes[1]);
+        if(rows[2]) thirds.push({ code:codes[2], pts:rows[2].points||0, gd:rows[2].goalsDiff||0, gf:(rows[2].all&&rows[2].all.goals&&rows[2].all.goals.for)||0 });
+      });
+      thirds.sort((a,b) => b.pts-a.pts || b.gd-a.gd || b.gf-a.gf);
+      thirds.slice(0,8).forEach(t => { if(t.code) out.r32.add(t.code); });
+    }
+  }catch(e){ console.warn('tmFetchReal standings', e); }
+  try{
+    const fx = await apiFetch(`/fixtures?league=${WC_LEAGUE}&season=${WC_SEASON}`);
+    const done = ['FT','AET','PEN'];
+    const reach = { r32:'r16', r16:'qf', qf:'sf', sf:'final', final:'champion' };
+    if(fx && fx.response){
+      fx.response.forEach(f => {
+        const status = f.fixture && f.fixture.status && f.fixture.status.short;
+        if(done.indexOf(status)===-1) return;
+        const rk = tmRoundKey(f.league && f.league.round);
+        if(!rk) return;
+        out.started = true;
+        const win = f.teams.home.winner ? f.teams.home : (f.teams.away.winner ? f.teams.away : null);
+        const code = win && tmCodeFromName(win.name);
+        if(!code) return;
+        if(reach[rk]==='champion') out.champion = code; else out[reach[rk]].add(code);
+      });
+    }
+  }catch(e){ console.warn('tmFetchReal fixtures', e); }
+  return out;
+}
+function tmPredictedSets(){
+  const R = tmAllRounds();
+  const wins = ties => ties.map(tmWin).filter(Boolean);
+  return {
+    r32: new Set([].concat(...R.r32.map(t => [t.home, t.away])).filter(Boolean)),
+    r16: new Set(wins(R.r32)), qf: new Set(wins(R.r16)),
+    sf: new Set(wins(R.qf)), final: new Set(wins(R.sf)), champion: tmWin(R.fin[0])
+  };
+}
+function tmInter(predSet, realSet){ let n=0; predSet.forEach(c => { if(realSet.has(c)) n++; }); return n; }
+function tmScoreOpen(){ TM.step='score'; tmSave(); render(); tmEnsureReal(); }
+function tmScoreBack(){ TM.step='bracket'; TM.ri=3; tmSave(); render(); }
+function tmEnsureReal(){
+  if(TM_REAL!==undefined || tmRealLoading) return;
+  tmRealLoading = true;
+  tmFetchReal().then(r => { TM_REAL = (r && r.started) ? r : null; tmRealLoading=false; if(TM.step==='score') render(); })
+               .catch(() => { TM_REAL=null; tmRealLoading=false; if(TM.step==='score') render(); });
+}
+function tmScoreBackBtn(){ return `<div class="tm-nav"><button class="tm-btn" onclick="tmScoreBack()">← Volver al cuadro</button></div>`; }
+function tmScoreHTML(){
+  let h = `<div class="tm-wrap"><div class="tm-title">Tu Mundial vs el real</div>`;
+  if(TM_REAL===undefined){ tmEnsureReal(); return h + `<div class="tm-hint">Consultando resultados…</div>` + tmScoreBackBtn() + '</div>'; }
+  if(TM_REAL===null){ return h + `<div class="tm-intro" style="margin-top:6px"><p>El torneo aún no ha empezado, o todavía no hay resultados. Aquí verás tus aciertos en cuanto los haya.</p></div>` + tmScoreBackBtn() + '</div>'; }
+  const pred = tmPredictedSets(), real = TM_REAL;
+  let gExact=0, gTotal=0;
+  if(real.groups) Object.keys(real.groups).forEach(g => {
+    const rr = real.groups[g], uo = TM.order[g] || [];
+    rr.forEach((code,i) => { if(code){ gTotal++; if(uo[i]===code) gExact++; } });
+  });
+  const rows = [];
+  if(gTotal) rows.push(['Grupos · posiciones exactas', gExact, gTotal]);
+  if(real.r16.size)   rows.push(['Octavofinalistas', tmInter(pred.r16, real.r16), 16]);
+  if(real.qf.size)    rows.push(['Cuartofinalistas', tmInter(pred.qf, real.qf), 8]);
+  if(real.sf.size)    rows.push(['Semifinalistas', tmInter(pred.sf, real.sf), 4]);
+  if(real.final.size) rows.push(['Finalistas', tmInter(pred.final, real.final), 2]);
+  h += `<div class="tm-hint">Comparamos tu cuadro con los resultados reales según van cayendo.</div>`;
+  if(rows.length) h += `<div class="tm-card">` + rows.map(r => `<div class="tm-row"><span class="tm-nm">${r[0]}</span><b style="color:var(--gold);font-size:15px;">${r[1]}/${r[2]}</b></div>`).join('') + `</div>`;
+  else h += `<div class="tm-hint">Aún no hay eliminatorias jugadas. Cuando empiecen, verás tus aciertos por ronda.</div>`;
+  if(real.champion){
+    h += (pred.champion===real.champion)
+      ? `<div class="tm-champ"><div class="k">¡Campeón acertado!</div><div class="r2">${flag(real.champion,34)}<span class="nm2">${tname(real.champion)}</span></div></div>`
+      : `<div class="tm-subh">Campeón</div><div class="tm-hint">El real fue <b>${tname(real.champion)}</b>; tú dijiste ${pred.champion?tname(pred.champion):'—'}.</div>`;
+  } else if(pred.champion){
+    const alive = real.final.has(pred.champion)||real.sf.has(pred.champion)||real.qf.has(pred.champion)||real.r16.has(pred.champion)||real.r32.has(pred.champion);
+    h += `<div class="tm-subh">Tu campeón</div><div class="tm-card"><div class="tm-row">${flag(pred.champion,30)}<span class="tm-nm">${tname(pred.champion)}</span><span class="tm-tag ${alive?'ok':'out'}">${alive?'Sigue vivo':'Eliminado'}</span></div></div>`;
+  }
+  return h + tmScoreBackBtn() + '</div>';
+}
 
 // EVENTS
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setView(t.dataset.view)));
