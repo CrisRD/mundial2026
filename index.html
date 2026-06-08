@@ -875,6 +875,64 @@ html, body {
   font-style: normal;
   font-size: 15px;
 }
+/* ── TU MUNDIAL (simulador) ── */
+.tm-wrap{padding:16px 16px 32px;}
+.tm-intro{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:22px 18px;text-align:center;margin-top:8px;}
+.tm-intro h2{font-family:var(--serif);font-size:20px;margin:0 0 6px;}
+.tm-intro p{font-size:13px;color:var(--text2);line-height:1.5;margin:0 0 6px;}
+.tm-prog{display:flex;align-items:center;gap:8px;margin:2px 2px 14px;}
+.tm-prog .lbl{font-size:11px;color:var(--text3);white-space:nowrap;letter-spacing:.04em;}
+.tm-prog .bar{flex:1;height:5px;border-radius:3px;background:var(--bg4);overflow:hidden;}
+.tm-prog .bar span{display:block;height:100%;background:var(--gold);border-radius:3px;transition:width .25s;}
+.tm-title{font-family:var(--serif);font-size:18px;margin:2px 2px 4px;}
+.tm-title .c{font-family:var(--sans);font-size:10px;color:var(--gold);background:var(--gold-dim);border-radius:20px;padding:3px 9px;font-weight:600;margin-left:8px;vertical-align:middle;white-space:nowrap;}
+.tm-hint{font-size:11.5px;color:var(--text3);margin:6px 2px 14px;}
+.tm-subh{font-family:var(--serif);font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--text2);margin:16px 2px 8px;}
+.tm-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.tm-row{display:flex;align-items:center;gap:11px;padding:11px 12px;border-bottom:1px solid var(--border2);}
+.tm-row:last-child{border-bottom:0;}
+.tm-pos{width:24px;height:24px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;background:var(--bg3);color:var(--text2);}
+.tm-row.q1 .tm-pos,.tm-row.q2 .tm-pos{background:var(--gold);color:#fff;}
+.tm-row.q3 .tm-pos{background:var(--gold-dim);color:var(--gold);}
+.tm-row.q4{opacity:.5;}
+.tm-nm{flex:1;font-size:14px;font-weight:500;}
+.tm-tag{font-size:9px;letter-spacing:.05em;text-transform:uppercase;padding:3px 7px;border-radius:20px;font-weight:600;}
+.tm-tag.ok{background:rgba(63,125,90,.12);color:#3F7D5A;}
+.tm-tag.rep{background:var(--gold-dim);color:var(--gold);}
+.tm-tag.out{background:rgba(0,0,0,.05);color:var(--text3);}
+.tm-arrows{display:flex;flex-direction:column;gap:1px;margin-left:2px;}
+.tm-arrows button{width:28px;height:18px;border:0;background:transparent;color:var(--text3);cursor:pointer;font-size:11px;line-height:1;padding:0;}
+.tm-arrows button:disabled{opacity:.25;}
+.tm-thirds{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:4px;}
+.tm-chip{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:11px;border:1px solid var(--border);background:var(--bg2);font-size:12.5px;cursor:pointer;transition:all .15s;}
+.tm-chip .cn{flex:1;font-weight:500;line-height:1.15;}
+.tm-chip .gr{font-size:9.5px;color:var(--text3);}
+.tm-chip.sel{border-color:var(--gold);background:var(--gold-dim);}
+.tm-chip .mk{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;}
+.tm-chip.sel .mk{background:var(--gold);border-color:var(--gold);position:relative;}
+.tm-chip.sel .mk::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;}
+.tm-counter{font-size:12px;color:var(--text2);text-align:center;margin:13px 0 2px;}
+.tm-counter b{color:var(--gold);}
+.tm-tie{background:var(--bg2);border:1px solid var(--border);border-radius:11px;overflow:hidden;margin-bottom:8px;}
+.tm-team{display:flex;align-items:center;gap:10px;padding:9px 11px;cursor:pointer;transition:background .15s;}
+.tm-team+.tm-team{border-top:1px solid var(--border2);}
+.tm-team .tn{flex:1;font-size:13.5px;font-weight:500;}
+.tm-team .pk{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;}
+.tm-team.win{background:var(--gold-dim);}
+.tm-team.win .tn{font-weight:700;}
+.tm-team.win .pk{background:var(--gold);border-color:var(--gold);position:relative;}
+.tm-team.win .pk::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:700;}
+.tm-team.tbd{opacity:.45;cursor:default;}
+.tm-champ{margin-top:16px;background:linear-gradient(135deg,var(--gold),var(--gold-light));border-radius:var(--r);padding:18px;text-align:center;color:#fff;box-shadow:0 8px 20px rgba(184,150,90,.35);}
+.tm-champ .k{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;opacity:.85;}
+.tm-champ .r2{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;}
+.tm-champ .nm2{font-family:var(--serif);font-size:20px;font-weight:700;}
+.tm-btn{display:block;width:100%;margin-top:14px;padding:13px;border:0;border-radius:var(--r);background:var(--text1);color:var(--bg2);font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.02em;cursor:pointer;}
+.tm-btn:disabled{opacity:.4;}
+.tm-btn.ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.tm-nav{display:flex;gap:8px;margin-top:14px;}
+.tm-nav .tm-btn{margin-top:0;}
+.tm-nav .back{flex:0 0 46px;background:transparent;border:1px solid var(--border);color:var(--text2);}
 </style>
 </head>
 <body>
@@ -922,6 +980,11 @@ html, body {
       <div class="view-scroll" id="teams-list"></div>
     </div>
 
+    <!-- TU MUNDIAL -->
+    <div id="view-tumundial" class="view">
+      <div class="view-scroll" id="tm-view"></div>
+    </div>
+
   </div>
 
   <!-- TABS -->
@@ -946,6 +1009,14 @@ html, body {
         <path d="M12 2L3.5 5.5v6c0 4.5 3.6 8.7 8.5 9.5 4.9-.8 8.5-5 8.5-9.5v-6L12 2z"/>
       </svg>
       Selecciones
+    </div>
+    <div class="tab" data-view="tumundial">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M6 4h12v3a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V4z"/>
+        <path d="M6 6H4v1a3 3 0 0 0 3 3M18 6h2v1a3 3 0 0 1-3 3"/>
+        <path d="M10 11v3a2 2 0 0 0 4 0v-3"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="16" x2="12" y2="20"/>
+      </svg>
+      Tu Mundial
     </div>
   </div>
 
@@ -1043,7 +1114,7 @@ const TEAM_INFO = {
     squad:[{n:1,name:'Lawrence Ati-Zigi',pos:'PO',club:'St. Gallen'},{n:12,name:'Ibrahim Danlad',pos:'PO',club:'Asante Kotoko'},{n:23,name:'Richard Ofori',pos:'PO',club:'Orlando Pirates'},{n:2,name:'Tariq Lamptey',pos:'DEF',club:'Brighton'},{n:5,name:'Daniel Amartey',pos:'DEF',club:'Leicester'},{n:6,name:'Abdul-Rahman Baba',pos:'DEF',club:'Reading'},{n:3,name:'Gideon Mensah',pos:'DEF',club:'Red Bull Salzburg'},{n:4,name:'Alexander Djiku',pos:'DEF',club:'Fenerbahce'},{n:13,name:'Dennis Odoi',pos:'DEF',club:'Sin club'},{n:14,name:'Alidu Seidu',pos:'DEF',club:'Clermont'},{n:15,name:'Kassim Nuhu',pos:'DEF',club:'Sin club'},{n:16,name:'Stephan Ambrosius',pos:'DEF',club:'Hamburgo'},{n:8,name:'Thomas Partey',pos:'MED',club:'Arsenal'},{n:10,name:'André Ayew',pos:'MED',club:'Le Havre'},{n:7,name:'Jordan Ayew',pos:'MED',club:'Crystal Palace'},{n:17,name:'Daniel-Kofi Kyereh',pos:'MED',club:'Freiburgo'},{n:18,name:'Salis Abdul Samed',pos:'MED',club:'RC Lens'},{n:19,name:'Elisha Owusu',pos:'MED',club:'Sin club'},{n:20,name:'Edmund Addo',pos:'MED',club:'Shakhtyor'},{n:21,name:'Ransford Konigsdorffer',pos:'MED',club:'Hamburgo'},{n:22,name:'Osman Bukari',pos:'MED',club:'Red Star Belgrado'},{n:9,name:'Inaki Williams',pos:'DEL',club:'Athletic Club'},{n:11,name:'Mohammed Kudus',pos:'DEL',club:'West Ham'},{n:24,name:'Antoine Semenyo',pos:'DEL',club:'Bournemouth'},{n:25,name:'Kamaldeen Sulemana',pos:'DEL',club:'Southampton'},{n:26,name:'Ernest Nuamah',pos:'DEL',club:'Olympique Lyon'}]},
   kor:{name:'Corea del Sur',group:'A',coach:'Hong Myung-bo',titles:0,wcs:11,
     squad:[{n:1,name:'Kim Seung-gyu',pos:'PO',club:'FC Tokyo'},{n:12,name:'Song Bum-keun',pos:'PO',club:'Jeonbuk'},{n:23,name:'Jo Hyeon-woo',pos:'PO',club:'Ulsan'},{n:2,name:'Kim Moon-hwan',pos:'DEF',club:'Daejeon'},{n:5,name:'Kim Min-jae',pos:'DEF',club:'Bayern Munich'},{n:4,name:'Kim Tae-hyeon',pos:'DEF',club:'Kashima Antlers'},{n:3,name:'Ki-hyuk Lee',pos:'DEF',club:'Gangwon'},{n:6,name:'Jens Castrop',pos:'DEF',club:'Mönchengladbach'},{n:13,name:'Young-woo Seol',pos:'DEF',club:'Estrella Roja'},{n:14,name:'Tae-seok Lee',pos:'DEF',club:'Austria Viena'},{n:15,name:'Han-beom Lee',pos:'DEF',club:'Midtjylland'},{n:16,name:'Yu-min Cho',pos:'DEF',club:'Al Sharjah'},{n:17,name:'Jin-seop Park',pos:'DEF',club:'Zhejiang'},{n:8,name:'Kang-in Lee',pos:'MED',club:'PSG'},{n:10,name:'In-beom Hwang',pos:'MED',club:'Feyenoord'},{n:7,name:'Hee-chan Hwang',pos:'MED',club:'Wolverhampton'},{n:18,name:'Ji-sung Eom',pos:'MED',club:'Swansea'},{n:19,name:'Hyun-jun Yang',pos:'MED',club:'Celtic'},{n:20,name:'Jae-sung Lee',pos:'MED',club:'Mainz'},{n:21,name:'Seung-ho Paik',pos:'MED',club:'Birmingham'},{n:22,name:'Jun-ho Bae',pos:'MED',club:'Stoke City'},{n:9,name:'Son Heung-min',pos:'DEL',club:'LAFC'},{n:11,name:'Hyeon-gyu Oh',pos:'DEL',club:'Besiktas'},{n:24,name:'Gue-sung Cho',pos:'DEL',club:'Midtjylland'},{n:25,name:'Kim Jin-gyu',pos:'MED',club:'Jeonbuk'},{n:26,name:'Dong-gyeong Lee',pos:'MED',club:'Ulsan'}]},
-  aus:{name:'Australia',group:'D',coach:'Tony Popovic',titles:0,wcs:6,squad:[{n:1,name:'Mathew Ryan',pos:'PO',club:'Levante'},{n:12,name:'Joe Gauci',pos:'PO',club:'Port Vale'},{n:23,name:'Patrick Beach',pos:'PO',club:'Melbourne City'},{n:2,name:'Ryan Strain',pos:'DEF',club:'Dundee United'},{n:5,name:'Harry Souttar',pos:'DEF',club:'Leicester'},{n:3,name:'Cameron Burgess',pos:'DEF',club:'Swansea'},{n:4,name:'Alessandro Circati',pos:'DEF',club:'Parma'},{n:6,name:'Jordan Bos',pos:'DEF',club:'Feyenoord'},{n:13,name:'Kasey Bos',pos:'DEF',club:'Mainz'},{n:14,name:'Jake Gordwood-Reich',pos:'DEF',club:'Auckland FC'},{n:15,name:'Jacob Farrell',pos:'DEF',club:'Western Sydney'},{n:16,name:'Kai Trewin',pos:'DEF',club:'NYCFC'},{n:8,name:'Riley McGree',pos:'MED',club:'Middlesbrough'},{n:10,name:'Anthony Cáceres',pos:'MED',club:'Macarthur FC'},{n:7,name:'Jackson Irvine',pos:'MED',club:'St. Pauli'},{n:17,name:'Alex Robertson',pos:'MED',club:'Cardiff'},{n:18,name:'Aiden O`Neill',pos:'MED',club:'NYCFC'},{n:19,name:'Patrick Yazbek',pos:'MED',club:'Nashville'},{n:20,name:'Ryan Teague',pos:'MED',club:'Melbourne City'},{n:21,name:'Ethan Alagich',pos:'MED',club:'Adelaide United'},{n:9,name:'Marco Tilio',pos:'DEL',club:'Rapid Viena'},{n:11,name:'Martin Boyle',pos:'DEL',club:'Hibernian'},{n:22,name:'Connor Metcalfe',pos:'DEL',club:'St. Pauli'},{n:24,name:'Mohamed Touré',pos:'DEL',club:'Norwich'},{n:25,name:'Adam Taggart',pos:'DEL',club:'Perth Glory'},{n:26,name:'Nestory Irankunda',pos:'DEL',club:'Watford'}]},
+  aus:{name:'Australia',group:'D',coach:'Tony Popovic',titles:0,wcs:6,squad:[{n:1,name:'Mathew Ryan',pos:'PO',club:'Levante'},{n:12,name:'Paul Izzo',pos:'PO',club:'Randers'},{n:18,name:'Patrick Beach',pos:'PO',club:'Melbourne City'},{n:2,name:'Milos Degenek',pos:'DEF',club:'APOEL'},{n:3,name:'Alessandro Circati',pos:'DEF',club:'Parma'},{n:4,name:'Jacob Italiano',pos:'DEF',club:'Grazer AK'},{n:5,name:'Jordan Bos',pos:'DEF',club:'Feyenoord'},{n:6,name:'Jason Geria',pos:'DEF',club:'Albirex Niigata'},{n:15,name:'Kai Trewin',pos:'DEF',club:'New York City'},{n:16,name:'Aziz Behich',pos:'DEF',club:'Melbourne City'},{n:19,name:'Harry Souttar',pos:'DEF',club:'Leicester'},{n:21,name:'Cameron Burgess',pos:'DEF',club:'Swansea'},{n:25,name:'Lucas Herrington',pos:'DEF',club:'Colorado Rapids'},{n:8,name:'Connor Metcalfe',pos:'MED',club:'St. Pauli'},{n:10,name:'Ajdin Hrustic',pos:'MED',club:'Heracles Almelo'},{n:13,name:'Aiden O`Neill',pos:'MED',club:'New York City'},{n:14,name:'Cameron Devlin',pos:'MED',club:'Hearts'},{n:22,name:'Jackson Irvine',pos:'MED',club:'St. Pauli'},{n:24,name:'Paul Okon-Engstler',pos:'MED',club:'Sydney FC'},{n:7,name:'Mathew Leckie',pos:'DEL',club:'Melbourne City'},{n:9,name:'Mohamed Toure',pos:'DEL',club:'Norwich'},{n:11,name:'Awer Mabil',pos:'DEL',club:'Castellón'},{n:17,name:'Nestory Irankunda',pos:'DEL',club:'Watford'},{n:20,name:'Cristian Volpato',pos:'DEL',club:'Sassuolo'},{n:23,name:'Nishan Velupillay',pos:'DEL',club:'Melbourne Victory'},{n:26,name:'Tete Yengi',pos:'DEL',club:'Machida Zelvia'}]},
   sen:{name:'Senegal',group:'I',coach:'Aliou Cissé',titles:0,wcs:3,squad:[{n:1,name:'Édouard Mendy',pos:'PO',club:'Al-Ahli'},{n:12,name:'Mory Diaw',pos:'PO',club:'Clermont'},{n:23,name:'Yehvann Diouf',pos:'PO',club:'Reims'},{n:2,name:'Krepin Diatta',pos:'DEF',club:'Monaco'},{n:5,name:'Kalidou Koulibaly',pos:'DEF',club:'Al-Hilal'},{n:6,name:'Moussa Niakhaté',pos:'DEF',club:'Nottingham Forest'},{n:3,name:'Ismail Jakobs',pos:'DEF',club:'Monaco'},{n:4,name:'Abdoulaye Seck',pos:'DEF',club:'Angers'},{n:13,name:'Mamadou Sarr',pos:'DEF',club:'Chelsea'},{n:14,name:'El Hadj Malick Diouf',pos:'DEF',club:'Salzbourg'},{n:15,name:'Antoine Mendy',pos:'DEF',club:'Sin club'},{n:16,name:'Moustapha Mbow',pos:'DEF',club:'Montpellier'},{n:17,name:'Ilay Camara',pos:'DEF',club:'Stade Reims'},{n:8,name:'Idrissa Gueye',pos:'MED',club:'Everton'},{n:10,name:'Pape Matar Sarr',pos:'MED',club:'Tottenham'},{n:7,name:'Pape Gueye',pos:'MED',club:'Marsella'},{n:18,name:'Lamine Camara',pos:'MED',club:'Monaco'},{n:19,name:'Pathé Ciss',pos:'MED',club:'Rayo Vallecano'},{n:20,name:'Habib Diarra',pos:'MED',club:'Estrasburgo'},{n:21,name:'Bara Sapoko Ndiaye',pos:'MED',club:'Sin club'},{n:9,name:'Sadio Mané',pos:'DEL',club:'Al-Nassr'},{n:11,name:'Ismaila Sarr',pos:'DEL',club:'Crystal Palace'},{n:22,name:'Iliman Ndiaye',pos:'DEL',club:'Everton'},{n:24,name:'Nicolas Jackson',pos:'DEL',club:'Chelsea'},{n:25,name:'Bamba Dieng',pos:'DEL',club:'Marsella'},{n:26,name:'Assane Diao',pos:'DEL',club:'Betis'}]},
   ecu:{name:'Ecuador',group:'E',coach:'Sebastián Beccacece',titles:0,wcs:4,squad:[{n:1,name:'Hernán Galíndez',pos:'PO',club:'Sin club'},{n:12,name:'Alexander Domínguez',pos:'PO',club:'Liga de Quito'},{n:23,name:'Wellington Ramírez',pos:'PO',club:'Sin club'},{n:2,name:'Angelo Preciado',pos:'DEF',club:'Genk'},{n:5,name:'Piero Hincapié',pos:'DEF',club:'Bayer Leverkusen'},{n:6,name:'Felix Torres',pos:'DEF',club:'Santos Laguna'},{n:3,name:'Pervis Estupiñán',pos:'DEF',club:'Brighton'},{n:4,name:'Diego Palacios',pos:'DEF',club:'LA Galaxy'},{n:13,name:'William Pacho',pos:'DEF',club:'PSG'},{n:14,name:'Jackson Porozo',pos:'DEF',club:'Troyes'},{n:15,name:'Byron Castillo',pos:'DEF',club:'Basel'},{n:16,name:'Esteban Dreer',pos:'DEF',club:'Sin club'},{n:8,name:'Carlos Gruezo',pos:'MED',club:'Augsburg'},{n:10,name:'Moises Caicedo',pos:'MED',club:'Chelsea'},{n:7,name:'Jeremy Sarmiento',pos:'MED',club:'Brighton'},{n:17,name:'Jhegson Méndez',pos:'MED',club:'LA Galaxy'},{n:18,name:'José Cifuentes',pos:'MED',club:'LA Galaxy'},{n:19,name:'Romario Ibarra',pos:'MED',club:'Pachuca'},{n:20,name:'Alan Minda',pos:'MED',club:'Sin club'},{n:21,name:'Kevin Rodríguez',pos:'MED',club:'Ipswich'},{n:22,name:'Djorkaeff Reasco',pos:'MED',club:'Nottingham Forest'},{n:9,name:'Enner Valencia',pos:'DEL',club:'Internacional'},{n:11,name:'Michael Estrada',pos:'DEL',club:'Cruz Azul'},{n:24,name:'Gonzalo Plata',pos:'DEL',club:'Al-Qadsiah'},{n:25,name:'Kendry Páez',pos:'DEL',club:'Chelsea'},{n:26,name:'Jordan Rezabala',pos:'DEL',club:'Sin club'}]},
   par:{name:'Paraguay',group:'D',coach:'Daniel Garnero',titles:0,wcs:8,squad:[{n:1,name:'Antony Silva',pos:'PO',club:'Sin club'},{n:12,name:'Alfredo Aguilar',pos:'PO',club:'Olimpia'},{n:23,name:'Rodrigo Muñoz',pos:'PO',club:'Sin club'},{n:2,name:'Robert Rojas',pos:'DEF',club:'River Plate'},{n:5,name:'Gustavo Gómez',pos:'DEF',club:'Palmeiras'},{n:6,name:'Fabián Balbuena',pos:'DEF',club:'Sin club'},{n:3,name:'Junior Alonso',pos:'DEF',club:'Atlético Mineiro'},{n:4,name:'Omar Alderete',pos:'DEF',club:'Celta de Vigo'},{n:13,name:'Santiago Arzamendia',pos:'DEF',club:'Cádiz'},{n:14,name:'Matías Rojas',pos:'DEF',club:'Sin club'},{n:15,name:'Adrián Martínez',pos:'DEF',club:'Sin club'},{n:16,name:'Jorge Morel',pos:'DEF',club:'Olimpia'},{n:8,name:'Miguel Almirón',pos:'MED',club:'Newcastle'},{n:10,name:'Ángel Romero',pos:'MED',club:'Sin club'},{n:7,name:'Braian Samudio',pos:'MED',club:'Sin club'},{n:17,name:'Andrés Cubas',pos:'MED',club:'Niza'},{n:18,name:'Richard Sánchez',pos:'MED',club:'Sin club'},{n:19,name:'Mathías Villasanti',pos:'MED',club:'Grêmio'},{n:20,name:'Alan Benítez',pos:'MED',club:'Sin club'},{n:21,name:'Juan Villalba',pos:'MED',club:'Sin club'},{n:22,name:'Marcelo Palau',pos:'MED',club:'Sin club'},{n:9,name:'Antonio Sanabria',pos:'DEL',club:'Torino'},{n:11,name:'Alex Arce',pos:'DEL',club:'Olimpia'},{n:24,name:'Julio Enciso',pos:'DEL',club:'Brighton'},{n:25,name:'Ramón Sosa',pos:'DEL',club:'Nottingham Forest'},{n:26,name:'Alejandro Romero Gamarra',pos:'DEL',club:'Sin club'}]},
@@ -1555,8 +1626,181 @@ function setView(name){
 function render(){
   if(view==='matches')renderMatches();
   else if(view==='calendar')renderCalendar();
-  else renderTeams();
+  else if(view==='teams')renderTeams();
+  else if(view==='tumundial')renderTuMundial();
 }
+
+// ══════════════════════════════════════
+// TU MUNDIAL (simulador de bracket)
+// ══════════════════════════════════════
+const TM_KEY = 'tuMundial_v1';
+function tmGroups(){
+  const g = {};
+  Object.entries(TEAM_INFO).forEach(([id,t]) => { if(t.group){ (g[t.group]=g[t.group]||[]).push(id); } });
+  return g;
+}
+function tmLetters(){ return Object.keys(TM.order).sort(); }
+function tmDefault(){
+  const g = tmGroups(), order = {};
+  Object.keys(g).forEach(k => order[k] = g[k].slice());
+  return { order, thirds:[], picks:{}, step:'intro', gi:0, ri:0 };
+}
+function tmLoad(){
+  try{ const raw = localStorage.getItem(TM_KEY); if(raw) return Object.assign(tmDefault(), JSON.parse(raw)); }catch(e){}
+  return tmDefault();
+}
+function tmSave(){ try{ localStorage.setItem(TM_KEY, JSON.stringify(TM)); }catch(e){} }
+let TM = tmLoad();
+
+// ── Motor de cruces ──
+// Los dieciseisavos referencian slots de grupo. Resolvemos ganador/2.º directo,
+// y los 8 huecos de tercero por emparejamiento (cada tercero elegido a un hueco
+// cuyo conjunto de grupos lo permita), 1-a-1.
+function tmThirdSlots(){
+  const slots = [];
+  MATCHES.filter(m => m.phase==='r32').forEach(m => ['home','away'].forEach(side => {
+    const mm = m[side].match(/^3\.º Grupo (.+)$/);
+    if(mm) slots.push({ match:m.id, side, allowed:mm[1].split('/') });
+  }));
+  return slots;
+}
+function tmMatchThirds(slots, groups){
+  const matchG = {}, result = new Array(slots.length).fill(null);
+  function aug(i, vis){
+    for(const g of slots[i].allowed){
+      if(groups.indexOf(g)===-1 || vis.has(g)) continue;
+      vis.add(g);
+      if(matchG[g]==null || aug(matchG[g], vis)){ matchG[g]=i; result[i]=g; return true; }
+    }
+    return false;
+  }
+  for(let i=0;i<slots.length;i++) aug(i, new Set());
+  return result; // result[i] = letra de grupo asignada al slot i
+}
+function tmBuildR32(){
+  const order = TM.order;
+  const slots = tmThirdSlots();
+  const assign = tmMatchThirds(slots, TM.thirds);
+  const slotGroup = {};
+  slots.forEach((s,i) => { slotGroup[s.match+'|'+s.side] = assign[i]; });
+  return MATCHES.filter(m => m.phase==='r32').map(m => {
+    const res = side => {
+      const d = m[side]; let mm;
+      if(mm = d.match(/^Ganador Grupo (.)$/)) return (order[mm[1]]||[])[0] || null;
+      if(mm = d.match(/^2\.º Grupo (.)$/)) return (order[mm[1]]||[])[1] || null;
+      if(d.match(/^3\.º Grupo/)){ const g = slotGroup[m.id+'|'+side]; return g ? ((order[g]||[])[2]||null) : null; }
+      return null;
+    };
+    return { id:m.id, home:res('home'), away:res('away') };
+  });
+}
+const TM_R16 = ['m89','m90','m91','m92','m93','m94','m95','m96'];
+const TM_QF  = ['m97','m98','m99','m100'];
+const TM_SF  = ['m101','m102'];
+const TM_FINAL = 'm104';
+// Ganador efectivo: el elegido si sigue siendo válido en este cruce; si no, el local.
+function tmWin(tie){
+  if(!tie || !tie.home || !tie.away) return null;
+  const p = TM.picks[tie.id];
+  return (p===tie.home || p===tie.away) ? p : tie.home;
+}
+function tmNext(prev, ids){
+  const out = [];
+  for(let k=0;k<ids.length;k++) out.push({ id:ids[k], home:tmWin(prev[2*k]), away:tmWin(prev[2*k+1]) });
+  return out;
+}
+function tmAllRounds(){
+  const r32 = tmBuildR32();
+  const r16 = tmNext(r32, TM_R16);
+  const qf  = tmNext(r16, TM_QF);
+  const sf  = tmNext(qf, TM_SF);
+  const fin = [{ id:TM_FINAL, home:tmWin(sf[0]), away:tmWin(sf[1]) }];
+  return { r32, r16, qf, sf, fin };
+}
+
+// ── Interfaz por pasos ──
+function renderTuMundial(){
+  const host = document.getElementById('tm-view');
+  if(TM.step==='groups')      host.innerHTML = tmGroupsHTML();
+  else if(TM.step==='thirds') host.innerHTML = tmThirdsHTML();
+  else if(TM.step==='bracket')host.innerHTML = tmBracketHTML();
+  else                        host.innerHTML = tmIntroHTML();
+}
+function tmIntroHTML(){
+  return `<div class="tm-wrap"><div class="tm-intro">
+    <h2>Tu Mundial</h2>
+    <p>Predice el torneo entero: ordena los 12 grupos, elige los 8 mejores terceros y ve eligiendo ganadores ronda a ronda hasta tu campeón.</p>
+    <p style="color:var(--text3);font-size:11.5px;">Se guarda en este dispositivo.</p>
+    <button class="tm-btn" onclick="tmStart()">Empezar a rellenar →</button>
+  </div></div>`;
+}
+function tmStart(){ TM.step='groups'; TM.gi=0; tmSave(); render(); }
+function tmGroupsHTML(){
+  const g = tmLetters()[TM.gi], ids = TM.order[g];
+  const st = [['q1','Clasifica','ok'],['q2','Clasifica','ok'],['q3','Repesca','rep'],['q4','Fuera','out']];
+  const rows = ids.map((id,i) => `<div class="tm-row ${st[i][0]}"><div class="tm-pos">${i+1}º</div>${flag(id,30)}<span class="tm-nm">${tname(id)}</span><span class="tm-tag ${st[i][2]}">${st[i][1]}</span><span class="tm-arrows"><button ${i===0?'disabled':''} onclick="tmMove('${g}',${i},-1)">▲</button><button ${i===3?'disabled':''} onclick="tmMove('${g}',${i},1)">▼</button></span></div>`).join('');
+  return `<div class="tm-wrap">
+    <div class="tm-prog"><span class="lbl">Grupo ${TM.gi+1} / 12</span><div class="bar"><span style="width:${(TM.gi+1)/12*100}%"></span></div></div>
+    <div class="tm-title">Grupo ${g} <span class="c">ordena 1º–4º</span></div>
+    <div class="tm-hint">1º y 2º clasifican · el 3º entra en la pelea por los mejores terceros.</div>
+    <div class="tm-card">${rows}</div>
+    <div class="tm-nav">${TM.gi>0?'<button class="tm-btn back" onclick="tmGroupBack()">←</button>':''}<button class="tm-btn" onclick="tmGroupNext()">${TM.gi<11?'Siguiente grupo →':'Elegir terceros →'}</button></div>
+    <button class="tm-btn ghost" onclick="tmReset()">Reiniciar</button>
+  </div>`;
+}
+function tmMove(g,i,d){ const a=TM.order[g], j=i+d; if(j<0||j>3) return; const t=a[i]; a[i]=a[j]; a[j]=t; TM.picks={}; tmSave(); render(); }
+function tmGroupNext(){ if(TM.gi<11) TM.gi++; else TM.step='thirds'; tmSave(); render(); }
+function tmGroupBack(){ if(TM.gi>0){ TM.gi--; tmSave(); render(); } }
+function tmThirdsHTML(){
+  const chips = tmLetters().map(g => {
+    const id = TM.order[g][2], sel = TM.thirds.indexOf(g)!==-1;
+    return `<div class="tm-chip ${sel?'sel':''}" onclick="tmToggleThird('${g}')">${flag(id,28)}<span class="cn">${tname(id)}<br><span class="gr">3.º Grupo ${g}</span></span><span class="mk"></span></div>`;
+  }).join('');
+  const n = TM.thirds.length;
+  return `<div class="tm-wrap">
+    <div class="tm-prog"><span class="lbl">Mejores terceros</span><div class="bar"><span style="width:100%"></span></div></div>
+    <div class="tm-title">Los 8 mejores terceros</div>
+    <div class="tm-hint">De los 12 terceros, elige los 8 que pasan a dieciseisavos.</div>
+    <div class="tm-thirds">${chips}</div>
+    <div class="tm-counter">Seleccionados: <b>${n}</b> / 8</div>
+    <div class="tm-nav"><button class="tm-btn back" onclick="tmThirdsBack()">←</button><button class="tm-btn" ${n===8?'':'disabled'} onclick="tmGenerate()">Generar mi cuadro →</button></div>
+  </div>`;
+}
+function tmToggleThird(g){ const i=TM.thirds.indexOf(g); if(i!==-1) TM.thirds.splice(i,1); else { if(TM.thirds.length>=8) return; TM.thirds.push(g); } TM.picks={}; tmSave(); render(); }
+function tmThirdsBack(){ TM.step='groups'; TM.gi=11; tmSave(); render(); }
+function tmGenerate(){ if(TM.thirds.length!==8) return; TM.step='bracket'; TM.ri=0; TM.picks={}; tmSave(); render(); }
+function tmTieHTML(tie){
+  const w = tmWin(tie);
+  const side = id => {
+    if(!id) return `<div class="tm-team tbd"><span class="tn" style="color:var(--text3)">Por definir</span></div>`;
+    return `<div class="tm-team ${w===id?'win':''}" onclick="tmPick('${tie.id}','${id}')">${flag(id,26)}<span class="tn">${tname(id)}</span><span class="pk"></span></div>`;
+  };
+  return `<div class="tm-tie">${side(tie.home)}${side(tie.away)}</div>`;
+}
+function tmBracketHTML(){
+  const R = tmAllRounds();
+  const steps = [{t:'Dieciseisavos',ties:R.r32,n:16},{t:'Octavos',ties:R.r16,n:8},{t:'Cuartos',ties:R.qf,n:4}];
+  const nextName = ['','Octavos','Cuartos','Semis y Final'];
+  let h = `<div class="tm-wrap"><div class="tm-prog"><span class="lbl">Ronda ${TM.ri+1}/4</span><div class="bar"><span style="width:${(TM.ri+1)*25}%"></span></div></div>`;
+  if(TM.ri<3){
+    const S = steps[TM.ri];
+    h += `<div class="tm-title">${S.t} <span class="c">elige ${S.n} ganadores</span></div><div class="tm-hint">Toca al equipo que pasa en cada cruce.</div>`;
+    h += S.ties.map(tmTieHTML).join('');
+    h += `<div class="tm-nav"><button class="tm-btn back" onclick="tmRoundBack()">←</button><button class="tm-btn" onclick="tmRoundNext()">Siguiente · ${nextName[TM.ri+1]} →</button></div>`;
+  } else {
+    const champ = tmWin(R.fin[0]);
+    h += `<div class="tm-title">Semis y Final <span class="c">elige y corona</span></div>`;
+    h += `<div class="tm-subh">Semifinales</div>` + R.sf.map(tmTieHTML).join('');
+    h += `<div class="tm-subh">Final</div>` + R.fin.map(tmTieHTML).join('');
+    h += `<div class="tm-champ"><div class="k">Tu campeón</div><div class="r2">${champ?flag(champ,34):''}<span class="nm2">${champ?tname(champ):'—'}</span></div></div>`;
+    h += `<div class="tm-nav"><button class="tm-btn back" onclick="tmRoundBack()">←</button><button class="tm-btn ghost" onclick="tmReset()">↻ Reiniciar</button></div>`;
+  }
+  return h + '</div>';
+}
+function tmPick(matchId, teamId){ TM.picks[matchId]=teamId; tmSave(); render(); }
+function tmRoundNext(){ if(TM.ri<3){ TM.ri++; tmSave(); render(); } }
+function tmRoundBack(){ if(TM.ri>0) TM.ri--; else TM.step='thirds'; tmSave(); render(); }
+function tmReset(){ TM = tmDefault(); tmSave(); render(); }
 
 // EVENTS
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setView(t.dataset.view)));
@@ -1654,74 +1898,172 @@ async function loadFixtures(){
   }
 }
 
-async function loadPlayerPhotos(teamLocalId, teamApiId){
-  if(!teamApiId) return 0;
-  const team = TEAM_INFO[teamLocalId];
-  if(!team || !team.squad) return 0;
-  // Normaliza nombres: sin acentos, minúsculas, y separa apóstrofos/puntos/guiones.
-  const norm = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-    .toLowerCase().replace(/[.'`´’\-]/g,' ').replace(/\s+/g,' ').trim();
-  // Tokens significativos (>=4 letras) para no confundir "Marc" con "Marcos".
-  const toks = s => norm(s).split(' ').filter(w => w.length >= 4);
-  // /players/squads: plantilla actual con foto, edad, dorsal y posición.
-  // No depende de temporada, así que responde ya (no como /players?season=2026).
-  const data = await apiFetch(`/players/squads?team=${teamApiId}`);
-  const players = data && data.response && data.response[0] && data.response[0].players;
-  if(!players || !players.length) return 0;
+// Normalización de nombres compartida por el cargador y el diagnóstico.
+const apiNorm = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+  .toLowerCase().replace(/[.'`´’\-]/g,' ').replace(/\s+/g,' ').trim();
+const apiToks = s => apiNorm(s).split(' ').filter(w => w.length >= 4);
 
-  // Pre-tokeniza local y API.
-  const locals = team.squad.map((s, i) => ({ i, tok: toks(s.name) }));
-  const apis   = players.map(a => ({ a, tok: toks(a.name) }));
+// Las fotos de API-Football tienen URL determinista por id de jugador.
+const MEDIA_PLAYER = 'https://media.api-sports.io/football/players/';
+// Overrides manuales (camino "por ID") para los casos que NO casan por nombre
+// —apodos como Pedri/Gavi— o jugadores sin foto en /players/squads. Clave:
+// código de selección; dentro: nombre local EXACTO -> id de jugador de API.
+// No gasta llamadas: se construye la URL de la foto directamente.
+// Rellénalo con lo que saque discoverUnmatched() (abre la selección + "#fotos-<código>").
+const PHOTO_OVERRIDES = {
+  // esp: { 'Pedri': 0, 'Gavi': 0 },   // ejemplo: cambia 0 por el id real de la API
+};
 
-  // Genera pares con solapamiento de palabras completas; puntúa por nº de
-  // coincidencias y suma un bonus fuerte si el dorsal coincide (desempate).
+// Empareja la plantilla local con una lista de la API (items normalizados a
+// {name, number, photo, age, height, id}) por nombre y 1-a-1. Devuelve un Map
+// índiceLocal -> item de la API, además de los índices usados (para diagnóstico).
+function matchSquad(team, items){
+  const locals = team.squad.map((s, i) => ({ i, tok: apiToks(s.name) }));
+  const apis   = items.map((a, ai) => ({ ai, tok: apiToks(a.name) }));
   const pairs = [];
   locals.forEach(L => {
     apis.forEach(A => {
       let shared = 0;
       L.tok.forEach(w => { if(A.tok.indexOf(w) !== -1) shared++; });
       if(!shared) return;
-      let score = shared * 10;
-      const an = A.a.number, ln = team.squad[L.i].n;
-      if(an != null && ln != null && Number(an) === Number(ln)) score += 100;
-      pairs.push({ score, li: L.i, a: A.a });
+      // El nombre manda: más palabras en común siempre gana. El dorsal solo
+      // desempata empates de nombre (por eso pesa 1, no debe superar el nombre).
+      let score = shared * 1000;
+      const an = items[A.ai].number, ln = team.squad[L.i].n;
+      if(an != null && ln != null && Number(an) === Number(ln)) score += 1;
+      pairs.push({ score, li: L.i, ai: A.ai });
     });
   });
-  // Asignación voraz 1-a-1: la mejor puntuación primero; cada jugador local y
-  // cada jugador de la API se usan una sola vez (evita robos de foto).
   pairs.sort((x, y) => y.score - x.score);
-  const usedLocal = new Set(), usedApi = new Set();
-  let count = 0;
+  const usedLocal = new Set(), usedApi = new Set(), map = new Map();
   pairs.forEach(pr => {
-    if(usedLocal.has(pr.li) || usedApi.has(pr.a)) return;
-    usedLocal.add(pr.li); usedApi.add(pr.a);
-    const local = team.squad[pr.li];
-    if(pr.a.photo) local.photo = pr.a.photo;
-    if(pr.a.age != null) local.age = pr.a.age;
+    if(usedLocal.has(pr.li) || usedApi.has(pr.ai)) return;
+    usedLocal.add(pr.li); usedApi.add(pr.ai);
+    map.set(pr.li, items[pr.ai]);
+  });
+  return { map, usedLocal, usedApi };
+}
+
+// Rellena SOLO foto/edad/altura desde la API. Nunca toca dorsal, posición ni
+// club (lo manual manda). Aplica además los PHOTO_OVERRIDES por id para los
+// que no casan por nombre.
+function fillFromApi(team, teamCode, items){
+  const { map } = matchSquad(team, items);
+  let count = 0;
+  map.forEach((a, li) => {
+    const local = team.squad[li];
+    if(a.photo) local.photo = a.photo;
+    if(a.age != null) local.age = a.age;
+    if(a.height) local.height = a.height;
     count++;
+  });
+  const ov = PHOTO_OVERRIDES[teamCode] || {};
+  team.squad.forEach(p => {
+    const id = ov[p.name];
+    if(id && !p.photo){ p.photo = MEDIA_PLAYER + id + '.png'; count++; }
   });
   return count;
 }
 
-// Orquestador del cargador: al abrir una selección, pide sus datos a la API una
-// sola vez y, si llegan, repinta la ficha para mostrar foto, edad y altura.
+// Fotos + edad desde /players/squads: plantilla actual, no depende de temporada,
+// así que responde ya (al contrario que /players?season=2026, vacío hasta el torneo).
+async function loadPlayerPhotos(teamLocalId, teamApiId){
+  if(!teamApiId) return 0;
+  const team = TEAM_INFO[teamLocalId];
+  if(!team || !team.squad) return 0;
+  const data = await apiFetch(`/players/squads?team=${teamApiId}`);
+  const players = data && data.response && data.response[0] && data.response[0].players;
+  if(!players || !players.length) return 0;
+  const items = players.map(p => ({ name: p.name, number: p.number, photo: p.photo, age: p.age }));
+  return fillFromApi(team, teamLocalId, items);
+}
+
+// Altura desde /players?team=&season=2026 (la altura solo vive aquí, no en
+// /players/squads). Está vacío hasta ~inicio del torneo. Paginado, con tope de 3
+// páginas para no gastar cuota (una selección cabe de sobra en 1-2 páginas).
+async function loadPlayerHeights(teamLocalId, teamApiId){
+  if(!teamApiId) return 0;
+  const team = TEAM_INFO[teamLocalId];
+  if(!team || !team.squad) return 0;
+  const items = [];
+  let page = 1, totalPages = 1;
+  do {
+    const data = await apiFetch(`/players?team=${teamApiId}&season=${WC_SEASON}&page=${page}`);
+    const resp = data && data.response;
+    if(!resp || !resp.length) break;
+    resp.forEach(r => {
+      const pl = r.player || {};
+      const name = ((pl.firstname || '') + ' ' + (pl.lastname || '')).trim() || pl.name;
+      items.push({ name, number: null, photo: pl.photo, age: pl.age, height: pl.height });
+    });
+    totalPages = (data.paging && data.paging.total) || 1;
+    page++;
+  } while(page <= totalPages && page <= 3);
+  if(!items.length) return 0;
+  return fillFromApi(team, teamLocalId, items);
+}
+
+// Orquestador: al abrir una selección pide sus datos a la API una sola vez por
+// sesión y, si llegan, repinta la ficha (foto, edad y altura).
 // Nunca toca dorsales ni clubes: lo manual manda siempre.
 async function ensureSquadData(id){
   const t = TEAM_INFO[id], apiId = API_IDS[id];
-  if(!t || !apiId || t._apiLoaded) return;
+  if(!t || !apiId) return;
+  if(t._apiLoaded && t._heightLoaded) return;
   showApiStatus('Cargando datos del equipo…');
-  let n = 0;
-  try { n = await loadPlayerPhotos(id, apiId); }
-  catch(e){ console.warn('Cargador:', e); }
-  if(n > 0){
-    t._apiLoaded = true;
-    showApiStatus(`Datos cargados (${n})`);
+  let nFotos = 0, nAltura = 0;
+  if(!t._apiLoaded){
+    try { nFotos = await loadPlayerPhotos(id, apiId); if(nFotos > 0) t._apiLoaded = true; }
+    catch(e){ console.warn('Cargador (fotos):', e); }
+  }
+  if(!t._heightLoaded){
+    // La fuente de altura puede estar vacía aún; marcamos el intento hecho en
+    // esta sesión para no repetir llamadas (al recargar la app se reintenta).
+    try { nAltura = await loadPlayerHeights(id, apiId); }
+    catch(e){ console.warn('Cargador (altura):', e); }
+    t._heightLoaded = true;
+  }
+  if(nFotos > 0 || nAltura > 0){
+    showApiStatus(`Datos cargados (fotos ${nFotos}, alturas ${nAltura})`);
     hideApiStatus();
     if(currentTeamId === id) openTeam(id);
   } else {
     showApiStatus('La API no devolvió datos');
     hideApiStatus();
   }
+}
+
+// Diagnóstico de fotos: para una selección, lista los jugadores locales que se
+// quedan SIN foto y los jugadores de la API que NO se usaron (con su id), para
+// rellenar PHOTO_OVERRIDES con precisión. Úsalo abriendo la app con
+// "#fotos-<código>" (p. ej. #fotos-esp) o llamando discoverUnmatched('esp').
+async function discoverUnmatched(code){
+  code = (code || currentTeamId || '').toLowerCase();
+  const t = code && TEAM_INFO[code], apiId = code && API_IDS[code];
+  if(!t){ showDiscoverResult('Abre una selección primero, o usa #fotos-<código> (p. ej. #fotos-esp).'); return; }
+  if(!apiId){ showDiscoverResult('La selección ' + code + ' no tiene API_ID asignado.'); return; }
+  showApiStatus('Analizando fotos…');
+  const data = await apiFetch(`/players/squads?team=${apiId}`);
+  hideApiStatus();
+  const players = data && data.response && data.response[0] && data.response[0].players;
+  if(!players || !players.length){ showDiscoverResult('La API no devolvió plantilla para ' + t.name + '.'); return; }
+  const items = players.map(p => ({ name: p.name, number: p.number, photo: p.photo, id: p.id }));
+  const { map, usedApi } = matchSquad(t, items);
+  const sinFoto = [];
+  t.squad.forEach((p, i) => {
+    const a = map.get(i);
+    if(!(a && a.photo) && !(p.photo)) sinFoto.push(`${p.n} ${p.name} (${p.pos})`);
+  });
+  const sobran = items
+    .map((a, ai) => ({ a, ai }))
+    .filter(x => !usedApi.has(x.ai))
+    .map(x => `${x.a.id}  ${x.a.name}${x.a.photo ? '  [con foto]' : '  [sin foto]'}`);
+  let out = `=== Fotos: ${t.name} ===\nCasadas: ${map.size}/${t.squad.length}\n`;
+  out += `\nLocales SIN foto (${sinFoto.length}):\n` + (sinFoto.length ? '- ' + sinFoto.join('\n- ') : '(ninguno)');
+  out += `\n\nJugadores de la API sin usar (${sobran.length}) — usa el id para PHOTO_OVERRIDES:\n` + (sobran.length ? '- ' + sobran.join('\n- ') : '(ninguno)');
+  out += `\n\nDime los pares  nombre_local -> id  y los fijo en PHOTO_OVERRIDES.`;
+  console.log('\n' + out);
+  showDiscoverResult(out);
 }
 
 function showApiStatus(msg){
@@ -1840,6 +2182,7 @@ render();
 loadFixtures();
 setInterval(loadFixtures, 300000); // refresh every 5min passively
 if(location.hash === '#discover') discoverApiIds();
+if(location.hash.indexOf('#fotos') === 0) discoverUnmatched(location.hash.split('-')[1]);
 </script>
 </body>
 </html>
