@@ -20,6 +20,7 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icons@7.2.3/css/flag-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root {
   --gold:       #B8965A;
@@ -274,6 +275,13 @@ html, body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.m-team-name.ko {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  line-height: 1.2;
+  font-size: 12.5px;
 }
 .m-meta {
   display: flex;
@@ -934,6 +942,31 @@ html, body {
 .tm-nav{display:flex;gap:8px;margin-top:14px;}
 .tm-nav .tm-btn{margin-top:0;}
 .tm-nav .back{flex:0 0 46px;background:transparent;border:1px solid var(--border);color:var(--text2);}
+/* Tarjeta para compartir (imagen) */
+.tm-shot{width:360px;background:radial-gradient(120% 60% at 50% 0%, rgba(184,150,90,.14), transparent 60%), var(--bg2);}
+.tm-shot-in{padding:22px 22px 18px;}
+.ss-kick{text-align:center;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);font-weight:700;}
+.ss-title{text-align:center;font-family:var(--serif);font-size:23px;margin:4px 0 0;}
+.ss-title i{color:var(--gold);font-style:italic;}
+.ss-hero{margin:14px 0 6px;text-align:center;}
+.ss-crown{color:var(--gold);display:inline-block;}
+.ss-medal{display:inline-block;border-radius:50%;box-shadow:0 0 0 4px var(--gold-dim);margin-top:2px;}
+.ss-medal .fc{border-color:var(--gold)!important;border-width:2.5px!important;}
+.ss-clbl{margin-top:10px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);}
+.ss-cnm{font-family:var(--serif);font-size:26px;font-weight:700;margin-top:2px;}
+.ss-div{display:flex;align-items:center;gap:10px;margin:18px 4px 14px;}
+.ss-div .ln{flex:1;height:1px;background:var(--border);}
+.ss-div .t{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--text3);}
+.ss-final{display:flex;align-items:center;justify-content:center;gap:14px;}
+.ss-side{display:flex;flex-direction:column;align-items:center;gap:6px;width:108px;}
+.ss-side .nm{font-size:13px;font-weight:600;text-align:center;line-height:1.1;}
+.ss-vs{font-family:var(--serif);font-size:13px;color:var(--gold);font-style:italic;}
+.ss-semis{display:flex;justify-content:center;gap:14px;}
+.ss-s{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.ss-s .c{font-size:9px;color:var(--text2);font-weight:600;letter-spacing:.03em;}
+.ss-foot{margin-top:20px;padding-top:14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ss-foot .site{font-size:10.5px;color:var(--text3);}
+.ss-foot .cta{font-size:10.5px;color:var(--gold);font-weight:700;}
 </style>
 </head>
 <body>
@@ -1294,7 +1327,7 @@ function matchRowHTML(m, ql) {
     <div class="m-home">
       ${homeFlag}
       <div class="m-home-info">
-        <div class="m-team-name">${homeName}</div>
+        <div class="m-team-name${isGroup?'':' ko'}">${homeName}</div>
       </div>
     </div>
     <div class="m-center">
@@ -1302,7 +1335,7 @@ function matchRowHTML(m, ql) {
       ${m.scoreLabel?`<div class="m-status${m.scoreLive?' live':''}">${m.scoreLabel}</div>`:''}
     </div>
     <div class="m-away">
-      <div class="m-team-name">${awayName}</div>
+      <div class="m-team-name${isGroup?'':' ko'}">${awayName}</div>
       ${awayFlag}
     </div>
     <div class="m-meta">
@@ -1417,8 +1450,8 @@ function renderCalendar(){
               const isH=ql&&(teamHit(m.home,ql)||teamHit(m.away,ql));
               return `<div class="cal-match-item${isH?' h':''}" onclick="jumpDate('${m.date}')">
                 <div class="cal-mi-left">
-                  <div class="cal-mi-teams">${tname(m.home)} · ${tname(m.away)}</div>
-                  <div class="cal-mi-time">${m.time} h · Grupo ${m.group}</div>
+                  <div class="cal-mi-teams">${m.group?tname(m.home):m.home} · ${m.group?tname(m.away):m.away}</div>
+                  <div class="cal-mi-time">${m.time} h${m.group?` · Grupo ${m.group}`:''}</div>
                 </div>
               </div>`;
             }).join('')+
@@ -1457,8 +1490,7 @@ function openDayModal(date){
         </div>
       </div>
       <div style="padding:2px 18px 6px; display:flex; gap:5px;">
-        <span class="m-group">Grupo ${m.group}</span>
-        <span class="m-sep">·</span>
+        ${m.group?`<span class="m-group">Grupo ${m.group}</span><span class="m-sep">·</span>`:''}
         <span class="m-venue">${m.venue.split(',')[1]?m.venue.split(',')[1].trim():m.venue}</span>
       </div>`).join('')}
   `;
@@ -1622,6 +1654,7 @@ function setView(name){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===name));
+  const sw=document.querySelector('.search-wrap'); if(sw) sw.style.display=(name==='tumundial')?'none':'';
   render();
 }
 function render(){
@@ -1801,6 +1834,7 @@ function tmBracketHTML(){
     h += `<div class="tm-subh">Final</div>` + R.fin.map(tmTieHTML).join('');
     h += `<div class="tm-champ"><div class="k">Tu campeón</div><div class="r2">${champ?flag(champ,34):''}<span class="nm2">${champ?tname(champ):'—'}</span></div></div>`;
     h += `<div class="tm-nav"><button class="tm-btn back" onclick="tmRoundBack()">←</button><button class="tm-btn" onclick="tmScoreOpen()">Tu Mundial vs el real →</button></div>`;
+    h += `<button class="tm-btn" onclick="tmShare()">Compartir mi Mundial</button>`;
     h += `<button class="tm-btn ghost" onclick="tmReset()">↻ Reiniciar</button>`;
   }
   return h + '</div>';
@@ -1925,6 +1959,60 @@ function tmScoreHTML(){
     h += `<div class="tm-subh">Tu campeón</div><div class="tm-card"><div class="tm-row">${flag(pred.champion,30)}<span class="tm-nm">${tname(pred.champion)}</span><span class="tm-tag ${alive?'ok':'out'}">${alive?'Sigue vivo':'Eliminado'}</span></div></div>`;
   }
   return h + tmScoreBackBtn() + '</div>';
+}
+
+// ── Compartir: genera una imagen-resumen del cuadro ──
+function tmShotHTML(){
+  const R = tmAllRounds();
+  const champ = tmWin(R.fin[0]);
+  const f0 = R.fin[0].home, f1 = R.fin[0].away;
+  const semis = [R.sf[0].home, R.sf[0].away, R.sf[1].home, R.sf[1].away];
+  const code = id => (id||'').toUpperCase();
+  const semiHTML = semis.filter(Boolean).map(id => `<div class="ss-s">${flag(id,28)}<div class="c">${code(id)}</div></div>`).join('');
+  return `<div class="tm-shot"><div class="tm-shot-in">
+    <div class="ss-kick">Mundial 2026 · EE.UU · Canadá · Méx</div>
+    <div class="ss-title">Mi <i>Mundial</i></div>
+    <div class="ss-hero">
+      <svg class="ss-crown" width="34" height="22" viewBox="0 0 34 22" fill="currentColor"><path d="M2 6l6 6 9-10 9 10 6-6v13a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z"/></svg>
+      <div class="ss-medal">${flag(champ,64)}</div>
+      <div class="ss-clbl">Campeón</div>
+      <div class="ss-cnm">${champ?tname(champ):'—'}</div>
+    </div>
+    <div class="ss-div"><span class="ln"></span><span class="t">Final</span><span class="ln"></span></div>
+    <div class="ss-final">
+      <div class="ss-side">${flag(f0,42)}<div class="nm">${f0?tname(f0):'—'}</div></div>
+      <div class="ss-vs">vs</div>
+      <div class="ss-side">${flag(f1,42)}<div class="nm">${f1?tname(f1):'—'}</div></div>
+    </div>
+    <div class="ss-div"><span class="ln"></span><span class="t">Semifinalistas</span><span class="ln"></span></div>
+    <div class="ss-semis">${semiHTML}</div>
+    <div class="ss-foot"><span class="site">crisrd.github.io/mundial2026</span><span class="cta">Rellena el tuyo →</span></div>
+  </div></div>`;
+}
+function tmShare(){
+  if(!tmWin(tmAllRounds().fin[0])){ showApiStatus('Completa el cuadro antes de compartir'); hideApiStatus(); return; }
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;left:-10000px;top:0;';
+  wrap.innerHTML = tmShotHTML();
+  document.body.appendChild(wrap);
+  const cleanup = () => { if(wrap.parentNode) wrap.parentNode.removeChild(wrap); };
+  if(typeof html2canvas === 'undefined'){ cleanup(); showApiStatus('No se pudo generar la imagen'); hideApiStatus(); return; }
+  showApiStatus('Generando imagen…');
+  html2canvas(wrap.firstChild, { scale:2, backgroundColor:'#FDFCFA', useCORS:true, logging:false }).then(canvas => {
+    cleanup(); hideApiStatus();
+    canvas.toBlob(blob => {
+      if(!blob) return;
+      const file = new File([blob], 'mi-mundial-2026.png', { type:'image/png' });
+      if(navigator.canShare && navigator.canShare({ files:[file] })){
+        navigator.share({ files:[file], title:'Mi Mundial 2026', text:'Mi porra del Mundial 2026' }).catch(()=>{});
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'mi-mundial-2026.png';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }
+    }, 'image/png');
+  }).catch(e => { cleanup(); hideApiStatus(); console.warn('tmShare', e); });
 }
 
 // EVENTS
