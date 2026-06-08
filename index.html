@@ -912,7 +912,7 @@ html, body {
 .tm-arrows button{width:28px;height:18px;border:0;background:transparent;color:var(--text3);cursor:pointer;font-size:11px;line-height:1;padding:0;}
 .tm-arrows button:disabled{opacity:.25;}
 .tm-thirds{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:4px;}
-.tm-chip{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:11px;border:1px solid var(--border);background:var(--bg2);font-size:12.5px;cursor:pointer;transition:all .15s;}
+.tm-chip{display:flex;align-items:center;gap:9px;padding:9px 10px;min-height:60px;box-sizing:border-box;border-radius:11px;border:1px solid var(--border);background:var(--bg2);font-size:12.5px;cursor:pointer;transition:all .15s;}
 .tm-chip .cn{flex:1;font-weight:500;line-height:1.15;}
 .tm-chip .gr{font-size:9.5px;color:var(--text3);}
 .tm-chip.sel{border-color:var(--gold);background:var(--gold-dim);}
@@ -939,6 +939,7 @@ html, body {
 .tm-btn{display:block;width:100%;margin-top:14px;padding:13px;border:0;border-radius:var(--r);background:var(--text1);color:var(--bg2);font-family:var(--sans);font-size:14px;font-weight:600;letter-spacing:.02em;cursor:pointer;}
 .tm-btn:disabled{opacity:.4;}
 .tm-btn.ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+.tm-btn.soft{background:var(--gold-dim);color:var(--gold);}
 .tm-nav{display:flex;gap:8px;margin-top:14px;}
 .tm-nav .tm-btn{margin-top:0;}
 .tm-nav .back{flex:0 0 46px;background:transparent;border:1px solid var(--border);color:var(--text2);}
@@ -949,7 +950,7 @@ html, body {
 .ss-title{text-align:center;font-family:var(--serif);font-size:23px;margin:4px 0 0;}
 .ss-title i{color:var(--gold);font-style:italic;}
 .ss-hero{margin:14px 0 6px;text-align:center;}
-.ss-crown{color:var(--gold);display:inline-block;}
+.ss-crown{color:var(--gold);display:block;margin:0 auto;}
 .ss-medal{display:inline-block;border-radius:50%;box-shadow:0 0 0 4px var(--gold-dim);margin-top:2px;}
 .ss-medal .fc{border-color:var(--gold)!important;border-width:2.5px!important;}
 .ss-clbl{margin-top:10px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--text3);}
@@ -964,9 +965,8 @@ html, body {
 .ss-semis{display:flex;justify-content:center;gap:14px;}
 .ss-s{display:flex;flex-direction:column;align-items:center;gap:4px;}
 .ss-s .c{font-size:9px;color:var(--text2);font-weight:600;letter-spacing:.03em;}
-.ss-foot{margin-top:20px;padding-top:14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
-.ss-foot .site{font-size:10.5px;color:var(--text3);}
-.ss-foot .cta{font-size:10.5px;color:var(--gold);font-weight:700;}
+.ss-foot{margin-top:20px;padding-top:14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;}
+.ss-foot .site{font-size:11px;color:var(--text3);letter-spacing:.03em;}
 </style>
 </head>
 <body>
@@ -1833,9 +1833,8 @@ function tmBracketHTML(){
     h += `<div class="tm-subh">Semifinales</div>` + R.sf.map(tmTieHTML).join('');
     h += `<div class="tm-subh">Final</div>` + R.fin.map(tmTieHTML).join('');
     h += `<div class="tm-champ"><div class="k">Tu campeón</div><div class="r2">${champ?flag(champ,34):''}<span class="nm2">${champ?tname(champ):'—'}</span></div></div>`;
-    h += `<div class="tm-nav"><button class="tm-btn back" onclick="tmRoundBack()">←</button><button class="tm-btn" onclick="tmScoreOpen()">Tu Mundial vs el real →</button></div>`;
-    h += `<button class="tm-btn" onclick="tmShare()">Compartir mi Mundial</button>`;
-    h += `<button class="tm-btn ghost" onclick="tmReset()">↻ Reiniciar</button>`;
+    h += `<div class="tm-nav"><button class="tm-btn soft" onclick="tmScoreOpen()">Vs el real</button><button class="tm-btn" onclick="tmShare()">Compartir</button></div>`;
+    h += `<div class="tm-nav"><button class="tm-btn back" onclick="tmRoundBack()">←</button><button class="tm-btn ghost" onclick="tmReset()">↻ Reiniciar</button></div>`;
   }
   return h + '</div>';
 }
@@ -1986,7 +1985,7 @@ function tmShotHTML(){
     </div>
     <div class="ss-div"><span class="ln"></span><span class="t">Semifinalistas</span><span class="ln"></span></div>
     <div class="ss-semis">${semiHTML}</div>
-    <div class="ss-foot"><span class="site">crisrd.github.io/mundial2026</span><span class="cta">Rellena el tuyo →</span></div>
+    <div class="ss-foot"><span class="site">crisrd.github.io/mundial2026</span></div>
   </div></div>`;
 }
 function tmShare(){
@@ -1998,7 +1997,7 @@ function tmShare(){
   const cleanup = () => { if(wrap.parentNode) wrap.parentNode.removeChild(wrap); };
   if(typeof html2canvas === 'undefined'){ cleanup(); showApiStatus('No se pudo generar la imagen'); hideApiStatus(); return; }
   showApiStatus('Generando imagen…');
-  html2canvas(wrap.firstChild, { scale:2, backgroundColor:'#FDFCFA', useCORS:true, logging:false }).then(canvas => {
+  html2canvas(wrap.firstChild, { scale:3, backgroundColor:'#FDFCFA', useCORS:true, logging:false }).then(canvas => {
     cleanup(); hideApiStatus();
     canvas.toBlob(blob => {
       if(!blob) return;
