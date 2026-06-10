@@ -116,7 +116,7 @@ html, body {
   background: var(--bg1);
   border: 1.5px solid var(--border);
   border-radius: 24px;
-  padding: 9px 16px 9px 38px;
+  padding: 9px 40px 9px 38px;
   color: var(--text1);
   font-family: var(--sans);
   font-size: 14px;
@@ -129,6 +129,25 @@ html, body {
   border-color: var(--gold);
   box-shadow: 0 0 0 3px rgba(184,150,90,0.12);
 }
+#search-input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;display:none;}
+.search-clear{position:absolute;right:28px;top:50%;transform:translateY(-50%);width:22px;height:22px;border:none;background:var(--bg3);border-radius:50%;display:none;align-items:center;justify-content:center;cursor:pointer;padding:0;}
+.search-clear.show{display:flex;}
+.search-clear svg{width:12px;height:12px;stroke:var(--text2);stroke-width:2.5;fill:none;}
+.sr-sec-title{font-size:12px;font-weight:600;color:var(--gold);letter-spacing:.02em;margin:16px 4px 8px;}
+.sr-sec:first-child .sr-sec-title{margin-top:6px;}
+.sr-list{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.sr-club-grp+.sr-club-grp{margin-top:10px;}
+.sr-row{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;}
+.sr-row+.sr-row,.sr-club-head+.sr-row{border-top:.5px solid var(--border);}
+.sr-row:active{background:var(--bg1);}
+.sr-info{min-width:0;flex:1;}
+.sr-nm{font-size:14px;font-weight:500;color:var(--text1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sr-meta{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sr-chev{width:16px;height:16px;flex:none;stroke:var(--text3);stroke-width:2;fill:none;}
+.sr-club-head{display:flex;align-items:baseline;gap:7px;padding:8px 12px;background:rgba(184,150,90,0.12);}
+.sr-club-head .cn{font-size:13px;font-weight:600;color:#8A6E3E;}
+.sr-club-head .cc{font-size:11px;color:#A79574;}
+.sr-more{padding:8px 12px;font-size:11px;color:var(--text3);border-top:.5px solid var(--border);}
 
 /* ── TABS ── */
 #tabs {
@@ -984,6 +1003,7 @@ html, body {
         <circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/>
       </svg>
       <input id="search-input" type="search" placeholder="Buscar selección…" autocomplete="off" autocorrect="off" spellcheck="false">
+      <button id="search-clear" class="search-clear" type="button" aria-label="Limpiar búsqueda" onclick="clearSearch()"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg></button>
     </div>
   </div>
 
@@ -1506,6 +1526,8 @@ function jumpDate(date){ openDayModal(date); }
 // ══════════════════════════════════════
 function renderTeams(){
   const ql=normTxt(q);
+  const elx=document.getElementById('teams-list');
+  if(ql.length>=3){elx.innerHTML=searchPanel(ql);return;}
   const groups={};
   Object.entries(TEAM_INFO).forEach(([id,t])=>{
     if(ql&&!teamHit(id,ql))return;
@@ -1525,6 +1547,37 @@ function renderTeams(){
         </div>`).join('')}
       </div>
     </div>`).join('');
+}
+
+const SR_CHEV='<svg class="sr-chev" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+function srRow(id,p,idx){
+  return `<div class="sr-row" onclick="openPlayerSheet('${id}',${idx})">${flag(id,28)}<div class="sr-info"><div class="sr-nm">${p.name}</div><div class="sr-meta">${p.n} · ${p.pos} · ${p.club||'—'}</div></div>${SR_CHEV}</div>`;
+}
+function searchPanel(ql){
+  const teams=Object.keys(TEAM_INFO).filter(id=>teamHit(id,ql)).sort((a,b)=>tname(a).localeCompare(tname(b)));
+  let players=[];
+  Object.entries(TEAM_INFO).forEach(([id,t])=>(t.squad||[]).forEach((p,idx)=>{if(normTxt(p.name).includes(ql))players.push({id,p,idx});}));
+  players.sort((a,b)=>a.p.name.localeCompare(b.p.name));
+  const cmap={};
+  Object.entries(TEAM_INFO).forEach(([id,t])=>(t.squad||[]).forEach((p,idx)=>{const c=p.club;if(c&&c!=='Sin club'&&normTxt(c).includes(ql)){(cmap[c]=cmap[c]||[]).push({id,p,idx});}}));
+  const clubs=Object.keys(cmap).sort((a,b)=>a.localeCompare(b));
+  let h='';
+  if(teams.length){
+    h+=`<div class="sr-sec"><div class="sr-sec-title">Selecciones</div><div class="teams-grid">${teams.map(id=>`<div class="team-card" onclick="openTeam('${id}')">${flag(id,40)}<div class="tname">${tname(id)}</div></div>`).join('')}</div></div>`;
+  }
+  if(players.length){
+    const cap=50,shown=players.slice(0,cap);
+    h+=`<div class="sr-sec"><div class="sr-sec-title">Jugadores</div><div class="sr-list">${shown.map(x=>srRow(x.id,x.p,x.idx)).join('')}${players.length>cap?`<div class="sr-more">y ${players.length-cap} jugadores más</div>`:''}</div></div>`;
+  }
+  if(clubs.length){
+    const capC=15,shownC=clubs.slice(0,capC);
+    h+=`<div class="sr-sec"><div class="sr-sec-title">Clubes</div>${shownC.map(c=>{
+      const list=cmap[c].slice().sort((a,b)=>a.id===b.id?a.p.n-b.p.n:tname(a.id).localeCompare(tname(b.id)));
+      const capP=12,sp=list.slice(0,capP);
+      return `<div class="sr-club-grp sr-list"><div class="sr-club-head"><span class="cn">${c}</span><span class="cc">· ${list.length} ${list.length===1?'jugador':'jugadores'}</span></div>${sp.map(x=>srRow(x.id,x.p,x.idx)).join('')}${list.length>capP?`<div class="sr-more">y ${list.length-capP} más</div>`:''}</div>`;
+    }).join('')}${clubs.length>capC?`<div class="sr-more" style="border:none">y ${clubs.length-capC} clubes más</div>`:''}</div>`;
+  }
+  return h||'<div class="empty-state">Sin resultados</div>';
 }
 
 // ══════════════════════════════════════
@@ -1655,6 +1708,7 @@ function setView(name){
   document.getElementById('view-'+name).classList.add('active');
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===name));
   const sw=document.querySelector('.search-wrap'); if(sw) sw.style.display=(name==='tumundial')?'none':'';
+  const si=document.getElementById('search-input'); if(si) si.placeholder=(name==='teams')?'Buscar selección, jugador o club…':'Buscar selección…';
   render();
 }
 function render(){
@@ -2022,8 +2076,11 @@ document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
 }));
 let st;
 document.getElementById('search-input').addEventListener('input',e=>{
+  toggleClear(e.target.value);
   clearTimeout(st);st=setTimeout(()=>{q=e.target.value.trim();render();},180);
 });
+function toggleClear(v){const b=document.getElementById('search-clear');if(b)b.classList.toggle('show',!!v);}
+function clearSearch(){const si=document.getElementById('search-input');si.value='';q='';toggleClear('');render();si.focus();}
 
 // ══════════════════════════════════════
 // API-FOOTBALL
