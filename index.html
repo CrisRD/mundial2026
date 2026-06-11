@@ -461,7 +461,7 @@ html, body {
 .lu-score-l.live { color:#C0392B; font-weight:600; }
 .lu-head { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:6px; margin-top:8px; }
 .lu-team { display:flex; align-items:center; gap:8px; justify-content:center; }
-.lu-team .nm2 { font-family:var(--serif); font-size:15px; color:var(--text1); }
+.lu-team .nm2 { font-family:var(--sans); font-weight:500; font-size:15px; color:var(--text1); }
 .lu-sc-n { font-family:var(--serif); font-size:30px; color:var(--text1); line-height:1; text-align:center; white-space:nowrap; }
 .lu-sc-l { font-size:11px; color:var(--text2); margin-top:6px; text-align:center; }
 .lu-sc-l.live { color:#C0392B; font-weight:600; }
@@ -469,14 +469,14 @@ html, body {
 .lu-gl { font-size:12px; color:var(--text2); display:flex; align-items:center; gap:5px; margin-top:5px; }
 .lu-gl .mn { color:var(--text3); font-variant-numeric:tabular-nums; }
 .pl .av .cap { position:absolute; left:-5px; top:-5px; min-width:15px; height:15px; padding:0 2px; border-radius:8px; background:var(--text1); color:#fff; font-size:9px; font-weight:600; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--bg1); }
-.lu-toggle { display:flex; gap:8px; margin-top:14px; }
-.lu-tab { flex:1; text-align:center; padding:8px 6px; border-radius:10px; background:var(--bg3); color:var(--text2); font-size:13px; font-weight:500; cursor:pointer; border:1px solid var(--border2); }
-.lu-tab.active { background:var(--gold-dim); color:var(--text1); border-color:var(--gold); font-weight:600; }
+.lu-toggle { display:flex; gap:24px; justify-content:center; margin-top:14px; }
+.lu-tab { color:var(--text3); font-size:14px; font-weight:500; cursor:pointer; padding-bottom:5px; }
+.lu-tab.active { color:var(--text1); border-bottom:2px solid var(--gold); }
 .lu-form { text-align:center; font-size:11px; letter-spacing:.08em; color:var(--gold); font-weight:600; margin:14px 0 10px; }
 .pitch { position:relative; height:430px; margin:0 14px; background:var(--bg3); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
 .pl { position:absolute; transform:translate(-50%,-50%); width:62px; text-align:center; }
 .pl .av { width:42px; height:42px; border-radius:50%; background:var(--bg2); border:1.5px solid var(--gold); margin:0 auto; display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:13px; color:var(--text1); position:relative; }
-.pl .av img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
+.pl .av img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:50%; }
 .pl .num { position:absolute; right:-5px; bottom:-5px; min-width:17px; height:17px; padding:0 3px; border-radius:9px; background:var(--gold); color:#fff; font-size:10.5px; font-weight:600; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--bg1); }
 .pl .nm { margin-top:4px; font-size:11px; color:var(--text2); white-space:nowrap; font-weight:500; overflow:hidden; text-overflow:ellipsis; }
 .lu-bench-h { font-size:11px; letter-spacing:.08em; color:var(--text3); text-transform:uppercase; margin:18px 18px 8px; }
@@ -1766,7 +1766,7 @@ let MD = null; // { match, lineups:[local,visitante]|null|[], side:0|1 }
 function openMatch(id){
   const m = MATCHES.find(x => x.id === id);
   if(!m) return;
-  MD = { match:m, lineups:null, events:null, captains:null, side:0 };
+  MD = { match:m, lineups:null, events:null, captains:null, nameById:null, side:0 };
   mdRender();
   requestAnimationFrame(()=>document.getElementById('match-detail').classList.add('open'));
   if(m.fixtureId){ mdFetchLineups(m.fixtureId); mdFetchEvents(m.fixtureId); mdFetchCaptains(m.fixtureId); }
@@ -1779,6 +1779,13 @@ async function mdFetchLineups(fixtureId){
   if(!MD || MD.match.fixtureId !== fixtureId) return; // el usuario cambió de partido
   const resp = data && data.response;
   MD.lineups = (resp && resp.length) ? resp : [];
+  const nameById = {};
+  if(Array.isArray(MD.lineups)) MD.lineups.forEach(t => {
+    (t.startXI||[]).concat(t.substitutes||[]).forEach(e => {
+      const p = e && e.player; if(p && p.id != null && p.name) nameById[p.id] = p.name;
+    });
+  });
+  MD.nameById = nameById;
   mdRender();
 }
 
@@ -1794,7 +1801,7 @@ async function mdFetchEvents(fixtureId){
     if(!e) return;
     const st = e.team && e.team.id;
     const detail = e.detail || '';
-    const base = { min:(e.time && e.time.elapsed) || 0, extra:(e.time && e.time.extra) || 0, name:mdSurname(e.player && e.player.name) };
+    const base = { min:(e.time && e.time.elapsed) || 0, extra:(e.time && e.time.extra) || 0, pid:(e.player && e.player.id), rawName:(e.player && e.player.name) || '' };
     if(e.type === 'Goal'){
       if(detail === 'Missed Penalty') return;
       const own = detail === 'Own Goal';
@@ -1829,20 +1836,22 @@ async function mdFetchCaptains(fixtureId){
 }
 
 function mdEventLine(it, right){
-  const ball = `<svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="var(--gold)" stroke-width="2" style="flex:none"><circle cx="12" cy="12" r="9"/></svg>`;
+  const ball = `<svg viewBox="0 0 24 24" width="13" height="13" style="flex:none" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="var(--gold)"/><path d="M12 8.8L15 11l-1.15 3.6h-3.7L9 11z" fill="var(--bg2)"/><g stroke="var(--bg2)" stroke-width="1" stroke-linecap="round"><path d="M12 8.8V5.6"/><path d="M15 11l2.7-1.45"/><path d="M13.85 14.6l1.55 2.75"/><path d="M10.15 14.6l-1.55 2.75"/><path d="M9 11L6.3 9.55"/></g></svg>`;
   const card = `<span style="display:inline-block;width:8px;height:11px;border-radius:1.5px;flex:none;background:${it.red?'#C0392B':'#E0B83A'}"></span>`;
   const icon = it.kind === 'card' ? card : ball;
   const mn = `<span class="mn">${it.min}${it.extra?'+'+it.extra:''}'</span>`;
-  const nm = `${it.name}${it.mark||''}`;
+  const full = (MD && MD.nameById && it.pid!=null && MD.nameById[it.pid]) || it.rawName || '';
+  const nm = `${mdSurname(full)}${it.mark||''}`;
   return right
     ? `<div class="lu-gl" style="justify-content:flex-end">${nm}&nbsp;${mn}${icon}</div>`
     : `<div class="lu-gl">${icon}${mn}&nbsp;${nm}</div>`;
 }
 
 function mdTeamLabel(m, side){
-  if(Array.isArray(MD.lineups) && MD.lineups[side] && MD.lineups[side].team) return MD.lineups[side].team.name;
   const code = side===0 ? m.home : m.away;
-  return TEAM_INFO[code] ? tname(code) : code;
+  if(TEAM_INFO[code]) return tname(code);
+  if(Array.isArray(MD.lineups) && MD.lineups[side] && MD.lineups[side].team) return MD.lineups[side].team.name;
+  return code;
 }
 
 function mdRender(){
