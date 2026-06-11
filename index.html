@@ -466,7 +466,7 @@ html, body {
 .lu-sc-l { font-size:11px; color:var(--text2); margin-top:6px; text-align:center; }
 .lu-sc-l.live { color:#C0392B; font-weight:600; }
 .lu-goals { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
-.lu-gl { font-size:12px; color:var(--text2); display:flex; align-items:center; gap:5px; margin-top:5px; }
+.lu-gl { font-size:12px; color:var(--text2); display:flex; align-items:center; flex-wrap:wrap; gap:5px; margin-top:5px; }
 .lu-gl .mn { color:var(--text3); font-variant-numeric:tabular-nums; }
 .pl .av .cap { position:absolute; left:-5px; top:-5px; min-width:15px; height:15px; padding:0 2px; border-radius:8px; background:var(--text1); color:#fff; font-size:9px; font-weight:600; display:flex; align-items:center; justify-content:center; border:1.5px solid var(--bg1); }
 .lu-toggle { display:flex; gap:24px; justify-content:center; margin-top:14px; }
@@ -1812,6 +1812,12 @@ async function mdFetchEvents(fixtureId){
       const side = st===homeId ? 'home' : st===awayId ? 'away' : null;
       if(!side) return;
       ev[side].push(Object.assign(base, { kind:'card', red: /red/i.test(detail) }));
+    } else if(e.type === 'subst'){
+      const side = st===homeId ? 'home' : st===awayId ? 'away' : null;
+      if(!side) return;
+      ev[side].push({ kind:'subst', min:base.min, extra:base.extra,
+        outPid:(e.player && e.player.id), outRaw:(e.player && e.player.name) || '',
+        inPid:(e.assist && e.assist.id), inRaw:(e.assist && e.assist.name) || '' });
     }
   });
   const ord = (a,b) => (a.min + a.extra/100) - (b.min + b.extra/100);
@@ -1835,13 +1841,24 @@ async function mdFetchCaptains(fixtureId){
   mdRender();
 }
 
+function mdResolve(pid, raw){
+  const full = (MD && MD.nameById && pid != null && MD.nameById[pid]) || raw || '';
+  return mdSurname(full);
+}
+
 function mdEventLine(it, right){
+  const mn = `<span class="mn">${it.min}${it.extra?'+'+it.extra:''}'</span>`;
+  if(it.kind === 'subst'){
+    const swap = `<svg viewBox="0 0 24 24" width="15" height="13" style="flex:none" aria-hidden="true"><path d="M8 5l3.2 5H4.8z" fill="#2E7D32"/><path d="M16 19l-3.2-5h6.4z" fill="#C0392B"/></svg>`;
+    const names = `<span style="color:var(--text2)">${mdResolve(it.inPid,it.inRaw)}</span><span style="color:var(--text3)"> · ${mdResolve(it.outPid,it.outRaw)}</span>`;
+    return right
+      ? `<div class="lu-gl" style="justify-content:flex-end">${names}&nbsp;${mn}${swap}</div>`
+      : `<div class="lu-gl">${swap}${mn}&nbsp;${names}</div>`;
+  }
   const ball = `<svg viewBox="0 0 24 24" width="13" height="13" style="flex:none" aria-hidden="true"><circle cx="12" cy="12" r="9.5" fill="var(--gold)"/><path d="M12 8.8L15 11l-1.15 3.6h-3.7L9 11z" fill="var(--bg2)"/><g stroke="var(--bg2)" stroke-width="1" stroke-linecap="round"><path d="M12 8.8V5.6"/><path d="M15 11l2.7-1.45"/><path d="M13.85 14.6l1.55 2.75"/><path d="M10.15 14.6l-1.55 2.75"/><path d="M9 11L6.3 9.55"/></g></svg>`;
   const card = `<span style="display:inline-block;width:8px;height:11px;border-radius:1.5px;flex:none;background:${it.red?'#C0392B':'#E0B83A'}"></span>`;
   const icon = it.kind === 'card' ? card : ball;
-  const mn = `<span class="mn">${it.min}${it.extra?'+'+it.extra:''}'</span>`;
-  const full = (MD && MD.nameById && it.pid!=null && MD.nameById[it.pid]) || it.rawName || '';
-  const nm = `${mdSurname(full)}${it.mark||''}`;
+  const nm = `${mdResolve(it.pid, it.rawName)}${it.mark||''}`;
   return right
     ? `<div class="lu-gl" style="justify-content:flex-end">${nm}&nbsp;${mn}${icon}</div>`
     : `<div class="lu-gl">${icon}${mn}&nbsp;${nm}</div>`;
