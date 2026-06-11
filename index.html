@@ -318,6 +318,7 @@ html, body {
   color: var(--text3);
 }
 .m-date { font-size: 11px; font-weight: 500; color: var(--gold); }
+.m-num { font-size: 11px; font-weight: 500; color: var(--gold); }
 .m-sep { font-size: 10px; color: var(--text3); }
 .m-venue { font-size: 11px; color: var(--text3); }
 
@@ -1276,37 +1277,37 @@ const MATCHES = [
   {id:'m71', home:'alg', away:'aut', date:'2026-06-28', time:'04:00', venue:'Arrowhead Stadium, Kansas City', group:'J', phase:'groups'},
   {id:'m72', home:'jor', away:'arg', date:'2026-06-28', time:'04:00', venue:'AT&T Stadium, Arlington', group:'J', phase:'groups'},
   {id:'m73', home:'2.º Grupo A', away:'2.º Grupo B', date:'2026-06-28', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'r32'},
-  {id:'m74', home:'Ganador Grupo C', away:'2.º Grupo F', date:'2026-06-29', time:'19:00', venue:'NRG Stadium, Houston', phase:'r32'},
-  {id:'m75', home:'Ganador Grupo E', away:'3.º Grupo A/B/C/D/F', date:'2026-06-29', time:'22:30', venue:'Gillette Stadium, Foxborough', phase:'r32'},
-  {id:'m76', home:'Ganador Grupo F', away:'2.º Grupo C', date:'2026-06-30', time:'03:00', venue:'Estadio BBVA, Guadalupe', phase:'r32'},
-  {id:'m77', home:'2.º Grupo E', away:'2.º Grupo I', date:'2026-06-30', time:'19:00', venue:'AT&T Stadium, Arlington', phase:'r32'},
-  {id:'m78', home:'Ganador Grupo I', away:'3.º Grupo C/D/F/G/H', date:'2026-06-30', time:'23:00', venue:'MetLife Stadium, Nueva Jersey', phase:'r32'},
+  {id:'m74', home:'Ganador Grupo E', away:'3.º Grupo A/B/C/D/F', date:'2026-06-29', time:'19:00', venue:'NRG Stadium, Houston', phase:'r32'},
+  {id:'m75', home:'Ganador Grupo F', away:'2.º Grupo C', date:'2026-06-29', time:'22:30', venue:'Gillette Stadium, Foxborough', phase:'r32'},
+  {id:'m76', home:'Ganador Grupo C', away:'2.º Grupo F', date:'2026-06-30', time:'03:00', venue:'Estadio BBVA, Guadalupe', phase:'r32'},
+  {id:'m77', home:'Ganador Grupo I', away:'3.º Grupo C/D/F/G/H', date:'2026-06-30', time:'19:00', venue:'AT&T Stadium, Arlington', phase:'r32'},
+  {id:'m78', home:'2.º Grupo E', away:'2.º Grupo I', date:'2026-06-30', time:'23:00', venue:'MetLife Stadium, Nueva Jersey', phase:'r32'},
   {id:'m79', home:'Ganador Grupo A', away:'3.º Grupo C/E/F/H/I', date:'2026-07-01', time:'03:00', venue:'Estadio Azteca, Ciudad de México', phase:'r32'},
   {id:'m80', home:'Ganador Grupo L', away:'3.º Grupo E/H/I/J/K', date:'2026-07-01', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r32'},
-  {id:'m81', home:'Ganador Grupo G', away:'3.º Grupo A/E/H/I/J', date:'2026-07-01', time:'22:00', venue:'Lumen Field, Seattle', phase:'r32'},
-  {id:'m82', home:'Ganador Grupo D', away:'3.º Grupo B/E/F/I/J', date:'2026-07-02', time:'02:00', venue:'Levi\'s Stadium, Santa Clara', phase:'r32'},
-  {id:'m83', home:'Ganador Grupo H', away:'2.º Grupo J', date:'2026-07-02', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'r32'},
-  {id:'m84', home:'2.º Grupo K', away:'2.º Grupo L', date:'2026-07-03', time:'01:00', venue:'BMO Field, Toronto', phase:'r32'},
+  {id:'m81', home:'Ganador Grupo D', away:'3.º Grupo B/E/F/I/J', date:'2026-07-01', time:'22:00', venue:'Lumen Field, Seattle', phase:'r32'},
+  {id:'m82', home:'Ganador Grupo G', away:'3.º Grupo A/E/H/I/J', date:'2026-07-02', time:'02:00', venue:'Levi\'s Stadium, Santa Clara', phase:'r32'},
+  {id:'m83', home:'2.º Grupo K', away:'2.º Grupo L', date:'2026-07-02', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'r32'},
+  {id:'m84', home:'Ganador Grupo H', away:'2.º Grupo J', date:'2026-07-03', time:'01:00', venue:'BMO Field, Toronto', phase:'r32'},
   {id:'m85', home:'Ganador Grupo B', away:'3.º Grupo E/F/G/I/J', date:'2026-07-03', time:'05:00', venue:'BC Place, Vancouver', phase:'r32'},
-  {id:'m86', home:'2.º Grupo D', away:'2.º Grupo G', date:'2026-07-03', time:'20:00', venue:'AT&T Stadium, Arlington', phase:'r32'},
-  {id:'m87', home:'Ganador Grupo J', away:'2.º Grupo H', date:'2026-07-04', time:'00:00', venue:'Hard Rock Stadium, Miami', phase:'r32'},
-  {id:'m88', home:'Ganador Grupo K', away:'3.º Grupo D/E/I/J/L', date:'2026-07-04', time:'03:30', venue:'Arrowhead Stadium, Kansas City', phase:'r32'},
-  {id:'m89', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-04', time:'19:00', venue:'NRG Stadium, Houston', phase:'r16'},
-  {id:'m90', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-04', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', phase:'r16'},
-  {id:'m91', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-05', time:'22:00', venue:'MetLife Stadium, Nueva Jersey', phase:'r16'},
-  {id:'m92', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-06', time:'02:00', venue:'Estadio Azteca, Ciudad de México', phase:'r16'},
-  {id:'m93', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-06', time:'21:00', venue:'AT&T Stadium, Arlington', phase:'r16'},
-  {id:'m94', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-07', time:'02:00', venue:'Lumen Field, Seattle', phase:'r16'},
-  {id:'m95', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-07', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r16'},
-  {id:'m96', home:'Ganador de dieciseisavos', away:'Ganador de dieciseisavos', date:'2026-07-07', time:'22:00', venue:'BC Place, Vancouver', phase:'r16'},
-  {id:'m97', home:'Ganador de octavos', away:'Ganador de octavos', date:'2026-07-09', time:'22:00', venue:'Gillette Stadium, Foxborough', phase:'qf'},
-  {id:'m98', home:'Ganador de octavos', away:'Ganador de octavos', date:'2026-07-10', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'qf'},
-  {id:'m99', home:'Ganador de octavos', away:'Ganador de octavos', date:'2026-07-11', time:'23:00', venue:'Hard Rock Stadium, Miami', phase:'qf'},
-  {id:'m100', home:'Ganador de octavos', away:'Ganador de octavos', date:'2026-07-12', time:'03:00', venue:'Arrowhead Stadium, Kansas City', phase:'qf'},
-  {id:'m101', home:'Ganador de cuartos', away:'Ganador de cuartos', date:'2026-07-14', time:'21:00', venue:'AT&T Stadium, Arlington', phase:'sf'},
-  {id:'m102', home:'Ganador de cuartos', away:'Ganador de cuartos', date:'2026-07-15', time:'21:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'sf'},
-  {id:'m103', home:'Perdedor de semifinal', away:'Perdedor de semifinal', date:'2026-07-18', time:'23:00', venue:'Hard Rock Stadium, Miami', phase:'3rd'},
-  {id:'m104', home:'Ganador de semifinal', away:'Ganador de semifinal', date:'2026-07-19', time:'21:00', venue:'MetLife Stadium, Nueva Jersey', phase:'final'},
+  {id:'m86', home:'Ganador Grupo J', away:'2.º Grupo H', date:'2026-07-03', time:'20:00', venue:'AT&T Stadium, Arlington', phase:'r32'},
+  {id:'m87', home:'Ganador Grupo K', away:'3.º Grupo D/E/I/J/L', date:'2026-07-04', time:'00:00', venue:'Hard Rock Stadium, Miami', phase:'r32'},
+  {id:'m88', home:'2.º Grupo D', away:'2.º Grupo G', date:'2026-07-04', time:'03:30', venue:'Arrowhead Stadium, Kansas City', phase:'r32'},
+  {id:'m89', home:'Ganador 74', away:'Ganador 77', date:'2026-07-04', time:'19:00', venue:'NRG Stadium, Houston', phase:'r16'},
+  {id:'m90', home:'Ganador 73', away:'Ganador 75', date:'2026-07-04', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', phase:'r16'},
+  {id:'m91', home:'Ganador 76', away:'Ganador 78', date:'2026-07-05', time:'22:00', venue:'MetLife Stadium, Nueva Jersey', phase:'r16'},
+  {id:'m92', home:'Ganador 79', away:'Ganador 80', date:'2026-07-06', time:'02:00', venue:'Estadio Azteca, Ciudad de México', phase:'r16'},
+  {id:'m93', home:'Ganador 83', away:'Ganador 84', date:'2026-07-06', time:'21:00', venue:'AT&T Stadium, Arlington', phase:'r16'},
+  {id:'m94', home:'Ganador 81', away:'Ganador 82', date:'2026-07-07', time:'02:00', venue:'Lumen Field, Seattle', phase:'r16'},
+  {id:'m95', home:'Ganador 85', away:'Ganador 87', date:'2026-07-07', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r16'},
+  {id:'m96', home:'Ganador 86', away:'Ganador 88', date:'2026-07-07', time:'22:00', venue:'BC Place, Vancouver', phase:'r16'},
+  {id:'m97', home:'Ganador 89', away:'Ganador 90', date:'2026-07-09', time:'22:00', venue:'Gillette Stadium, Foxborough', phase:'qf'},
+  {id:'m98', home:'Ganador 93', away:'Ganador 94', date:'2026-07-10', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'qf'},
+  {id:'m99', home:'Ganador 91', away:'Ganador 92', date:'2026-07-11', time:'23:00', venue:'Hard Rock Stadium, Miami', phase:'qf'},
+  {id:'m100', home:'Ganador 95', away:'Ganador 96', date:'2026-07-12', time:'03:00', venue:'Arrowhead Stadium, Kansas City', phase:'qf'},
+  {id:'m101', home:'Ganador 97', away:'Ganador 98', date:'2026-07-14', time:'21:00', venue:'AT&T Stadium, Arlington', phase:'sf'},
+  {id:'m102', home:'Ganador 99', away:'Ganador 100', date:'2026-07-15', time:'21:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'sf'},
+  {id:'m103', home:'Perdedor 101', away:'Perdedor 102', date:'2026-07-18', time:'23:00', venue:'Hard Rock Stadium, Miami', phase:'3rd'},
+  {id:'m104', home:'Ganador 101', away:'Ganador 102', date:'2026-07-19', time:'21:00', venue:'MetLife Stadium, Nueva Jersey', phase:'final'},
 ];
 
 function tname(id){return(TEAM_INFO[id]||{name:id.toUpperCase()}).name;}
@@ -1371,7 +1372,7 @@ function matchRowHTML(m, ql, showDate) {
       ${awayFlag}
     </div>
     <div class="m-meta">
-      ${isGroup?`${showDate?`<span class="m-date">${fmtDateShort(m.date)}</span><span class="m-sep">·</span>`:''}<span class="m-group">Grupo ${m.group}</span><span class="m-sep">·</span>`:''}
+      ${isGroup?`${showDate?`<span class="m-date">${fmtDateShort(m.date)}</span><span class="m-sep">·</span>`:''}<span class="m-group">Grupo ${m.group}</span><span class="m-sep">·</span>`:`<span class="m-num">Partido ${m.id.replace('m','')}</span><span class="m-sep">·</span>`}
       <span class="m-venue">${m.venue.split(',')[1]?m.venue.split(',')[1].trim():m.venue}</span>
     </div>
   </div>`;
