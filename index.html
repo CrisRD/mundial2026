@@ -461,8 +461,8 @@ html, body {
 .lu-score-l.live { color:#C0392B; font-weight:600; }
 .lu-head { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:6px; margin-top:8px; }
 .lu-team { display:flex; align-items:center; gap:8px; justify-content:center; }
-.lu-team .nm2 { font-family:var(--sans); font-weight:500; font-size:15px; color:var(--text1); }
-.lu-sc-n { font-family:var(--serif); font-size:30px; color:var(--text1); line-height:1; text-align:center; white-space:nowrap; }
+.lu-team .nm2 { font-family:var(--sans); font-weight:500; font-size:14px; color:var(--text1); white-space:nowrap; }
+.lu-sc-n { font-family:var(--serif); font-size:19px; color:var(--text1); line-height:1; text-align:center; white-space:nowrap; }
 .lu-sc-l { font-size:11px; color:var(--text2); margin-top:6px; text-align:center; }
 .lu-sc-l.live { color:#C0392B; font-weight:600; }
 .lu-goals { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
@@ -481,8 +481,13 @@ html, body {
 .pl .nm { margin-top:4px; font-size:11px; color:var(--text2); white-space:nowrap; font-weight:500; overflow:hidden; text-overflow:ellipsis; }
 .lu-bench-h { font-size:11px; letter-spacing:.08em; color:var(--text3); text-transform:uppercase; margin:18px 18px 8px; }
 .lu-chips { display:flex; flex-wrap:wrap; gap:6px; margin:0 18px; }
-.lu-chip { font-size:11.5px; color:var(--text2); background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:4px 9px; }
+.lu-chip { font-size:11.5px; color:var(--text2); background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:4px 9px; display:inline-flex; align-items:center; }
 .lu-chip b { color:var(--gold); font-weight:600; }
+.pl .subout { position:absolute; right:-5px; top:-5px; width:16px; height:16px; border-radius:50%; background:#C0392B; border:1.5px solid var(--bg1); display:flex; align-items:center; justify-content:center; }
+.pl .subout svg { width:9px; height:9px; display:block; }
+.lu-chip .subin { display:inline-flex; align-items:center; vertical-align:middle; margin-right:4px; }
+.lu-chip .subin svg { width:10px; height:10px; display:block; }
+.lu-chip.entered { border-color:rgba(46,125,50,.4); }
 .lu-coach { margin:11px 18px 24px; font-size:11.5px; color:var(--text3); }
 
 .detail-head {
@@ -1938,17 +1943,28 @@ function mdSurname(name){
   return parts.length>1 ? parts[parts.length-1] : parts[0];
 }
 
-function mdPlayer(p, yTop, xLeft){
+function mdPlayer(p, yTop, xLeft, isOut){
   const initials = (p.name||'').split(/\s+/).map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
   const img = p.id ? `<img src="${MEDIA_PLAYER}${p.id}.png" onerror="this.style.display='none'">` : '';
   const num = (p.number!=null) ? p.number : '';
   const cap = (MD && MD.captains && p.id != null && MD.captains.has(p.id)) ? `<span class="cap">C</span>` : '';
+  const out = isOut ? `<span class="subout" title="Sustituido">${SUB_OUT_SVG}</span>` : '';
   return `<div class="pl" style="top:${yTop}%;left:${xLeft}%">
-    <div class="av">${initials}${img}<span class="num">${num}</span>${cap}</div>
+    <div class="av">${initials}${img}<span class="num">${num}</span>${cap}${out}</div>
     <div class="nm">${mdSurname(p.name)}</div>
   </div>`;
 }
 
+const SUB_OUT_SVG = `<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M5 1.4V7.2M2.3 4.8 5 7.8 7.7 4.8" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const SUB_IN_SVG = `<svg viewBox="0 0 10 10" aria-hidden="true"><path d="M5 8.6V2.8M2.3 5.2 5 2.2 7.7 5.2" fill="none" stroke="#2E7D32" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function mdSubSets(){
+  const out = new Set(), inn = new Set();
+  const ev = MD && MD.events;
+  if(ev){ ['home','away'].forEach(s => (ev[s]||[]).forEach(e => {
+    if(e && e.kind === 'subst'){ if(e.outPid!=null) out.add(e.outPid); if(e.inPid!=null) inn.add(e.inPid); }
+  })); }
+  return { out, inn };
+}
 function mdPitch(lu){
   const xi = (lu.startXI||[]).map(e => e.player).filter(Boolean);
   if(!xi.length) return `<div class="empty-state" style="padding:20px 18px">Sin once disponible.</div>`;
@@ -1962,6 +1978,7 @@ function mdPitch(lu){
     <div style="position:absolute;left:50%;top:-1px;transform:translateX(-50%);width:78px;height:26px;border:1.5px solid ${ln2};border-top:none;border-radius:0 0 4px 4px"></div>
     <div style="position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);width:150px;height:58px;border:1.5px solid ${ln2};border-bottom:none;border-radius:5px 5px 0 0"></div>
     <div style="position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);width:78px;height:26px;border:1.5px solid ${ln2};border-bottom:none;border-radius:4px 4px 0 0"></div>`;
+  const ss = mdSubSets();
   let chips = '';
   if(hasGrid){
     const rows = {};
@@ -1972,12 +1989,12 @@ function mdPitch(lu){
       const ps = rows[r].sort((a,b)=> parseInt(a.grid.split(':')[1],10) - parseInt(b.grid.split(':')[1],10));
       const k = ps.length;
       const yTop = R>1 ? (86 - ri*(72/(R-1))) : 50; // fila 1 (portero) abajo, hacia arriba
-      ps.forEach((p, ci) => { chips += mdPlayer(p, yTop, (ci+1)/(k+1)*100); });
+      ps.forEach((p, ci) => { chips += mdPlayer(p, yTop, (ci+1)/(k+1)*100, ss.out.has(p.id)); });
     });
   } else {
     const bands = [86,62,38,14];
     const per = Math.ceil(xi.length/4);
-    xi.forEach((p,i)=>{ const b = Math.min(3, Math.floor(i/per)); chips += mdPlayer(p, bands[b], ((i%4)+1)/5*100); });
+    xi.forEach((p,i)=>{ const b = Math.min(3, Math.floor(i/per)); chips += mdPlayer(p, bands[b], ((i%4)+1)/5*100, ss.out.has(p.id)); });
   }
   return `<div class="pitch">${marks}${chips}</div>`;
 }
@@ -1985,7 +2002,12 @@ function mdPitch(lu){
 function mdBench(lu){
   const subs = (lu.substitutes||[]).map(e=>e.player).filter(Boolean);
   if(!subs.length) return '';
-  const chips = subs.map(p => `<span class="lu-chip"><b>${p.number!=null?p.number:''}</b>&nbsp;${mdSurname(p.name)}</span>`).join('');
+  const ss = mdSubSets();
+  const chips = subs.map(p => {
+    const entered = ss.inn.has(p.id);
+    const arrow = entered ? `<span class="subin" title="Entró">${SUB_IN_SVG}</span>` : '';
+    return `<span class="lu-chip${entered?' entered':''}">${arrow}<b>${p.number!=null?p.number:''}</b>&nbsp;${mdSurname(p.name)}</span>`;
+  }).join('');
   return `<div class="lu-bench-h">Suplentes</div><div class="lu-chips">${chips}</div>`;
 }
 
