@@ -725,7 +725,10 @@ html, body {
 .cal-mi-left {}
 .cal-mi-teams { font-size: 13px; font-weight: 500; color: var(--text1); }
 .cal-mi-time { font-size: 11px; color: var(--text3); margin-top: 1px; }
-.cal-mi-right { font-size: 10px; color: var(--text3); }
+.cal-mi-right { display:flex; flex-direction:column; align-items:flex-end; flex-shrink:0; margin-left:10px; }
+.cal-mi-score { font-family: var(--serif); font-size:15px; font-weight:700; color:var(--text1); letter-spacing:0.5px; }
+.cal-mi-st { font-size:10px; color:var(--text3); letter-spacing:0.3px; margin-top:1px; }
+.cal-mi-st.live { color:#E03E3E; font-weight:600; animation: pulse 1.5s ease-in-out infinite; }
 
 /* ── DAY MODAL ── */
 #day-modal {
@@ -1391,6 +1394,17 @@ function fmtDateShort(d){
   const meses=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   return `${dias[dt.getDay()]} ${dt.getDate()} ${meses[dt.getMonth()]}`;
 }
+// "Hoy" en horario de España (Europe/Madrid), como cadena 'YYYY-MM-DD'. Se calcula
+// vía Intl para no depender del huso del dispositivo: así el corte de día no salta
+// a deshora si alguien abre la app desde otra zona horaria.
+function todayMadrid(){
+  try{
+    const p = new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    return p; // en-CA -> 'YYYY-MM-DD'
+  }catch(e){
+    const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
+  }
+}
 
 // ══════════════════════════════════════
 // STATE
@@ -1518,8 +1532,14 @@ function renderCalendar(){
     </div>
     <div class="cal-legend">
       ${(()=>{
-        const matches = ql ? legend : legend.slice(0,20);
-        if(!matches.length) return '<div class="empty-state" style="font-style:normal">Sin partidos este mes</div>';
+        const today = todayMadrid();
+        // Sin búsqueda: solo hoy y días futuros. Los días ya disputados no pintan
+        // card en el listado, pero siguen accesibles tocando el día en la rejilla.
+        const matches = ql ? legend : legend.filter(m => m.date >= today).slice(0,20);
+        if(!matches.length){
+          if(!ql && legend.length) return '<div class="empty-state" style="font-style:normal">Partidos ya disputados · toca un día para ver el resultado</div>';
+          return '<div class="empty-state" style="font-style:normal">Sin partidos este mes</div>';
+        }
         const byDay={};
         matches.forEach(m=>{if(!byDay[m.date])byDay[m.date]=[];byDay[m.date].push(m);});
         return Object.keys(byDay).sort().map(date=>{
@@ -1537,6 +1557,10 @@ function renderCalendar(){
                   <div class="cal-mi-teams">${m.group?tname(m.home):m.home} · ${m.group?tname(m.away):m.away}</div>
                   <div class="cal-mi-time">${m.time} h${m.group?` · Grupo ${m.group}`:''}</div>
                 </div>
+                ${m.score?`<div class="cal-mi-right">
+                  <div class="cal-mi-score">${m.score.replace('—',' – ')}</div>
+                  ${m.scoreLabel?`<div class="cal-mi-st${m.scoreLive?' live':''}">${m.scoreLabel}</div>`:''}
+                </div>`:''}
               </div>`;
             }).join('')+
             `</div>`;
@@ -1727,11 +1751,17 @@ async function psLoadPlayerStats(teamId, p, token){
   const fixtures = MATCHES.filter(m => (m.home === teamId || m.away === teamId) && m.fixtureId && PS_PLAYED.indexOf(m.status) !== -1);
   if(!fixtures.length) return; // aún no ha jugado: 0 es correcto
   const tot = { min:0, g:0, a:0, cards:0 };
+  const ET_STATUSES = ['AET','PEN','ET','BT','P']; // partidos con prórroga
   for(const m of fixtures){
     let fx; try { fx = await psFixturePlayers(m.fixtureId); } catch(e){ continue; }
     if(token !== psToken) return; // el usuario abrió otra ficha entre tanto
     const s = fx[pid];
-    if(s){ tot.min += s.min; tot.g += s.g; tot.a += s.a; tot.cards += s.cards; }
+    if(s){
+      // La API a veces devuelve minutos con el descuento incluido (p. ej. 99').
+      // Para mostrar, topamos a 90' en tiempo reglamentario y 120' si hubo prórroga.
+      const cap = ET_STATUSES.indexOf(m.status) !== -1 ? 120 : 90;
+      tot.min += Math.min(s.min, cap); tot.g += s.g; tot.a += s.a; tot.cards += s.cards;
+    }
   }
   if(token !== psToken) return;
   const set = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
@@ -1843,8 +1873,11 @@ async function mdFetchLineups(fixtureId){
   mdRender();
 }
 
-// Goles y tarjetas desde /fixtures/events. El gol en propia suma al rival; el
-// descuento se muestra como 90+4. Penalti "(p)", gol en propia "(pp)".
+// Goles y tarjetas desde /fixtures/events. API-Football asigna el evento de gol
+// (incluido el gol en propia) a la selección a la que SUMA el tanto, así que el
+// lado se toma directo del team del evento, sin voltear. El descuento se muestra
+// como 90+4. Penalti "(p)", gol en propia "(pp)" — el nombre que pinta es el del
+// jugador que lo marcó, en el lado de quien se anota el gol.
 async function mdFetchEvents(fixtureId){
   const data = await apiFetch(`/fixtures/events?fixture=${fixtureId}`);
   if(!MD || MD.match.fixtureId !== fixtureId) return;
@@ -1859,7 +1892,7 @@ async function mdFetchEvents(fixtureId){
     if(e.type === 'Goal'){
       if(detail === 'Missed Penalty') return;
       const own = detail === 'Own Goal';
-      const side = st===homeId ? (own?'away':'home') : st===awayId ? (own?'home':'away') : null;
+      const side = st===homeId ? 'home' : st===awayId ? 'away' : null;
       if(!side) return;
       ev[side].push(Object.assign(base, { kind:'goal', mark: own?' (pp)':(detail==='Penalty'?' (p)':'') }));
     } else if(e.type === 'Card'){
@@ -2836,12 +2869,60 @@ function showDiscoverResult(text){
   ta.focus(); ta.select();
 }
 
+// ── HELPERS de un solo uso para diagnóstico de partidos ya jugados.
+// "#evento-par"  → vuelca los eventos crudos (tipo/detalle/equipo/jugador) del
+//                  partido disputado de esa selección, más el mapeo API_IDS, para
+//                  ver cómo etiqueta la API el gol en propia.
+// "#mins-usa"    → vuelca los minutos crudos (games.minutes) de cada jugador.
+function _diagPlayedFixtures(code){
+  code = (code||'').toLowerCase();
+  return MATCHES.filter(m => (m.home===code||m.away===code) && m.fixtureId && PS_PLAYED.indexOf(m.status)!==-1);
+}
+async function diagEvents(code){
+  const fxs = _diagPlayedFixtures(code);
+  if(!fxs.length){ showDiscoverResult('Sin partido jugado para "'+(code||'')+'". Usa el código de selección (par, usa, esp…).'); return; }
+  let out = '';
+  for(const m of fxs){
+    out += `=== ${m.home} vs ${m.away}  (fixture ${m.fixtureId})\n`;
+    out += `API_IDS:  ${m.home}=${API_IDS[m.home]}   ${m.away}=${API_IDS[m.away]}\n\n`;
+    const data = await apiFetch(`/fixtures/events?fixture=${m.fixtureId}`);
+    const resp = (data && data.response) || [];
+    if(!resp.length) out += '(sin eventos)\n';
+    resp.forEach(e => {
+      const t = e.team || {}, p = e.player || {};
+      out += `${String(e.type||'').padEnd(6)}| ${String(e.detail||'').padEnd(14)}| team ${t.id} ${t.name||''} | ${p.name||''}\n`;
+    });
+    out += '\n';
+  }
+  showDiscoverResult(out);
+}
+async function diagMinutes(code){
+  const fxs = _diagPlayedFixtures(code);
+  if(!fxs.length){ showDiscoverResult('Sin partido jugado para "'+(code||'')+'".'); return; }
+  let out = '';
+  for(const m of fxs){
+    out += `=== ${m.home} vs ${m.away}  (fixture ${m.fixtureId})  status ${m.status}\n`;
+    const data = await apiFetch(`/fixtures/players?fixture=${m.fixtureId}`);
+    ((data && data.response)||[]).forEach(t => {
+      out += `-- ${(t.team && t.team.name) || ''} --\n`;
+      (t.players||[]).forEach(pp => {
+        const gm = ((pp.statistics && pp.statistics[0]) || {}).games || {};
+        out += `${String(gm.minutes==null?'-':gm.minutes).padStart(4)}'  ${gm.position||'?'}  ${(pp.player && pp.player.name) || ''}\n`;
+      });
+    });
+    out += '\n';
+  }
+  showDiscoverResult(out);
+}
+
 // ── INIT
 render();
 loadFixtures();
 setInterval(loadFixtures, 300000); // refresh every 5min passively
 if(location.hash === '#discover') discoverApiIds();
 if(location.hash.indexOf('#fotos') === 0) discoverUnmatched(location.hash.split('-')[1]);
+if(location.hash.indexOf('#evento') === 0) diagEvents(location.hash.split('-')[1]);
+if(location.hash.indexOf('#mins') === 0) diagMinutes(location.hash.split('-')[1]);
 </script>
 </body>
 </html>
