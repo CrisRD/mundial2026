@@ -2083,7 +2083,14 @@ function mdSide(s){ if(!MD) return; MD.side = s; mdRender(); }
 function mdSurname(name){
   if(!name) return '';
   const parts = String(name).trim().split(/\s+/);
-  return parts.length>1 ? parts[parts.length-1] : parts[0];
+  if(parts.length <= 1) return parts[0] || '';
+  // "Júnior"/"Jr." es un sufijo, no un apellido: si el nombre acaba ahí, mostramos
+  // la palabra anterior (Vinícius Júnior -> Vinícius, Neymar Júnior -> Neymar).
+  // No afecta a casos como "Júnior Alonso", donde Júnior va delante.
+  const isSuffix = w => /^(junior|jr\.?|jnr)$/i.test(String(w).normalize('NFD').replace(/[\u0300-\u036f]/g,''));
+  let i = parts.length - 1;
+  while(i > 0 && isSuffix(parts[i])) i--;
+  return parts[i];
 }
 
 function mdPlayer(p, yTop, xLeft, isOut){
