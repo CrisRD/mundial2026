@@ -1840,6 +1840,63 @@ function closePlayerSheet(){
   document.getElementById('player-sheet').classList.remove('open');
 }
 
+// Puente alineación → ficha. Resuelve el jugador del once/banquillo (que viene de
+// la API) contra nuestra plantilla local, de más fiable a menos: por id de API
+// (embebido en la foto), por dorsal y por apellido. Si no está en la plantilla de
+// 26, abre una ficha mínima con lo que da la API. La selección es la del lado que
+// se está mostrando (MD.side).
+function mdOpenPlayer(apiId, number){
+  if(!MD || !MD.match) return;
+  const teamCode = MD.side===0 ? MD.match.home : MD.match.away;
+  const sq = (TEAM_INFO[teamCode] && TEAM_INFO[teamCode].squad) || [];
+  const aId = (apiId!=null && apiId!=='') ? Number(apiId) : null;
+  let idx = -1;
+  if(aId!=null) idx = sq.findIndex(p => psPlayerApiId(p) === aId);
+  if(idx<0 && number!=null && number!=='') idx = sq.findIndex(p => String(p.n) === String(number));
+  if(idx<0 && aId!=null && MD.nameById && MD.nameById[aId]){
+    const surn = normTxt(mdSurname(MD.nameById[aId]));
+    if(surn) idx = sq.findIndex(p => normTxt(mdSurname(p.name)) === surn);
+  }
+  if(idx>=0){ openPlayerSheet(teamCode, idx); return; }
+  openApiPlayerSheet(aId, number, (MD.nameById && aId!=null && MD.nameById[aId]) || '', teamCode);
+}
+
+// Ficha mínima para un jugador que no está en nuestra plantilla de 26: nombre,
+// dorsal y estadísticas del torneo por su id de API. Sin club/edad/altura, que no
+// los tenemos: no se inventan.
+function openApiPlayerSheet(apiId, number, name, teamCode){
+  const nm = name || 'Jugador';
+  const initials = nm.split(/\s+/).map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
+  const img = apiId!=null ? `<img src="${MEDIA_PLAYER}${apiId}.png" onerror="this.parentElement.textContent='${initials}'">` : '';
+  document.getElementById('player-sheet-content').innerHTML = `
+    <div class="ps-handle"></div>
+    <div class="ps-hero">
+      <div class="ps-avatar">${initials}${img}</div>
+      <div class="ps-hero-info">
+        <div class="ps-num">${number!=null&&number!==''?number:''}</div>
+        <div class="ps-name">${nm}</div>
+        <div class="ps-meta" style="margin-top:6px;"><span class="ps-tag-pos">Convocado</span></div>
+      </div>
+    </div>
+    <div class="ps-stats">
+      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-g">0</span><span class="ps-stat-l">goles</span></div>
+      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-a">0</span><span class="ps-stat-l">asistencias</span></div>
+      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-min">0'</span><span class="ps-stat-l">minutos</span></div>
+      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-cards">0</span><span class="ps-stat-l">tarjetas</span></div>
+    </div>
+    <div class="ps-note">Estadísticas del Mundial 2026</div>
+    <div style="height:8px"></div>`;
+  const box = document.getElementById('player-sheet-box');
+  let startY = 0;
+  box.addEventListener('touchstart', e => { startY = e.touches[0].clientY; }, {passive:true});
+  box.addEventListener('touchend', e => { if(e.changedTouches[0].clientY - startY > 60) closePlayerSheet(); }, {passive:true});
+  document.getElementById('player-sheet').classList.add('open');
+  if(aIdValid(apiId) && teamCode){
+    psLoadPlayerStats(teamCode, { photo: `${MEDIA_PLAYER}${Number(apiId)}.png` }, ++psToken);
+  }
+}
+function aIdValid(x){ return x!=null && x!=='' && !isNaN(Number(x)); }
+
 function closeTeam(){currentTeamId=null;document.getElementById('team-detail').classList.remove('open');}
 
 // ══════════════════════════════════════
@@ -1855,6 +1912,10 @@ function openMatch(id){
   requestAnimationFrame(()=>document.getElementById('match-detail').classList.add('open'));
   if(m.fixtureId){ mdFetchLineups(m.fixtureId); mdFetchEvents(m.fixtureId); mdFetchCaptains(m.fixtureId); }
   else { MD.lineups = '__none__'; mdRender(); }
+  // Precargamos los datos de API de ambas plantillas (foto/edad/altura) para que,
+  // al tocar un jugador en la alineación, su ficha salga completa y se pueda
+  // emparejar por id. Es idempotente y cacheado, así que no repite llamadas.
+  ensureSquadData(m.home); ensureSquadData(m.away);
 }
 function closeMatch(){ document.getElementById('match-detail').classList.remove('open'); }
 
@@ -2031,7 +2092,7 @@ function mdPlayer(p, yTop, xLeft, isOut){
   const num = (p.number!=null) ? p.number : '';
   const cap = (MD && MD.captains && p.id != null && MD.captains.has(p.id)) ? `<span class="cap">C</span>` : '';
   const out = isOut ? `<span class="subout" title="Sustituido">${SUB_OUT_SVG}</span>` : '';
-  return `<div class="pl" style="top:${yTop}%;left:${xLeft}%">
+  return `<div class="pl" style="top:${yTop}%;left:${xLeft}%;cursor:pointer" onclick="mdOpenPlayer(${p.id!=null?p.id:'null'},${p.number!=null?p.number:'null'})">
     <div class="av">${initials}${img}<span class="num">${num}</span>${cap}${out}</div>
     <div class="nm">${mdSurname(p.name)}</div>
   </div>`;
@@ -2088,7 +2149,7 @@ function mdBench(lu){
   const chips = subs.map(p => {
     const entered = ss.inn.has(p.id);
     const arrow = entered ? `<span class="subin" title="Entró">${SUB_IN_SVG}</span>` : '';
-    return `<span class="lu-chip${entered?' entered':''}">${arrow}<b>${p.number!=null?p.number:''}</b>&nbsp;${mdSurname(p.name)}</span>`;
+    return `<span class="lu-chip${entered?' entered':''}" style="cursor:pointer" onclick="mdOpenPlayer(${p.id!=null?p.id:'null'},${p.number!=null?p.number:'null'})">${arrow}<b>${p.number!=null?p.number:''}</b>&nbsp;${mdSurname(p.name)}</span>`;
   }).join('');
   return `<div class="lu-bench-h">Suplentes</div><div class="lu-chips">${chips}</div>`;
 }
