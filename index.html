@@ -26,6 +26,7 @@
   --gold:       #B8965A;
   --gold-light: #C9A96E;
   --gold-dim:   rgba(184,150,90,0.12);
+  --third:      #3D8F9D;
   --bg1:  #F5F2ED;
   --bg2:  #FDFCFA;
   --bg3:  #EDEAE4;
@@ -228,6 +229,48 @@ html, body {
   font-weight: 500;
 }
 
+/* ── SUB-BARRA DE GRUPOS (prefiltro, solo en "Fase de grupos") ── */
+.group-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  background: var(--bg1);
+  border-bottom: 1px solid var(--border2);
+  padding: 8px 12px;
+  flex-shrink: 0;
+}
+.group-bar::-webkit-scrollbar { display: none; }
+.gb-lbl {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text3);
+  margin-right: 2px;
+  flex-shrink: 0;
+}
+.gchip {
+  white-space: nowrap;
+  padding: 4px 10px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  font-size: 11.5px;
+  color: var(--text2);
+  background: var(--bg2);
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: 26px;
+  text-align: center;
+  font-family: var(--sans);
+  transition: all 0.18s;
+}
+.gchip.active {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 500;
+}
+
 /* ── VIEWS ── */
 .view { display: none; flex: 1; flex-direction: column; overflow: hidden; }
 .view.active { display: flex; }
@@ -291,7 +334,7 @@ html, body {
 }
 .gst-row:first-of-type { border-top: none; }
 .gst-row.q { border-left-color: var(--gold); }
-.gst-row.r { border-left-color: #D9A441; }
+.gst-row.r { border-left-color: var(--third); }
 .gst-row.out { opacity: 0.58; }
 .gst-pos { width: 15px; font-size: 11.5px; color: var(--text2); flex-shrink: 0; }
 .gst-fc {
@@ -308,7 +351,7 @@ html, body {
 .gst-c.dg { width: 30px; color: var(--text1); }
 .gst-c.pt { width: 28px; font-size: 12.5px; font-weight: 600; color: var(--text1); }
 .gst-c.pt.lead { color: #8A6D3A; }
-.gst-leg { display: flex; gap: 16px; padding: 2px 18px 12px; font-size: 10.5px; color: var(--text2); }
+.gst-leg { display: flex; justify-content: flex-end; gap: 16px; padding: 11px 18px 12px; font-size: 10.5px; color: var(--text2); }
 .gst-leg span { display: flex; align-items: center; gap: 5px; }
 .gst-leg i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
 
@@ -371,8 +414,9 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 14px;
+  width: 86px;
   flex-shrink: 0;
+  text-align: center;
 }
 .m-time {
   font-family: var(--sans);
@@ -1103,7 +1147,7 @@ html, body {
       <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke-width="2" stroke-linecap="round">
         <circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/>
       </svg>
-      <input id="search-input" type="search" placeholder="Buscar selección…" autocomplete="off" autocorrect="off" spellcheck="false">
+      <input id="search-input" type="search" placeholder="Buscar selección o grupo…" autocomplete="off" autocorrect="off" spellcheck="false">
       <button id="search-clear" class="search-clear" type="button" aria-label="Limpiar búsqueda" onclick="clearSearch()"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke-linecap="round"/></svg></button>
     </div>
   </div>
@@ -1123,6 +1167,7 @@ html, body {
         <div class="chip" data-phase="final">Final</div>
         <div class="chip" data-phase="past">Anteriores</div>
       </div>
+      <div class="group-bar" id="group-bar" style="display:none"></div>
       <div class="view-scroll" id="matches-list"></div>
     </div>
 
@@ -1463,7 +1508,7 @@ function todayMadrid(){
 // ══════════════════════════════════════
 // STATE
 // ══════════════════════════════════════
-let view='matches', phase='all', q='', calMo=new Date(2026,5,1);
+let view='matches', phase='all', q='', groupSel=null, calMo=new Date(2026,5,1);
 
 // ══════════════════════════════════════
 // RENDER MATCHES
@@ -1575,10 +1620,56 @@ function groupTableHTML(g){
     body+`</div>`;
 }
 
+// ── SUB-BARRA DE GRUPOS (prefiltro) ──
+// Letras de grupo presentes en el calendario (A–L).
+function groupLetters(){
+  const s = new Set();
+  MATCHES.forEach(m => { if(m.phase==='groups' && m.group) s.add(m.group); });
+  return Array.from(s).sort();
+}
+// Se construye una sola vez; los clics van por delegación en el contenedor.
+function buildGroupBar(){
+  const bar = document.getElementById('group-bar'); if(!bar) return;
+  const letters = groupLetters();
+  bar.innerHTML = `<span class="gb-lbl">Grupo</span>`+
+    `<span class="gchip" data-g="">Todos</span>`+
+    letters.map(g => `<span class="gchip" data-g="${g}">${g}</span>`).join('');
+  bar.addEventListener('click', e => {
+    const ch = e.target.closest('.gchip'); if(!ch) return;
+    groupSel = ch.dataset.g || null;
+    syncGroupBar();
+    renderMatches();
+  });
+}
+// Visibilidad (solo en "Fase de grupos" y sin búsqueda activa) + chip activo.
+function syncGroupBar(){
+  const bar = document.getElementById('group-bar'); if(!bar) return;
+  const show = (phase==='groups' && !q);
+  bar.style.display = show ? 'flex' : 'none';
+  if(show) bar.querySelectorAll('.gchip').forEach(ch => {
+    ch.classList.toggle('active', (ch.dataset.g || null) === groupSel);
+  });
+}
+
 function renderMatches(){
+  syncGroupBar();
   const ql=normTxt(q);
   const today=todayMadrid();
   const el=document.getElementById('matches-list');
+
+  // Buscar por grupo: "grupo h" / "grupo H" → tabla + partidos del Grupo H,
+  // funcione en la pill que funcione. Una letra suelta NO dispara (chocaría con
+  // selecciones); para eso están los chips.
+  const gq = ql.match(/^grupo\s*([a-l])$/);
+  if(gq){
+    const G = gq[1].toUpperCase();
+    const rows = MATCHES.filter(m => m.phase==='groups' && m.group===G);
+    if(!rows.length){ el.innerHTML='<div class="empty-state">No existe ese grupo</div>'; return; }
+    el.innerHTML = `<div class="day-header"><div class="day-label">Grupo ${G}</div><div class="day-rule"></div></div>`+
+      groupTableHTML(G)+
+      rows.map(m=>matchRowHTML(m,'',true)).join('');
+    return;
+  }
 
   // ANTERIORES → días ya cerrados (date < hoy), agrupados por fecha DESCENDENTE
   // (lo más reciente arriba). La búsqueda filtra por selección dentro del archivo.
@@ -1610,8 +1701,9 @@ function renderMatches(){
   if(phase==='groups'&&!ql){
     const byGroup={};
     ms.forEach(m=>{if(!byGroup[m.group])byGroup[m.group]=[];byGroup[m.group].push(m);});
-    const groups=Object.keys(byGroup).sort();
-    const legend=`<div class="gst-leg"><span><i style="background:var(--gold)"></i>1º y 2º clasifican</span><span><i style="background:#D9A441"></i>3º · mejor tercero</span></div>`;
+    let groups=Object.keys(byGroup).sort();
+    if(groupSel) groups=groups.filter(g=>g===groupSel);
+    const legend=`<div class="gst-leg"><span><i style="background:var(--gold)"></i>1º y 2º clasifican</span><span><i style="background:var(--third)"></i>Posible próxima fase</span></div>`;
     el.innerHTML=legend+groups.map(g=>{
       const rows=byGroup[g];
       return `<div class="day-header">
@@ -2320,7 +2412,7 @@ function setView(name){
   document.getElementById('view-'+name).classList.add('active');
   document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===name));
   const sw=document.querySelector('.search-wrap'); if(sw) sw.style.display=(name==='tumundial')?'none':'';
-  const si=document.getElementById('search-input'); if(si) si.placeholder=(name==='teams')?'Buscar selección, jugador o club…':'Buscar selección…';
+  const si=document.getElementById('search-input'); if(si) si.placeholder=(name==='teams')?'Buscar selección, jugador o club…':(name==='matches')?'Buscar selección o grupo…':'Buscar selección…';
   render();
 }
 function render(){
@@ -2685,7 +2777,9 @@ function tmShare(){
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setView(t.dataset.view)));
 document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
   document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
-  c.classList.add('active');phase=c.dataset.phase;renderMatches();
+  c.classList.add('active');phase=c.dataset.phase;
+  if(phase!=='groups') groupSel=null;
+  renderMatches();
 }));
 let st;
 document.getElementById('search-input').addEventListener('input',e=>{
@@ -3219,6 +3313,7 @@ async function diagMinutes(code){
 }
 
 // ── INIT
+buildGroupBar();
 render();
 loadFixtures();
 setInterval(loadFixtures, 300000); // refresh every 5min passively
