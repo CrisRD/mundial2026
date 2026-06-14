@@ -1069,13 +1069,14 @@ html, body {
     <!-- PARTIDOS -->
     <div id="view-matches" class="view active">
       <div class="phase-bar" id="phase-bar">
-        <div class="chip active" data-phase="all">Todos</div>
+        <div class="chip active" data-phase="all">Agenda</div>
         <div class="chip" data-phase="groups">Fase de grupos</div>
         <div class="chip" data-phase="r32">Dieciseisavos</div>
         <div class="chip" data-phase="r16">Octavos</div>
         <div class="chip" data-phase="qf">Cuartos</div>
         <div class="chip" data-phase="sf">Semifinales</div>
         <div class="chip" data-phase="final">Final</div>
+        <div class="chip" data-phase="past">Anteriores</div>
       </div>
       <div class="view-scroll" id="matches-list"></div>
     </div>
@@ -1445,12 +1446,33 @@ function matchRowHTML(m, ql, showDate) {
 
 function renderMatches(){
   const ql=normTxt(q);
+  const today=todayMadrid();
+  const el=document.getElementById('matches-list');
+
+  // ANTERIORES → días ya cerrados (date < hoy), agrupados por fecha DESCENDENTE
+  // (lo más reciente arriba). La búsqueda filtra por selección dentro del archivo.
+  if(phase==='past'){
+    let ms=MATCHES.filter(m=>m.date<today);
+    if(ql) ms=ms.filter(m=>teamHit(m.home,ql)||teamHit(m.away,ql));
+    if(!ms.length){el.innerHTML='<div class="empty-state">'+(ql?'Sin partidos anteriores para esa selección':'Aún no hay partidos anteriores')+'</div>';return;}
+    const byDate={};
+    ms.forEach(m=>{if(!byDate[m.date])byDate[m.date]=[];byDate[m.date].push(m);});
+    const dates=Object.keys(byDate).sort().reverse();
+    el.innerHTML=dates.map(date=>
+      `<div class="day-header"><div class="day-label">${fmtDate(date)}</div><div class="day-rule"></div></div>`+
+      byDate[date].map(m=>matchRowHTML(m,ql)).join('')
+    ).join('');
+    return;
+  }
+
   let ms=MATCHES.filter(m=>{
     if(phase!=='all'&&m.phase!==phase)return false;
     if(ql){return teamHit(m.home,ql)||teamHit(m.away,ql);}
+    // Agenda (sin búsqueda): hoy y futuro. Los días cerrados viven en "Anteriores".
+    // Las fases (grupos/eliminatorias) muestran su calendario completo.
+    if(phase==='all'&&m.date<today)return false;
     return true;
   });
-  const el=document.getElementById('matches-list');
   if(!ms.length){el.innerHTML='<div class="empty-state">Sin partidos para mostrar</div>';return;}
 
   // Fase de grupos → agrupar por grupo A-L
@@ -2840,6 +2862,77 @@ async function discoverUnmatched(code){
   showDiscoverResult(out);
 }
 
+// Diagnóstico GLOBAL de fotos: recorre las 48 selecciones, empareja plantilla
+// local con la API y marca los emparejados de RIESGO para localizar de un vistazo
+// en el móvil dónde puede haber una foto cruzada, sin ir equipo por equipo.
+// Marca un emparejado cuando: es homónimo (otro jugador de la misma plantilla
+// comparte apellido/nombre), casó por una sola palabra, cambia de posición, o no
+// casó. NO confirma error (Claude no ve la foto): solo señala lo probable.
+// Úsalo con "#fotos-all". Hace una llamada por selección.
+function _diagProgress(done, total, flags){
+  const ta = document.getElementById('discover-text');
+  if(ta) ta.value = `Analizando fotos…  (${done}/${total})  ·  ${flags} a revisar hasta ahora`;
+}
+async function discoverUnmatchedAll(){
+  const codes = Object.keys(API_IDS).filter(c => TEAM_INFO[c] && TEAM_INFO[c].squad);
+  showDiscoverResult(`Analizando fotos de ${codes.length} selecciones…\n(0/${codes.length})`);
+  const blocks = [];
+  let done = 0, totalFlags = 0;
+  for(const code of codes){
+    const t = TEAM_INFO[code];
+    let players = null;
+    try {
+      const data = await apiFetch(`/players/squads?team=${API_IDS[code]}`);
+      players = data && data.response && data.response[0] && data.response[0].players;
+    } catch(e){ /* sin datos */ }
+    done++;
+    if(!players || !players.length){
+      blocks.push(`✗ ${t.name} (${code})  — la API no devolvió plantilla`);
+      _diagProgress(done, codes.length, totalFlags);
+      continue;
+    }
+    const items = players.map(p => ({ name:p.name, number:p.number, position:p.position, photo:p.photo, id:p.id }));
+    const { map, usedApi } = matchSquad(t, items);
+    // Homónimos dentro de la plantilla local: jugadores que comparten alguna
+    // palabra (≥4 letras) con otro de la misma selección → propensos a cruzarse.
+    const tokOwners = {};
+    t.squad.forEach((p, i) => { apiToks(p.name).forEach(w => { (tokOwners[w] = tokOwners[w] || []).push(i); }); });
+    const homon = new Set();
+    Object.keys(tokOwners).forEach(w => { if(tokOwners[w].length > 1) tokOwners[w].forEach(i => homon.add(i)); });
+    const flags = [];
+    t.squad.forEach((p, i) => {
+      const a = map.get(i);
+      if(!a){ flags.push(`   ⚠ ${p.n} ${p.name} (${p.pos})  ->  SIN CASAR`); return; }
+      const reasons = [];
+      if(homon.has(i)) reasons.push('homónimo');
+      const lt = apiToks(p.name), at = apiToks(a.name);
+      const shared = lt.filter(w => at.indexOf(w) !== -1).length;
+      if(shared <= 1) reasons.push('1 palabra');
+      const apiPos = POS_API_TO_LOCAL[a.position || ''];
+      if(apiPos && p.pos !== apiPos) reasons.push(`pos ${a.position}!=${p.pos}`);
+      if(reasons.length) flags.push(`   ⚠ ${p.n} ${p.name} (${p.pos})  ->  ${a.id} ${a.name} [${a.position||'?'}]  · ${reasons.join(', ')}`);
+    });
+    if(!flags.length){
+      blocks.push(`✓ ${t.name} (${code})  ${map.size}/${t.squad.length}`);
+    } else {
+      totalFlags += flags.length;
+      const sobran = items.filter((a, ai) => !usedApi.has(ai))
+        .map(a => `      · ${a.id} ${a.name} [${a.position||'?'}]${a.photo ? '' : '  (sin foto)'}`);
+      let b = `⚠ ${t.name} (${code})  ${map.size}/${t.squad.length}  — ${flags.length} a revisar\n` + flags.join('\n');
+      if(sobran.length) b += `\n   API sin usar (id para PHOTO_OVERRIDES):\n` + sobran.join('\n');
+      blocks.push(b);
+    }
+    _diagProgress(done, codes.length, totalFlags);
+  }
+  const head = `=== Chequeo global de fotos ===\n` +
+    `${codes.length} selecciones · ${totalFlags} emparejados a revisar\n` +
+    `Leyenda: ✓ sin incidencias · ⚠ revisar · ✗ sin datos de API\n` +
+    `OJO: las marcas NO confirman un error (no veo la foto), señalan dónde es más\n` +
+    `probable un cruce. Para corregir, dime  código + nombre_local -> id  y lo fijo\n` +
+    `en PHOTO_OVERRIDES.\n\n`;
+  showDiscoverResult(head + blocks.join('\n\n'));
+}
+
 function showApiStatus(msg){
   let el = document.getElementById('api-status');
   if(!el){
@@ -3002,7 +3095,7 @@ render();
 loadFixtures();
 setInterval(loadFixtures, 300000); // refresh every 5min passively
 if(location.hash === '#discover') discoverApiIds();
-if(location.hash.indexOf('#fotos') === 0) discoverUnmatched(location.hash.split('-')[1]);
+if(location.hash.indexOf('#fotos') === 0){ const _c = location.hash.split('-')[1]; if(_c === 'all') discoverUnmatchedAll(); else discoverUnmatched(_c); }
 if(location.hash.indexOf('#evento') === 0) diagEvents(location.hash.split('-')[1]);
 if(location.hash.indexOf('#mins') === 0) diagMinutes(location.hash.split('-')[1]);
 </script>
