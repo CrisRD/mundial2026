@@ -267,6 +267,51 @@ html, body {
   letter-spacing: 0.2px;
 }
 
+/* ── TABLA DE CLASIFICACIÓN (Fase de grupos) ── */
+.gst {
+  margin: 0 14px 12px;
+  border: 1px solid var(--border2);
+  border-radius: 11px;
+  overflow: hidden;
+  background: var(--bg2);
+}
+.gst-hr, .gst-row { display: flex; align-items: center; }
+.gst-hr {
+  padding: 6px 10px 7px;
+  font-size: 9.5px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--text3);
+  border-bottom: 1px solid var(--border2);
+}
+.gst-row {
+  padding: 8px 10px;
+  border-top: 1px solid var(--border2);
+  border-left: 3px solid transparent;
+}
+.gst-row:first-of-type { border-top: none; }
+.gst-row.q { border-left-color: var(--gold); }
+.gst-row.r { border-left-color: #D9A441; }
+.gst-row.out { opacity: 0.58; }
+.gst-pos { width: 15px; font-size: 11.5px; color: var(--text2); flex-shrink: 0; }
+.gst-fc {
+  width: 22px; height: 16px; border-radius: 3px; overflow: hidden;
+  margin-right: 8px; flex-shrink: 0; box-shadow: 0 0 0 1px var(--border);
+}
+.gst-fc .fi { width: 22px; height: 16px; background-size: cover; display: block; }
+.gst-fc-x {
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg3); font-size: 8px; color: var(--text3); box-shadow: none;
+}
+.gst-nm { flex: 1; min-width: 0; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gst-c { width: 20px; text-align: center; font-size: 11.5px; color: var(--text2); flex-shrink: 0; }
+.gst-c.dg { width: 30px; color: var(--text1); }
+.gst-c.pt { width: 28px; font-size: 12.5px; font-weight: 600; color: var(--text1); }
+.gst-c.pt.lead { color: #8A6D3A; }
+.gst-leg { display: flex; gap: 16px; padding: 2px 18px 12px; font-size: 10.5px; color: var(--text2); }
+.gst-leg span { display: flex; align-items: center; gap: 5px; }
+.gst-leg i { width: 9px; height: 9px; border-radius: 2px; display: inline-block; }
+
 /* ── MATCH ROW ── */
 .match-row {
   display: flex;
@@ -1162,11 +1207,19 @@ html, body {
 // ══════════════════════════════════════
 // FLAGS
 // ══════════════════════════════════════
+const ISO_FLAG = {'usa':'us', 'can':'ca', 'mex':'mx', 'uru':'uy', 'arg':'ar', 'bra':'br', 'esp':'es', 'mar':'ma', 'por':'pt', 'fra':'fr', 'ger':'de', 'sco':'gb-sct', 'sui':'ch', 'bel':'be', 'eng':'gb-eng', 'ned':'nl', 'aut':'at', 'tur':'tr', 'cro':'hr', 'jpn':'jp', 'col':'co', 'ksa':'sa', 'gha':'gh', 'kor':'kr', 'aus':'au', 'sen':'sn', 'ecu':'ec', 'par':'py', 'cdi':'ci', 'nzl':'nz', 'ira':'ir', 'rsa':'za', 'cze':'cz', 'bih':'ba', 'qat':'qa', 'hat':'ht', 'cur':'cw', 'tun':'tn', 'swe':'se', 'cpv':'cv', 'irq':'iq', 'nor':'no', 'alg':'dz', 'jor':'jo', 'cod':'cd', 'uzb':'uz', 'pan':'pa', 'egy':'eg'};
+// Bandera rectangular para la tabla de clasificación (las redondas de flag() no
+// encajan en una fila de tabla).
+function flagRect(id){
+  const code = ISO_FLAG[id];
+  if(code) return `<span class="gst-fc"><span class="fi fi-${code}"></span></span>`;
+  return `<span class="gst-fc gst-fc-x">${id.slice(0,2).toUpperCase()}</span>`;
+}
 function flag(id, sz) {
   sz = sz || 32;
   const s = `width:${sz}px;height:${sz}px;`;
   const cls = `fc${sz===40?' lg':sz===56?' xl':''}`;
-  const iso = {'usa':'us', 'can':'ca', 'mex':'mx', 'uru':'uy', 'arg':'ar', 'bra':'br', 'esp':'es', 'mar':'ma', 'por':'pt', 'fra':'fr', 'ger':'de', 'sco':'gb-sct', 'sui':'ch', 'bel':'be', 'eng':'gb-eng', 'ned':'nl', 'aut':'at', 'tur':'tr', 'cro':'hr', 'jpn':'jp', 'col':'co', 'ksa':'sa', 'gha':'gh', 'kor':'kr', 'aus':'au', 'sen':'sn', 'ecu':'ec', 'par':'py', 'cdi':'ci', 'nzl':'nz', 'ira':'ir', 'rsa':'za', 'cze':'cz', 'bih':'ba', 'qat':'qa', 'hat':'ht', 'cur':'cw', 'tun':'tn', 'swe':'se', 'cpv':'cv', 'irq':'iq', 'nor':'no', 'alg':'dz', 'jor':'jo', 'cod':'cd', 'uzb':'uz', 'pan':'pa', 'egy':'eg'};
+  const iso = ISO_FLAG;
   const code = iso[id];
   if (code) {
     return `<div class="${cls}" style="${s}"><span class="fi fi-${code} fis" style="width:${sz}px;height:${sz}px;background-size:cover;"></span></div>`;
@@ -1444,6 +1497,84 @@ function matchRowHTML(m, ql, showDate) {
   </div>`;
 }
 
+// ── CLASIFICACIÓN POR GRUPOS ──
+// Se calcula en el cliente desde los marcadores de los partidos ya finalizados
+// (m.score, formato "h—a"). NO depende de /standings de la API. Desempates en
+// orden FIFA: puntos → diferencia de goles → goles a favor → mini-liga entre los
+// empatados (pts, dif, goles) → alfabético.
+const GROUP_FINISHED = ['FT','AET','PEN'];
+function groupTeams(g){ return Object.keys(TEAM_INFO).filter(c => TEAM_INFO[c].group === g); }
+function parseGoals(score){
+  if(!score) return null;
+  const p = String(score).split(/[—–-]/);
+  if(p.length !== 2) return null;
+  const h = parseInt(p[0],10), a = parseInt(p[1],10);
+  return (isNaN(h) || isNaN(a)) ? null : [h,a];
+}
+function groupStandings(g){
+  const teams = groupTeams(g);
+  const R = {}; teams.forEach(c => { R[c] = {code:c,pj:0,g:0,e:0,p:0,gf:0,gc:0,pts:0}; });
+  const played = MATCHES.filter(m => m.phase==='groups' && m.group===g && GROUP_FINISHED.indexOf(m.status)!==-1);
+  played.forEach(m => {
+    const sc = parseGoals(m.score); if(!sc) return;
+    const H = R[m.home], A = R[m.away]; if(!H || !A) return;
+    const h = sc[0], a = sc[1];
+    H.pj++; A.pj++; H.gf+=h; H.gc+=a; A.gf+=a; A.gc+=h;
+    if(h > a){ H.g++; A.p++; H.pts+=3; }
+    else if(h < a){ A.g++; H.p++; A.pts+=3; }
+    else { H.e++; A.e++; H.pts++; A.pts++; }
+  });
+  const arr = teams.map(c => { const r = R[c]; r.dg = r.gf - r.gc; return r; });
+  // Mini-liga (head-to-head) solo entre las selecciones empatadas en pts/dif/gf.
+  function mini(codes){
+    const s = {}; codes.forEach(c => { s[c] = {pts:0,dg:0,gf:0}; });
+    played.forEach(m => {
+      if(codes.indexOf(m.home)===-1 || codes.indexOf(m.away)===-1) return;
+      const sc = parseGoals(m.score); if(!sc) return;
+      const h = sc[0], a = sc[1];
+      s[m.home].gf+=h; s[m.away].gf+=a; s[m.home].dg+=(h-a); s[m.away].dg+=(a-h);
+      if(h > a) s[m.home].pts+=3; else if(h < a) s[m.away].pts+=3; else { s[m.home].pts++; s[m.away].pts++; }
+    });
+    return s;
+  }
+  arr.sort((x,y) => {
+    if(y.pts !== x.pts) return y.pts - x.pts;
+    if(y.dg !== x.dg) return y.dg - x.dg;
+    if(y.gf !== x.gf) return y.gf - x.gf;
+    const tied = arr.filter(r => r.pts===x.pts && r.dg===x.dg && r.gf===x.gf).map(r => r.code);
+    if(tied.length > 1){
+      const s = mini(tied), sx = s[x.code], sy = s[y.code];
+      if(sy.pts !== sx.pts) return sy.pts - sx.pts;
+      if(sy.dg !== sx.dg) return sy.dg - sx.dg;
+      if(sy.gf !== sx.gf) return sy.gf - sx.gf;
+    }
+    return tname(x.code).localeCompare(tname(y.code),'es');
+  });
+  return arr;
+}
+function fmtDG(n){ return n > 0 ? '+'+n : n < 0 ? '−'+Math.abs(n) : '0'; }
+function groupTableHTML(g){
+  const rows = groupStandings(g);
+  const body = rows.map((r,i) => {
+    const cls = i < 2 ? 'q' : i === 2 ? 'r' : 'out';
+    return `<div class="gst-row ${cls}">`+
+      `<span class="gst-pos">${i+1}</span>`+
+      flagRect(r.code)+
+      `<span class="gst-nm">${tname(r.code)}</span>`+
+      `<span class="gst-c">${r.pj}</span>`+
+      `<span class="gst-c">${r.g}</span>`+
+      `<span class="gst-c">${r.e}</span>`+
+      `<span class="gst-c">${r.p}</span>`+
+      `<span class="gst-c dg">${fmtDG(r.dg)}</span>`+
+      `<span class="gst-c pt${i < 2 ? ' lead' : ''}">${r.pts}</span>`+
+    `</div>`;
+  }).join('');
+  return `<div class="gst">`+
+    `<div class="gst-hr"><span class="gst-pos">#</span><span class="gst-fc gst-fc-x" style="box-shadow:none;background:transparent"></span><span class="gst-nm">Equipo</span>`+
+    `<span class="gst-c">PJ</span><span class="gst-c">G</span><span class="gst-c">E</span><span class="gst-c">P</span><span class="gst-c dg">DG</span><span class="gst-c pt">Pts</span></div>`+
+    body+`</div>`;
+}
+
 function renderMatches(){
   const ql=normTxt(q);
   const today=todayMadrid();
@@ -1475,22 +1606,19 @@ function renderMatches(){
   });
   if(!ms.length){el.innerHTML='<div class="empty-state">Sin partidos para mostrar</div>';return;}
 
-  // Fase de grupos → agrupar por grupo A-L
+  // Fase de grupos → tabla de clasificación + partidos, por grupo A-L
   if(phase==='groups'&&!ql){
     const byGroup={};
     ms.forEach(m=>{if(!byGroup[m.group])byGroup[m.group]=[];byGroup[m.group].push(m);});
     const groups=Object.keys(byGroup).sort();
-    el.innerHTML=groups.map(g=>{
+    const legend=`<div class="gst-leg"><span><i style="background:var(--gold)"></i>1º y 2º clasifican</span><span><i style="background:#D9A441"></i>3º · mejor tercero</span></div>`;
+    el.innerHTML=legend+groups.map(g=>{
       const rows=byGroup[g];
-      // Get the 4 teams in this group from the matches
-      const teams=[];
-      rows.forEach(m=>{if(!teams.includes(m.home))teams.push(m.home);if(!teams.includes(m.away))teams.push(m.away);});
-      const teamsLabel=teams.map(t=>tname(t)).join(' · ');
       return `<div class="day-header">
         <div class="day-label">Grupo ${g}</div>
         <div class="day-rule"></div>
-      </div>
-      <div class="group-teams-strip">${teamsLabel}</div>`+
+      </div>`+
+      groupTableHTML(g)+
       rows.map(m=>matchRowHTML(m,ql,true)).join('');
     }).join('');
     return;
