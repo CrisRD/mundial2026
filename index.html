@@ -2404,6 +2404,28 @@ function mdBench(lu){
 }
 
 // ══════════════════════════════════════
+// ANALÍTICA (GoatCounter)
+// ══════════════════════════════════════
+// Dispara un evento personalizado. Se ve en el panel como una "ruta" con flag de evento.
+function gcEvent(path, title){
+  try{
+    if(localStorage.getItem('skipgc')==='t') return; // este dispositivo no cuenta
+    if(window.goatcounter && window.goatcounter.count) window.goatcounter.count({path:path, title:title, event:true});
+  }catch(e){}
+}
+// Activa/desactiva "no contar este dispositivo" (marca skipgc de GoatCounter).
+// Se invoca escribiendo "noyo" en el buscador (útil dentro del acceso directo / PWA).
+function gcToggleSkip(){
+  try{
+    if(localStorage.getItem('skipgc')==='t'){ localStorage.removeItem('skipgc'); alert('Analítica: este dispositivo VUELVE a contar.'); }
+    else{ localStorage.setItem('skipgc','t'); alert('Analítica: este dispositivo ya NO se cuenta.'); }
+  }catch(e){ alert('No se pudo cambiar el ajuste de analítica.'); }
+}
+// Mapa vista interna -> etiqueta legible del evento de tab.
+const TAB_GC = {matches:'partidos', calendar:'calendario', teams:'selecciones', tumundial:'tumundial'};
+let _porraDoneFired = false; // evita contar varias veces la misma porra completada por carga
+
+// ══════════════════════════════════════
 // NAV
 // ══════════════════════════════════════
 function setView(name){
@@ -2532,7 +2554,7 @@ function tmIntroHTML(){
     <button class="tm-btn" onclick="tmStart()">Empezar a rellenar →</button>
   </div></div>`;
 }
-function tmStart(){ TM.step='groups'; TM.gi=0; tmSave(); render(); }
+function tmStart(){ TM.step='groups'; TM.gi=0; tmSave(); gcEvent('porra-empezada','Porra empezada'); render(); }
 function tmGroupsHTML(){
   const g = tmLetters()[TM.gi], ids = TM.order[g];
   const st = [['q1','Clasifica','ok'],['q2','Clasifica','ok'],['q3','Repesca','rep'],['q4','Fuera','out']];
@@ -2597,7 +2619,7 @@ function tmBracketHTML(){
   return h + '</div>';
 }
 function tmPick(matchId, teamId){ TM.picks[matchId]=teamId; tmSave(); render(); }
-function tmRoundNext(){ if(TM.ri<3){ TM.ri++; tmSave(); render(); } }
+function tmRoundNext(){ if(TM.ri<3){ TM.ri++; tmSave(); if(TM.ri===3 && !_porraDoneFired){ _porraDoneFired=true; gcEvent('porra-completada','Porra completada'); } render(); } }
 function tmRoundBack(){ if(TM.ri>0) TM.ri--; else TM.step='thirds'; tmSave(); render(); }
 function tmReset(){ TM = tmDefault(); tmSave(); render(); }
 
@@ -2774,7 +2796,7 @@ function tmShare(){
 }
 
 // EVENTS
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>setView(t.dataset.view)));
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{setView(t.dataset.view);gcEvent('tab-'+(TAB_GC[t.dataset.view]||t.dataset.view),'Tab '+t.dataset.view);}));
 document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
   document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));
   c.classList.add('active');phase=c.dataset.phase;
@@ -2783,6 +2805,7 @@ document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
 }));
 let st;
 document.getElementById('search-input').addEventListener('input',e=>{
+  if(e.target.value.trim().toLowerCase().replace(/^#/,'')==='noyo'){ e.target.value=''; toggleClear(''); q=''; gcToggleSkip(); return; }
   toggleClear(e.target.value);
   clearTimeout(st);st=setTimeout(()=>{q=e.target.value.trim();render();},180);
 });
@@ -3318,9 +3341,12 @@ render();
 loadFixtures();
 setInterval(loadFixtures, 300000); // refresh every 5min passively
 if(location.hash === '#discover') discoverApiIds();
+if(location.hash === '#noyo') gcToggleSkip();
 if(location.hash.indexOf('#fotos') === 0){ const _c = location.hash.split('-')[1]; if(_c === 'all') discoverUnmatchedAll(); else discoverUnmatched(_c); }
 if(location.hash.indexOf('#evento') === 0) diagEvents(location.hash.split('-')[1]);
 if(location.hash.indexOf('#mins') === 0) diagMinutes(location.hash.split('-')[1]);
 </script>
+<script data-goatcounter="https://mundialfutbol2026.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
