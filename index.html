@@ -2938,7 +2938,29 @@ const MEDIA_PLAYER = 'https://media.api-sports.io/football/players/';
 // No gasta llamadas: se construye la URL de la foto directamente.
 // Rellénalo con lo que saque discoverUnmatched() (abre la selección + "#fotos-<código>").
 const PHOTO_OVERRIDES = {
-  // esp: { 'Pedri': 0, 'Gavi': 0 },   // ejemplo: cambia 0 por el id real de la API
+  // Correcciones por id (autoritativas), sacadas del diagnóstico #fotos-all.
+  // Solo cruces REALES (un jugador con la cara de otro) y SIN CASAR cuyo
+  // jugador sí está en la API. El resto de marcas "1 palabra" son correctas.
+
+  // —— Cruces de apellido: dos jugadores se intercambiaron la cara ——
+  fra: { 'Theo Hernández': 47300, 'Lucas Hernández': 33 },
+
+  // —— SIN CASAR con apellido corto (<4 letras) que el tokenizador descartaba,
+  //    pero el jugador SÍ estaba en la API ("API sin usar") ——
+  ger: { 'Jonathan Tah': 972 },
+  ned: { 'Nathan Aké': 18861, 'Micky van de Ven': 152849, 'Guus Til': 36905 },
+  sui: { 'Djibril Sow': 957 },
+  eng: { 'Nico O’Reilly': 307123, 'Eberechi Eze': 19586 },
+  jpn: { 'Junya Ito': 1942, 'Hiroki Ito': 32893 },
+  gha: { 'Prince Adu': 410016 },
+  arg: { 'Nicolás Paz': 350037 },
+
+  // —— Corea: intercambio a tres bandas Eom/Lee/Cho (orden de nombre coreano) +
+  //    SIN CASAR con sílabas <4 letras que el emparejador no veía ——
+  kor: {
+    'Ji-sung Eom': 237050, 'Jae-sung Lee': 2906, 'Gue-sung Cho': 34211,
+    'Kim Min-jae': 2897, 'Jun-ho Bae': 357286, 'Kim Jin-gyu': 34168,
+  },
 };
 
 // Mapeo posición API → posición local, para desempatar homónimos (p. ej. los dos
