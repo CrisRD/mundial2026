@@ -2961,6 +2961,12 @@ function matchSquad(team, items){
       // solo desempatan empates de nombre (pesan poco, nunca superan al nombre).
       let score = shared * 1000;
       const apiPos = POS_API_TO_LOCAL[items[A.ai].position || ''];
+      // Verja de portería: un portero local SOLO casa con un portero de la API,
+      // y un jugador de campo NUNCA con un portero. Bloquea el cruce de cara
+      // entre homónimos de distinto rol (los dos "Éderson" de Brasil: el 2,
+      // centrocampista, salía con la foto del 23, portero). Solo actúa cuando la
+      // API trae posición reconocible; si no la trae, no bloquea nada.
+      if(apiPos && (apiPos === 'PO') !== (team.squad[L.i].pos === 'PO')) return;
       if(apiPos && team.squad[L.i].pos === apiPos) score += 2;
       const an = items[A.ai].number, ln = team.squad[L.i].n;
       if(an != null && ln != null && Number(an) === Number(ln)) score += 1;
