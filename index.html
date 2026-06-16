@@ -3054,7 +3054,14 @@ function matchSquad(team, items){
   const apis   = items.map((a, ai) => ({ ai, tok: apiToks(a.name) }));
   const pairs = [];
   locals.forEach(L => {
+    // Apellido local = último token (la API da "inicial + apellido", el apellido
+    // es el ancla fiable). Exigir compartirlo evita falsos positivos por el solo
+    // nombre de pila: "Federico Viñas" cazaba a otro "Federico" de la API y
+    // heredaba su edad (20) y su foto. Si el apellido tiene <4 letras y el filtro
+    // lo dejó fuera, este token será el de pila y ese caso se cubre por override.
+    const surname = L.tok.length ? L.tok[L.tok.length - 1] : null;
     apis.forEach(A => {
+      if(surname && A.tok.indexOf(surname) === -1) return;
       let shared = 0;
       L.tok.forEach(w => { if(A.tok.indexOf(w) !== -1) shared++; });
       if(!shared) return;
