@@ -2076,6 +2076,21 @@ function openPlayerSheet(teamId, playerIdx){
 
   // Estadísticas reales del torneo (suma de los partidos jugados del equipo).
   psLoadPlayerStats(teamId, p, ++psToken);
+
+  // Si la ficha se abre desde el buscador sin haber entrado en la selección, la
+  // plantilla aún no tiene foto/edad/altura de la API (ni el id para las stats).
+  // Cárgalas y repinta la ficha cuando lleguen. El disparador es de equipo
+  // (_apiLoaded), así que el repintado ya no vuelve a entrar aquí: sin bucles.
+  if(!t._apiLoaded){
+    const myToken = psToken;
+    ensureSquadData(teamId).then(() => {
+      if(psToken === myToken &&
+         document.getElementById('player-sheet').classList.contains('open') &&
+         p.photo){
+        openPlayerSheet(teamId, playerIdx);
+      }
+    });
+  }
 }
 
 function closePlayerSheet(){
@@ -3453,18 +3468,18 @@ async function buscarJugador(q){
         .filter(r => { const id = r.player && r.player.id; if(id==null || seen.has(id)) return false; seen.add(id); return true; })
         .map(r => buscarCard(r.player || {})).join('');
       const rows = document.getElementById('buscar-rows');
-      if(rows && html) rows.insertAdjacentHTML('beforeend', html);
+      if(rows && html){ rows.insertAdjacentHTML('beforeend', html); buscarLoadPhotos(); }
       if(seen.size) setStatus(`Buscar "${q}" (${seen.size}). Toca al jugador correcto para copiar su id (o léelo y dímelo).`);
       page++;
     } while(page <= total && page <= 3);
   } catch(e){ setStatus(`Error buscando "${q}": ${e}`); return; }
   if(!seen.size) setStatus(`Buscar "${q}": sin resultados. Prueba con el apellido.`);
 }
-// Una fila de la galería de #buscar. Avatar = iniciales al instante + la foto
-// encima, que aparece (fade) cuando carga; si la foto falla o no existe, el
-// <img> se quita y quedan las iniciales (antes salía un hueco blanco en iOS y
-// parecía que "no cargaba"). Sin loading="lazy": el set de resultados es corto y
-// acotado, y así esquivamos el bug de Safari con lazy dentro de un scroll.
+// Una fila de la galería de #buscar. Avatar = iniciales al instante; la foto va
+// en data-src y la pinta buscarLoadPhotos() EN ORDEN (de arriba abajo, de 5 en
+// 5), así las primeras filas se llevan el ancho de banda y salen ya en vez de
+// competir con las ~60 de abajo. Si la foto falla o no existe, el <img> se quita
+// y quedan las iniciales (antes salía un hueco blanco en iOS = "no cargaba").
 function buscarCard(p){
   const nm = (p.name || `${p.firstname||''} ${p.lastname||''}`.trim()) || '—';
   const ini = (nm.split(/\s+/).map(w => w[0] || '').join('').substring(0,2).toUpperCase()) || '?';
@@ -3472,12 +3487,31 @@ function buscarCard(p){
   return `<div onclick="buscarPick(${id})" style="display:flex;gap:11px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--border);cursor:pointer">
     <div style="position:relative;width:52px;height:52px;flex:none">
       <div style="position:absolute;inset:0;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:14px;font-weight:500;color:var(--text3)">${ini}</div>
-      <img src="${MEDIA_PLAYER}${id}.png" decoding="async" style="position:absolute;inset:0;width:52px;height:52px;border-radius:50%;object-fit:cover;opacity:0;transition:opacity .25s" onload="this.style.opacity='1'" onerror="this.remove()">
+      <img data-src="${MEDIA_PLAYER}${id}.png" decoding="async" fetchpriority="high" style="position:absolute;inset:0;width:52px;height:52px;border-radius:50%;object-fit:cover;opacity:0;transition:opacity .25s">
     </div>
     <div style="font-family:var(--sans);font-size:13px;color:var(--text1);line-height:1.35">
       <div><b>id ${id}</b></div><div>${nm}</div>
       <div style="color:var(--text2);font-size:12px">${p.nationality||'?'}${p.age?(' · '+p.age+' años'):''}</div>
     </div></div>`;
+}
+// Carga las fotos de #buscar en orden de documento, máx. 5 a la vez. Idempotente:
+// si se le llama mientras corre, no duplica trabajadores; cada uno re-consulta el
+// DOM, así absorbe también las filas que añaden las páginas siguientes.
+let _buscarBusy = false;
+function buscarLoadPhotos(){
+  if(_buscarBusy) return;
+  _buscarBusy = true;
+  const CONC = 5;
+  const next = () => {
+    const img = document.querySelector('#buscar-rows img[data-src]');
+    if(!img){ _buscarBusy = false; return; }
+    const src = img.getAttribute('data-src');
+    img.removeAttribute('data-src');
+    img.onload = () => { img.style.opacity = '1'; next(); };
+    img.onerror = () => { img.remove(); next(); };
+    img.src = src;
+  };
+  for(let i = 0; i < CONC; i++) next();
 }
 function buscarPick(id){
   try { if(navigator.clipboard) navigator.clipboard.writeText(String(id)); } catch(e){}
