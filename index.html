@@ -3440,19 +3440,57 @@ async function buscarJugador(q){
   showDiscoverResult(`Buscando "${q}"…`);
   let resp = [];
   try {
-    const data = await apiFetch(`/players/profiles?search=${encodeURIComponent(q)}`);
-    resp = (data && data.response) || [];
+    let page = 1, total = 1;
+    do {
+      const data = await apiFetch(`/players/profiles?search=${encodeURIComponent(q)}&page=${page}`);
+      resp = resp.concat((data && data.response) || []);
+      total = (data && data.paging && data.paging.total) || 1;
+      page++;
+    } while(page <= total && page <= 3);
   } catch(e){ showDiscoverResult(`Error buscando "${q}": ${e}`); return; }
-  let out = `=== Buscar "${q}" (${resp.length}) ===\n` +
-    `Toca el enlace de foto para confirmar la cara y dame el id correcto:\n` +
-    `lo fijo en PHOTO_OVERRIDES.\n\n`;
-  if(!resp.length){ out += '(sin resultados — prueba con el apellido)'; }
-  resp.forEach(r => {
-    const p = r.player || {};
-    const nm = p.name || `${p.firstname||''} ${p.lastname||''}`.trim();
-    out += `${p.id}  ${nm}  [${p.nationality||'?'}]\n   foto: ${MEDIA_PLAYER}${p.id}.png\n`;
-  });
-  showDiscoverResult(out);
+  if(!resp.length){ showDiscoverResult(`Buscar "${q}": sin resultados. Prueba con el apellido.`); return; }
+  const seen = new Set();
+  const cards = resp.filter(r => { const id = r.player && r.player.id; if(id==null || seen.has(id)) return false; seen.add(id); return true; })
+    .map(r => {
+      const p = r.player || {};
+      const nm = p.name || `${p.firstname||''} ${p.lastname||''}`.trim();
+      return `<div onclick="buscarPick(${p.id})" style="display:flex;gap:11px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--border);cursor:pointer">
+        <img src="${MEDIA_PLAYER}${p.id}.png" loading="lazy" style="width:52px;height:52px;border-radius:50%;object-fit:cover;background:var(--bg1);flex:none" onerror="this.style.opacity='.25'">
+        <div style="font-family:var(--sans);font-size:13px;color:var(--text1);line-height:1.35">
+          <div><b>id ${p.id}</b></div><div>${nm}</div>
+          <div style="color:var(--text2);font-size:12px">${p.nationality||'?'}${p.age?(' · '+p.age+' años'):''}</div>
+        </div></div>`;
+    }).join('');
+  const head = `<div id="buscar-status" style="font-family:var(--sans);font-size:13px;color:var(--text2);margin:2px 0 8px">Buscar "${q}" (${seen.size}). Toca al jugador correcto para copiar su id (o léelo y dímelo).</div>`;
+  showDiscoverGallery(head + cards);
+}
+function buscarPick(id){
+  try { if(navigator.clipboard) navigator.clipboard.writeText(String(id)); } catch(e){}
+  const s = document.getElementById('buscar-status');
+  if(s) s.textContent = `id ${id} copiado ✓ — pégaselo a Claude`;
+}
+// Variante del panel de diagnóstico que renderiza HTML (con imágenes), no texto.
+function showDiscoverGallery(html){
+  let o = document.getElementById('discover-overlay');
+  if(o) o.remove();
+  o = document.createElement('div');
+  o.id = 'discover-overlay';
+  o.style.cssText = 'position:fixed;inset:0;background:var(--bg1);z-index:9999;display:flex;flex-direction:column;padding:14px;box-sizing:border-box;';
+  const bar = document.createElement('div');
+  bar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;';
+  const title = document.createElement('b');
+  title.textContent = 'Buscar jugador';
+  title.style.cssText = 'color:var(--text1);font-family:var(--sans);font-size:15px;';
+  const close = document.createElement('button');
+  close.textContent = 'Cerrar';
+  close.style.cssText = 'background:var(--text1);color:var(--bg2);border:0;border-radius:8px;padding:7px 14px;font-family:var(--sans);font-size:13px;';
+  close.addEventListener('click', () => o.remove());
+  bar.appendChild(title); bar.appendChild(close);
+  const box = document.createElement('div');
+  box.style.cssText = 'flex:1;overflow:auto;border-radius:8px;border:1px solid var(--border);background:var(--bg2);padding:6px 10px;';
+  box.innerHTML = html;
+  o.appendChild(bar); o.appendChild(box);
+  document.getElementById('app').appendChild(o);
 }
 
 // ── INIT
