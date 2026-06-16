@@ -2179,8 +2179,20 @@ function closeMatch(){ document.getElementById('match-detail').classList.remove(
 async function mdFetchLineups(fixtureId){
   const data = await apiFetch(`/fixtures/lineups?fixture=${fixtureId}`);
   if(!MD || MD.match.fixtureId !== fixtureId) return; // el usuario cambió de partido
-  const resp = data && data.response;
-  MD.lineups = (resp && resp.length) ? resp : [];
+  const resp = (data && data.response) || [];
+  // Asigna [local, visitante] por ID de equipo, NO por el orden del array de la
+  // API (que no garantiza casa/fuera). Si no, en partidos donde la API devuelve
+  // al visitante primero se cruzaban los lados: la pestaña "Francia" pintaba el
+  // once de Senegal (con su portero Mendy, foto y edad ajenas). Los eventos ya
+  // iban por id; ahora la alineación también.
+  let lus = resp;
+  if(Array.isArray(resp) && resp.length){
+    const homeId = API_IDS[MD.match.home], awayId = API_IDS[MD.match.away];
+    const h = resp.find(r => r && r.team && r.team.id === homeId);
+    const a = resp.find(r => r && r.team && r.team.id === awayId);
+    if(h && a) lus = [h, a];
+  }
+  MD.lineups = lus.length ? lus : [];
   const nameById = {};
   if(Array.isArray(MD.lineups)) MD.lineups.forEach(t => {
     (t.startXI||[]).concat(t.substitutes||[]).forEach(e => {
@@ -3554,12 +3566,88 @@ buildGroupBar();
 render();
 loadFixtures();
 setInterval(loadFixtures, 300000); // refresh every 5min passively
+// ── CRUCE CON ALINEACIONES REALES (verdad de campo) ───────────────────────────
+// Lee las alineaciones (/fixtures/lineups) de los partidos JUGADOS de una
+// selección —quién pisó el campo, con su dorsal y su id real— y las cruza con tu
+// lista local. La alineación es ground truth, al contrario que /players/squads
+// (que puede ir con retraso). Marca tres clases de error:
+//   · DERIVA DORSAL   -> tu #N es un jugador distinto al que jugó con ese #N
+//   · DORSAL DISTINTO -> el jugador está en tu lista, pero con otro dorsal
+//   · NO EN TU LISTA  -> jugó y no aparece en tu convocatoria
+// Imprime el id de cada caso (para fijar dorsal u override). 1 llamada por partido.
+// "#cruce-<código>" (p. ej. #cruce-uru) un equipo; "#cruce-all" barre todos.
+async function _cruceTeam(code){
+  const t = TEAM_INFO[code], apiId = API_IDS[code];
+  const fxs = _diagPlayedFixtures(code);
+  if(!fxs.length) return { played:0, avisos:[], oks:[], real:0, noData:false };
+  const real = new Map(); // id -> {id, number, name} (quién pisó el campo)
+  let gotAny = false;
+  for(const m of fxs){
+    let data; try { data = await apiFetch(`/fixtures/lineups?fixture=${m.fixtureId}`); } catch(e){ continue; }
+    const side = ((data && data.response) || []).find(r => r && r.team && r.team.id === apiId);
+    if(!side) continue;
+    gotAny = true;
+    (side.startXI || []).concat(side.substitutes || []).forEach(e => {
+      const p = e && e.player; if(!p || p.id == null) return;
+      if(!real.has(p.id)) real.set(p.id, { id:p.id, number:p.number, name:p.name || '' });
+    });
+  }
+  if(!gotAny) return { played:fxs.length, avisos:[], oks:[], real:0, noData:true };
+  const lsur = p => normTxt(mdSurname(p.name));
+  const avisos = [], oks = [];
+  real.forEach(r => {
+    const rsur = normTxt(mdSurname(r.name));
+    const byDorsal = (r.number != null) ? t.squad.find(p => Number(p.n) === Number(r.number)) : null;
+    const bySurname = t.squad.find(p => lsur(p) === rsur);
+    if(byDorsal && lsur(byDorsal) === rsur){ oks.push(`#${byDorsal.n} ${byDorsal.name}  ->  id ${r.id}`); return; }
+    if(byDorsal){ avisos.push(`DERIVA DORSAL  #${r.number}: tu lista="${byDorsal.name}"  ·  jugó="${r.name}"  (id ${r.id})`); return; }
+    if(bySurname){ avisos.push(`DORSAL DISTINTO  "${r.name}" jugó con #${r.number}, en tu lista es #${bySurname.n}  (id ${r.id})`); return; }
+    avisos.push(`NO EN TU LISTA  #${r.number != null ? r.number : '?'} "${r.name}"  (id ${r.id})`);
+  });
+  return { played:fxs.length, avisos, oks, real:real.size, noData:false };
+}
+async function cruceLineups(code){
+  code = (code || currentTeamId || '').toLowerCase();
+  const t = code && TEAM_INFO[code], apiId = code && API_IDS[code];
+  if(!t){ showDiscoverResult('Usa #cruce-<código> (p. ej. #cruce-uru), o #cruce-all.'); return; }
+  if(!apiId){ showDiscoverResult('La selección ' + code + ' no tiene API_ID.'); return; }
+  showApiStatus('Cruzando alineaciones…');
+  let r; try { r = await _cruceTeam(code); } catch(e){ hideApiStatus(); showDiscoverResult('Error cruzando ' + t.name + ': ' + e); return; }
+  hideApiStatus();
+  if(!r.played){ showDiscoverResult(`=== Cruce: ${t.name} ===\nAún no ha jugado: no hay verdad de campo que cruzar.`); return; }
+  if(r.noData){ showDiscoverResult(`=== Cruce: ${t.name} ===\nLa API todavía no da alineaciones de sus partidos jugados.`); return; }
+  let out = `=== Cruce: ${t.name} ===  (${r.played} partido(s), ${r.real} jugadores en campo)\n`;
+  out += `\nAVISOS (${r.avisos.length}):\n` + (r.avisos.length ? '- ' + r.avisos.join('\n- ') : '(ninguno: dorsales y nombres cuadran con el campo)');
+  out += `\n\nYa cuadran — id real por si quieres fijar su foto:\n` + (r.oks.length ? '- ' + r.oks.join('\n- ') : '(ninguno)');
+  showDiscoverResult(out);
+}
+async function cruceLineupsAll(){
+  const codes = Object.keys(TEAM_INFO).filter(c => API_IDS[c] && _diagPlayedFixtures(c).length);
+  if(!codes.length){ showDiscoverResult('Aún no hay partidos jugados con alineación disponible.'); return; }
+  showApiStatus('Cruzando alineaciones…');
+  const blocks = []; let totalFlags = 0, done = 0;
+  for(const c of codes){
+    done++;
+    let r; try { r = await _cruceTeam(c); } catch(e){ r = { avisos:[], played:0 }; }
+    if(r.avisos && r.avisos.length){
+      blocks.push(`=== ${TEAM_INFO[c].name} ===  (${r.played} part.)\n- ` + r.avisos.join('\n- '));
+      totalFlags += r.avisos.length;
+    }
+    showApiStatus(`Cruzando alineaciones…  (${done}/${codes.length})  ·  ${totalFlags} avisos`);
+  }
+  hideApiStatus();
+  let out = `=== CRUCE CON ALINEACIONES REALES ===\n${codes.length} selección(es) con partido jugado · ${totalFlags} aviso(s)\n\n`;
+  out += blocks.length ? blocks.join('\n\n') : 'Sin avisos: lo que se vio en el campo cuadra con tus convocatorias.';
+  showDiscoverResult(out);
+}
+
 if(location.hash === '#discover') discoverApiIds();
 if(location.hash === '#noyo') gcToggleSkip();
 if(location.hash.indexOf('#fotos') === 0){ const _c = location.hash.split('-')[1]; if(_c === 'all') discoverUnmatchedAll(); else discoverUnmatched(_c); }
 if(location.hash.indexOf('#evento') === 0) diagEvents(location.hash.split('-')[1]);
 if(location.hash.indexOf('#mins') === 0) diagMinutes(location.hash.split('-')[1]);
 if(location.hash.indexOf('#buscar') === 0) buscarJugador(decodeURIComponent(location.hash.split('-').slice(1).join('-')));
+if(location.hash.indexOf('#cruce') === 0){ const _c = location.hash.split('-')[1]; if(_c === 'all') cruceLineupsAll(); else cruceLineups(_c); }
 </script>
 <script data-goatcounter="https://mundialfutbol2026.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
