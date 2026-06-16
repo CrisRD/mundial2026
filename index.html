@@ -3437,32 +3437,47 @@ async function diagMinutes(code){
 async function buscarJugador(q){
   q = (q || '').trim();
   if(q.length < 3){ showDiscoverResult('Escribe al menos 3 letras: #buscar-<nombre>'); return; }
-  showDiscoverResult(`Buscando "${q}"…`);
-  let resp = [];
+  // Abre la galería ya y va añadiendo filas según llegan las páginas: no espera a
+  // tener las 3 para pintar. Cada fila trae sus iniciales al instante, así nunca
+  // queda en blanco aunque la foto tarde o falle.
+  const head = `<div id="buscar-status" style="font-family:var(--sans);font-size:13px;color:var(--text2);margin:2px 0 8px">Buscando "${q}"…</div><div id="buscar-rows"></div>`;
+  showDiscoverGallery(head);
+  const setStatus = t => { const s = document.getElementById('buscar-status'); if(s) s.textContent = t; };
+  const seen = new Set();
   try {
     let page = 1, total = 1;
     do {
       const data = await apiFetch(`/players/profiles?search=${encodeURIComponent(q)}&page=${page}`);
-      resp = resp.concat((data && data.response) || []);
       total = (data && data.paging && data.paging.total) || 1;
+      const html = ((data && data.response) || [])
+        .filter(r => { const id = r.player && r.player.id; if(id==null || seen.has(id)) return false; seen.add(id); return true; })
+        .map(r => buscarCard(r.player || {})).join('');
+      const rows = document.getElementById('buscar-rows');
+      if(rows && html) rows.insertAdjacentHTML('beforeend', html);
+      if(seen.size) setStatus(`Buscar "${q}" (${seen.size}). Toca al jugador correcto para copiar su id (o léelo y dímelo).`);
       page++;
     } while(page <= total && page <= 3);
-  } catch(e){ showDiscoverResult(`Error buscando "${q}": ${e}`); return; }
-  if(!resp.length){ showDiscoverResult(`Buscar "${q}": sin resultados. Prueba con el apellido.`); return; }
-  const seen = new Set();
-  const cards = resp.filter(r => { const id = r.player && r.player.id; if(id==null || seen.has(id)) return false; seen.add(id); return true; })
-    .map(r => {
-      const p = r.player || {};
-      const nm = p.name || `${p.firstname||''} ${p.lastname||''}`.trim();
-      return `<div onclick="buscarPick(${p.id})" style="display:flex;gap:11px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--border);cursor:pointer">
-        <img src="${MEDIA_PLAYER}${p.id}.png" loading="lazy" style="width:52px;height:52px;border-radius:50%;object-fit:cover;background:var(--bg1);flex:none" onerror="this.style.opacity='.25'">
-        <div style="font-family:var(--sans);font-size:13px;color:var(--text1);line-height:1.35">
-          <div><b>id ${p.id}</b></div><div>${nm}</div>
-          <div style="color:var(--text2);font-size:12px">${p.nationality||'?'}${p.age?(' · '+p.age+' años'):''}</div>
-        </div></div>`;
-    }).join('');
-  const head = `<div id="buscar-status" style="font-family:var(--sans);font-size:13px;color:var(--text2);margin:2px 0 8px">Buscar "${q}" (${seen.size}). Toca al jugador correcto para copiar su id (o léelo y dímelo).</div>`;
-  showDiscoverGallery(head + cards);
+  } catch(e){ setStatus(`Error buscando "${q}": ${e}`); return; }
+  if(!seen.size) setStatus(`Buscar "${q}": sin resultados. Prueba con el apellido.`);
+}
+// Una fila de la galería de #buscar. Avatar = iniciales al instante + la foto
+// encima, que aparece (fade) cuando carga; si la foto falla o no existe, el
+// <img> se quita y quedan las iniciales (antes salía un hueco blanco en iOS y
+// parecía que "no cargaba"). Sin loading="lazy": el set de resultados es corto y
+// acotado, y así esquivamos el bug de Safari con lazy dentro de un scroll.
+function buscarCard(p){
+  const nm = (p.name || `${p.firstname||''} ${p.lastname||''}`.trim()) || '—';
+  const ini = (nm.split(/\s+/).map(w => w[0] || '').join('').substring(0,2).toUpperCase()) || '?';
+  const id = p.id;
+  return `<div onclick="buscarPick(${id})" style="display:flex;gap:11px;align-items:center;padding:9px 4px;border-bottom:1px solid var(--border);cursor:pointer">
+    <div style="position:relative;width:52px;height:52px;flex:none">
+      <div style="position:absolute;inset:0;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:14px;font-weight:500;color:var(--text3)">${ini}</div>
+      <img src="${MEDIA_PLAYER}${id}.png" decoding="async" style="position:absolute;inset:0;width:52px;height:52px;border-radius:50%;object-fit:cover;opacity:0;transition:opacity .25s" onload="this.style.opacity='1'" onerror="this.remove()">
+    </div>
+    <div style="font-family:var(--sans);font-size:13px;color:var(--text1);line-height:1.35">
+      <div><b>id ${id}</b></div><div>${nm}</div>
+      <div style="color:var(--text2);font-size:12px">${p.nationality||'?'}${p.age?(' · '+p.age+' años'):''}</div>
+    </div></div>`;
 }
 function buscarPick(id){
   try { if(navigator.clipboard) navigator.clipboard.writeText(String(id)); } catch(e){}
