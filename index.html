@@ -2335,9 +2335,36 @@ function mdSurname(name){
   return parts[i];
 }
 
+// Foto "buena" del jugador desde nuestra plantilla de 26 (ya casada por la API
+// y corregida con PHOTO_OVERRIDES). Empareja el jugador de la alineación con el
+// local por id de API, dorsal o apellido. Devuelve '' si no está o aún no cargó.
+function mdLocalPhoto(p){
+  if(!MD || !MD.match) return '';
+  const teamCode = MD.side===0 ? MD.match.home : MD.match.away;
+  const sq = (TEAM_INFO[teamCode] && TEAM_INFO[teamCode].squad) || [];
+  const aId = p.id!=null ? Number(p.id) : null;
+  let lp = null;
+  if(aId!=null) lp = sq.find(q => psPlayerApiId(q) === aId);
+  if(!lp && p.number!=null) lp = sq.find(q => String(q.n) === String(p.number));
+  if(!lp && p.name){ const surn = normTxt(mdSurname(p.name)); if(surn) lp = sq.find(q => normTxt(mdSurname(q.name)) === surn); }
+  return (lp && lp.photo) || '';
+}
+
 function mdPlayer(p, yTop, xLeft, isOut){
   const initials = (p.name||'').split(/\s+/).map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
-  const img = p.id ? `<img src="${MEDIA_PLAYER}${p.id}.png" onerror="this.style.display='none'">` : '';
+  // Prioriza la foto de nuestra plantilla (corregida) y deja la de la alineación
+  // como respaldo; si ambas fallan, quedan las iniciales.
+  const local = mdLocalPhoto(p);
+  const apiUrl = p.id ? `${MEDIA_PLAYER}${p.id}.png` : '';
+  const primary = local || apiUrl;
+  const alt = (local && apiUrl && apiUrl !== local) ? apiUrl : '';
+  let img = '';
+  if(primary){
+    const onerr = alt
+      ? `if(!this.dataset.f){this.dataset.f=1;this.src='${alt}'}else{this.style.display='none'}`
+      : `this.style.display='none'`;
+    img = `<img src="${primary}" onerror="${onerr}">`;
+  }
   const num = (p.number!=null) ? p.number : '';
   const cap = (MD && MD.captains && p.id != null && MD.captains.has(p.id)) ? `<span class="cap">C</span>` : '';
   const out = isOut ? `<span class="subout" title="Sustituido">${SUB_OUT_SVG}</span>` : '';
@@ -2357,10 +2384,46 @@ function mdSubSets(){
   })); }
   return { out, inn };
 }
+// Decide las filas del once para pintarlo en el campo, de más fiable a menos:
+// 1) grid de la API (coordenadas por jugador), SOLO si la fila del portero tiene
+//    exactamente 1 jugador (si no, el grid viene corrupto y se descarta);
+// 2) posición G/D/M/F que la API da por jugador (casi siempre presente);
+// 3) formación "4-4-2"/etc. troceando el startXI (portero→def→med→del);
+// 4) null → el llamador reparte en bandas por orden (último recurso).
+function mdRows(lu, xi){
+  const hasGrid = xi.every(p => p.grid && /^\d+:\d+$/.test(p.grid));
+  if(hasGrid){
+    const m = {};
+    xi.forEach(p => { const r = parseInt(p.grid.split(':')[0],10); (m[r]=m[r]||[]).push(p); });
+    const nums = Object.keys(m).map(Number).sort((a,b)=>a-b);
+    if(m[nums[0]].length === 1){ // portero solo en su fila → grid de fiar
+      return nums.map(r => m[r].sort((a,b)=> parseInt(a.grid.split(':')[1],10) - parseInt(b.grid.split(':')[1],10)));
+    }
+  }
+  const POSROW = { G:0, D:1, M:2, F:3 };
+  if(xi.every(p => p.pos && POSROW[p.pos] !== undefined)){
+    const r = [[],[],[],[]];
+    xi.forEach(p => r[POSROW[p.pos]].push(p));
+    r.forEach(line => line.sort((a,b)=>{ // dentro de la línea, por columna del grid si la hay
+      const ca = a.grid ? parseInt(a.grid.split(':')[1],10) : 0;
+      const cb = b.grid ? parseInt(b.grid.split(':')[1],10) : 0;
+      return ca - cb;
+    }));
+    return r.filter(line => line.length);
+  }
+  if(typeof lu.formation === 'string' && /^\d+(-\d+){1,4}$/.test(lu.formation)){
+    const sizes = [1, ...lu.formation.split('-').map(Number)];
+    let rows = [], idx = 0;
+    for(const sz of sizes){ rows.push(xi.slice(idx, idx+sz)); idx += sz; }
+    if(idx < xi.length) rows.push(xi.slice(idx));
+    return rows.filter(r => r.length);
+  }
+  return null;
+}
+
 function mdPitch(lu){
   const xi = (lu.startXI||[]).map(e => e.player).filter(Boolean);
   if(!xi.length) return `<div class="empty-state" style="padding:20px 18px">Sin once disponible.</div>`;
-  const hasGrid = xi.every(p => p.grid && /^\d+:\d+$/.test(p.grid));
   const ln = 'rgba(184,150,90,.5)', ln2 = 'rgba(184,150,90,.42)';
   const marks = `
     <div style="position:absolute;left:10px;right:10px;top:50%;height:1.5px;background:${ln}"></div>
@@ -2372,30 +2435,12 @@ function mdPitch(lu){
     <div style="position:absolute;left:50%;bottom:-1px;transform:translateX(-50%);width:78px;height:26px;border:1.5px solid ${ln2};border-bottom:none;border-radius:4px 4px 0 0"></div>`;
   const ss = mdSubSets();
   let chips = '';
-  if(hasGrid){
-    const rows = {};
-    xi.forEach(p => { const r = parseInt(p.grid.split(':')[0],10); (rows[r]=rows[r]||[]).push(p); });
-    const rowNums = Object.keys(rows).map(Number).sort((a,b)=>a-b);
-    const R = rowNums.length;
-    rowNums.forEach((r, ri) => {
-      const ps = rows[r].sort((a,b)=> parseInt(a.grid.split(':')[1],10) - parseInt(b.grid.split(':')[1],10));
-      const k = ps.length;
-      const yTop = R>1 ? (86 - ri*(72/(R-1))) : 50; // fila 1 (portero) abajo, hacia arriba
-      ps.forEach((p, ci) => { chips += mdPlayer(p, yTop, (ci+1)/(k+1)*100, ss.out.has(p.id)); });
-    });
-  } else if(typeof lu.formation === 'string' && /^\d+(-\d+){1,4}$/.test(lu.formation)){
-    // La API no dio coordenadas (grid) pero sí la formación: reconstruimos las
-    // líneas desde "4-4-2"/"4-2-3-1"/etc. El startXI viene ordenado
-    // portero → defensas → medios → delanteros, así que se trocea en ese orden.
-    const sizes = [1, ...lu.formation.split('-').map(Number)]; // portero + líneas
-    let rows = [], idx = 0;
-    for(const sz of sizes){ rows.push(xi.slice(idx, idx+sz)); idx += sz; }
-    if(idx < xi.length) rows.push(xi.slice(idx)); // sobrantes si los números no cuadran
-    rows = rows.filter(r => r.length);
+  const rows = mdRows(lu, xi);
+  if(rows){
     const R = rows.length;
     rows.forEach((ps, ri) => {
       const k = ps.length;
-      const yTop = R>1 ? (86 - ri*(72/(R-1))) : 50; // fila 1 (portero) abajo, hacia arriba
+      const yTop = R>1 ? (86 - ri*(72/(R-1))) : 50; // portero abajo, hacia arriba
       ps.forEach((p, ci) => { chips += mdPlayer(p, yTop, (ci+1)/(k+1)*100, ss.out.has(p.id)); });
     });
   } else {
@@ -3110,6 +3155,7 @@ async function ensureSquadData(id){
     showApiStatus(`Datos cargados (fotos ${nFotos}, alturas ${nAltura})`);
     hideApiStatus();
     if(currentTeamId === id) openTeam(id);
+    if(MD && MD.match && (MD.match.home === id || MD.match.away === id)) mdRender();
   } else {
     showApiStatus('La API no devolvió datos');
     hideApiStatus();
