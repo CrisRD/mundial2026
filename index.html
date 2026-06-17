@@ -2193,46 +2193,64 @@ async function mdFetchLineups(fixtureId){
     if(h && a) lus = [h, a];
   }
   MD.lineups = lus.length ? lus : [];
-  const nameById = {};
-  if(Array.isArray(MD.lineups)) MD.lineups.forEach(t => {
+  const nameById = {}, sideByPid = {};
+  if(Array.isArray(MD.lineups)) MD.lineups.forEach((t, idx) => {
+    const side = idx === 0 ? 'home' : 'away'; // ya ordenado [local, visitante]
     (t.startXI||[]).concat(t.substitutes||[]).forEach(e => {
-      const p = e && e.player; if(p && p.id != null && p.name) nameById[p.id] = p.name;
+      const p = e && e.player;
+      if(p && p.id != null){ if(p.name) nameById[p.id] = p.name; sideByPid[p.id] = side; }
     });
   });
   MD.nameById = nameById;
+  MD.sideByPid = sideByPid; // pid -> lado, para recolocar goles en propia
   mdRender();
+  mdBuildEvents(); // ahora que sabemos los onces, recoloca los goles en propia
 }
 
-// Goles y tarjetas desde /fixtures/events. API-Football asigna el evento de gol
-// (incluido el gol en propia) a la selección a la que SUMA el tanto, así que el
-// lado se toma directo del team del evento, sin voltear. El descuento se muestra
-// como 90+4. Penalti "(p)", gol en propia "(pp)" — el nombre que pinta es el del
-// jugador que lo marcó, en el lado de quien se anota el gol.
+// Goles y tarjetas desde /fixtures/events. El gol normal va al team del evento.
+// El gol en propia SUMA al rival del que lo marca, pero API-Football es
+// inconsistente al asignar el 'team' del evento (a veces el goleador, a veces el
+// beneficiado). Para no fiarnos de eso, el lado del gol en propia se deduce de la
+// ALINEACIÓN (mdBuildEvents): el goleador está en un once y el tanto cuenta para
+// el otro lado. Descuento como 90+4. Penalti "(p)", gol en propia "(pp)".
 async function mdFetchEvents(fixtureId){
   const data = await apiFetch(`/fixtures/events?fixture=${fixtureId}`);
   if(!MD || MD.match.fixtureId !== fixtureId) return;
-  const resp = (data && data.response) || [];
+  MD.rawEvents = (data && data.response) || [];
+  mdBuildEvents();
+}
+// Construye MD.events a partir de MD.rawEvents. Se llama al cargar los eventos y
+// otra vez al cargar las alineaciones (para recolocar los goles en propia con
+// MD.sideByPid). Es idempotente.
+function mdBuildEvents(){
+  if(!MD || !Array.isArray(MD.rawEvents)) return;
   const homeId = API_IDS[MD.match.home], awayId = API_IDS[MD.match.away];
+  const sideByPid = MD.sideByPid || {};
   const ev = { home:[], away:[] };
-  resp.forEach(e => {
+  MD.rawEvents.forEach(e => {
     if(!e) return;
     const st = e.team && e.team.id;
     const detail = e.detail || '';
     const base = { min:(e.time && e.time.elapsed) || 0, extra:(e.time && e.time.extra) || 0, pid:(e.player && e.player.id), rawName:(e.player && e.player.name) || '' };
+    const teamSide = st===homeId ? 'home' : st===awayId ? 'away' : null;
     if(e.type === 'Goal'){
       if(detail === 'Missed Penalty') return;
       const own = detail === 'Own Goal';
-      const side = st===homeId ? 'home' : st===awayId ? 'away' : null;
+      let side = teamSide;
+      if(own){
+        // El goleador del propio gol está en un once; el tanto suma al OTRO lado.
+        const scorerSide = base.pid != null ? sideByPid[base.pid] : null;
+        if(scorerSide) side = (scorerSide === 'home') ? 'away' : 'home';
+        // sin alineación aún: cae a teamSide; se recoloca al cargarse los onces.
+      }
       if(!side) return;
-      ev[side].push(Object.assign(base, { kind:'goal', mark: own?' (pp)':(detail==='Penalty'?' (p)':'') }));
+      ev[side].push(Object.assign({}, base, { kind:'goal', mark: own?' (pp)':(detail==='Penalty'?' (p)':'') }));
     } else if(e.type === 'Card'){
-      const side = st===homeId ? 'home' : st===awayId ? 'away' : null;
-      if(!side) return;
-      ev[side].push(Object.assign(base, { kind:'card', red: /red/i.test(detail) }));
+      if(!teamSide) return;
+      ev[teamSide].push(Object.assign({}, base, { kind:'card', red: /red/i.test(detail) }));
     } else if(e.type === 'subst'){
-      const side = st===homeId ? 'home' : st===awayId ? 'away' : null;
-      if(!side) return;
-      ev[side].push({ kind:'subst', min:base.min, extra:base.extra,
+      if(!teamSide) return;
+      ev[teamSide].push({ kind:'subst', min:base.min, extra:base.extra,
         outPid:(e.player && e.player.id), outRaw:(e.player && e.player.name) || '',
         inPid:(e.assist && e.assist.id), inRaw:(e.assist && e.assist.name) || '' });
     }
@@ -3062,34 +3080,45 @@ const POS_API_TO_LOCAL = { Goalkeeper:'PO', Defender:'DEF', Midfielder:'MED', At
 // {name, number, position, photo, age, height, id}) por nombre y 1-a-1. Devuelve
 // un Map índiceLocal -> item de la API, además de los índices usados (diagnóstico).
 function matchSquad(team, items){
-  const locals = team.squad.map((s, i) => ({ i, tok: apiToks(s.name) }));
-  const apis   = items.map((a, ai) => ({ ai, tok: apiToks(a.name) }));
+  const lastTok = t => t.length ? t[t.length - 1] : '';
+  const locals = team.squad.map((s, i) => { const tok = apiToks(s.name); return { i, tok, sur: lastTok(tok) }; });
+  const apis   = items.map((a, ai) => { const tok = apiToks(a.name); return { ai, tok, sur: lastTok(tok) }; });
+  // Apellidos repetidos = homónimos. Si un apellido sale 2+ veces (en tu lista o
+  // en la de la API), el apellido por sí solo no basta para casar: hace falta que
+  // el dorsal o la posición lo confirmen. Evita que Édouard Mendy (portero, 34)
+  // herede los datos de Antoine Mendy (defensa, 21) cuando la API no trae al
+  // portero pero sí al defensa, ambos "Mendy".
+  const tally = arr => arr.reduce((m, x) => { if(x.sur) m[x.sur] = (m[x.sur] || 0) + 1; return m; }, {});
+  const locSur = tally(locals), apiSur = tally(apis);
   const pairs = [];
   locals.forEach(L => {
     // Apellido local = último token (la API da "inicial + apellido", el apellido
-    // es el ancla fiable). Exigir compartirlo evita falsos positivos por el solo
-    // nombre de pila: "Federico Viñas" cazaba a otro "Federico" de la API y
-    // heredaba su edad (20) y su foto. Si el apellido tiene <4 letras y el filtro
-    // lo dejó fuera, este token será el de pila y ese caso se cubre por override.
-    const surname = L.tok.length ? L.tok[L.tok.length - 1] : null;
+    // es el ancla fiable). Exigirlo evita falsos positivos por el solo nombre de
+    // pila ("Federico Viñas" cazaba a otro "Federico" y heredaba su edad/foto).
+    const surname = L.sur || null;
     apis.forEach(A => {
       if(surname && A.tok.indexOf(surname) === -1) return;
       let shared = 0;
       L.tok.forEach(w => { if(A.tok.indexOf(w) !== -1) shared++; });
       if(!shared) return;
-      // El nombre manda: más palabras en común siempre gana. Posición y dorsal
-      // solo desempatan empates de nombre (pesan poco, nunca superan al nombre).
-      let score = shared * 1000;
       const apiPos = POS_API_TO_LOCAL[items[A.ai].position || ''];
-      // Verja de portería: un portero local SOLO casa con un portero de la API,
-      // y un jugador de campo NUNCA con un portero. Bloquea el cruce de cara
-      // entre homónimos de distinto rol (los dos "Éderson" de Brasil: el 2,
-      // centrocampista, salía con la foto del 23, portero). Solo actúa cuando la
-      // API trae posición reconocible; si no la trae, no bloquea nada.
-      if(apiPos && (apiPos === 'PO') !== (team.squad[L.i].pos === 'PO')) return;
-      if(apiPos && team.squad[L.i].pos === apiPos) score += 2;
+      const localPos = team.squad[L.i].pos;
+      // Verja de portería: un portero local SOLO casa con un portero de la API, y
+      // un jugador de campo NUNCA con un portero. Solo actúa si la API trae
+      // posición reconocible; si no la trae, no bloquea (de ahí el caso Mendy).
+      if(apiPos && (apiPos === 'PO') !== (localPos === 'PO')) return;
       const an = items[A.ai].number, ln = team.squad[L.i].n;
-      if(an != null && ln != null && Number(an) === Number(ln)) score += 1;
+      const dorsalEq = (an != null && ln != null && Number(an) === Number(ln));
+      const posEq = !!(apiPos && localPos === apiPos);
+      // Homónimo sin más señal que el apellido: exige que el dorsal o la posición
+      // confirmen; si no, no casa (mejor sin foto que con la del otro Mendy).
+      const ambiguous = (locSur[surname] > 1) || (A.sur && apiSur[A.sur] > 1);
+      if(ambiguous && shared < 2 && !dorsalEq && !posEq) return;
+      // El nombre manda (shared*1000). El dorsal pesa MÁS que la posición: en
+      // homónimos de la misma demarcación, el dorsal es lo único que distingue.
+      let score = shared * 1000;
+      if(dorsalEq) score += 5;
+      if(posEq)   score += 2;
       pairs.push({ score, li: L.i, ai: A.ai });
     });
   });
