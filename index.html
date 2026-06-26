@@ -562,6 +562,25 @@ html, body {
 .lu-tab { color:var(--text3); font-size:14px; font-weight:500; cursor:pointer; padding-bottom:5px; }
 .lu-tab.active { color:var(--text1); border-bottom:2px solid var(--gold); }
 .lu-form { text-align:center; font-size:11px; letter-spacing:.08em; color:var(--gold); font-weight:600; margin:14px 0 10px; }
+.md-tabs { display:flex; gap:26px; justify-content:center; margin:14px 0 0; padding:0 16px; border-bottom:0.5px solid var(--border); }
+.md-tab { color:var(--text3); font-size:14px; font-weight:500; cursor:pointer; padding:0 2px 9px; border-bottom:2px solid transparent; margin-bottom:-0.5px; }
+.md-tab.active { color:var(--text1); border-bottom-color:var(--gold); }
+.lu-pills { display:flex; gap:10px; justify-content:center; margin:14px 0 0; }
+.lu-pill { font-size:13px; border-radius:999px; padding:7px 18px; cursor:pointer; color:var(--text2); border:0.5px solid var(--border); background:transparent; white-space:nowrap; }
+.lu-pill.active { background:var(--gold-dim); border-color:rgba(184,150,90,.55); color:#9A7B43; font-weight:500; }
+.md-stats { padding:4px 16px 6px; }
+.md-stat-sec { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--text3); font-weight:500; margin:17px 0 11px; }
+.md-stat-sec:first-child { margin-top:10px; }
+.md-stat-row { display:grid; grid-template-columns:1fr auto 1fr; align-items:baseline; gap:8px; margin-bottom:5px; }
+.md-stat-row .v { font-size:15px; color:var(--text2); font-variant-numeric:tabular-nums; }
+.md-stat-row .v.l { text-align:left; }
+.md-stat-row .v.r { text-align:right; }
+.md-stat-row .v.s { color:var(--text1); font-weight:500; }
+.md-stat-row .lab { font-size:12.5px; color:var(--text2); text-align:center; }
+.md-stat-bar { display:flex; height:4px; border-radius:2px; overflow:hidden; background:var(--bg3); margin-bottom:13px; }
+.md-stat-bar i { display:block; }
+.md-stat-bar .bl { background:var(--gold); }
+.md-stat-bar .br { background:#CFC8BC; }
 .pitch { position:relative; height:430px; margin:0 14px; background:var(--bg3); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
 .pl { position:absolute; transform:translate(-50%,-50%); width:62px; text-align:center; }
 .pl .av { width:42px; height:42px; border-radius:50%; background:var(--bg2); border:1.5px solid var(--gold); margin:0 auto; display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:13px; color:var(--text1); position:relative; }
@@ -2281,10 +2300,10 @@ let MD = null; // { match, lineups:[local,visitante]|null|[], side:0|1 }
 function openMatch(id){
   const m = MATCHES.find(x => x.id === id);
   if(!m) return;
-  MD = { match:m, lineups:null, events:null, captains:null, nameById:null, side:0 };
+  MD = { match:m, lineups:null, events:null, captains:null, nameById:null, side:0, tab:0, stats:null };
   mdRender();
   requestAnimationFrame(()=>document.getElementById('match-detail').classList.add('open'));
-  if(m.fixtureId){ mdFetchLineups(m.fixtureId); mdFetchEvents(m.fixtureId); mdFetchCaptains(m.fixtureId); }
+  if(m.fixtureId){ mdFetchLineups(m.fixtureId); mdFetchEvents(m.fixtureId); mdFetchCaptains(m.fixtureId); mdFetchStats(m.fixtureId); }
   else { MD.lineups = '__none__'; mdRender(); }
   // Precargamos los datos de API de ambas plantillas (foto/edad/altura) para que,
   // al tocar un jugador en la alineación, su ficha salga completa y se pueda
@@ -2425,6 +2444,99 @@ function mdTeamLabel(m, side){
   return code;
 }
 
+// Estadísticas del partido desde /fixtures/statistics. Vienen DOS bloques (uno
+// por equipo); se asignan por ID de equipo (no por el orden del array), igual
+// que las alineaciones, para no cruzar local/visitante. Cada bloque trae una
+// lista {type, value}; lo aplanamos a un mapa type->value.
+async function mdFetchStats(fixtureId){
+  const data = await apiFetch(`/fixtures/statistics?fixture=${fixtureId}`);
+  if(!MD || MD.match.fixtureId !== fixtureId) return;
+  const resp = (data && data.response) || [];
+  const homeId = API_IDS[MD.match.home], awayId = API_IDS[MD.match.away];
+  const toMap = block => {
+    const map = {};
+    ((block && block.statistics) || []).forEach(s => { if(s && s.type != null) map[s.type] = s.value; });
+    return map;
+  };
+  let hBlock = null, aBlock = null;
+  if(Array.isArray(resp) && resp.length){
+    hBlock = resp.find(r => r && r.team && r.team.id === homeId);
+    aBlock = resp.find(r => r && r.team && r.team.id === awayId);
+    if(!hBlock || !aBlock){ hBlock = resp[0]; aBlock = resp[1]; } // respaldo por orden
+  }
+  MD.stats = { home: toMap(hBlock), away: toMap(aBlock) };
+  mdRender();
+}
+
+function mdTab(t){ if(!MD) return; MD.tab = t; mdRender(); }
+
+// Filas de estadísticas: clave de la API (en inglés) -> etiqueta en español,
+// agrupadas por bloque. pct = porcentaje (Posesión, Precisión); dec = decimal
+// (xG). Las que no traiga la API para ese partido (valor nulo en ambos lados)
+// se ocultan solas; por eso el xG "sale gratis" sin lógica aparte.
+const MD_STAT_SECTIONS = [
+  { title:'Posesión y pases', rows:[
+    { type:'Ball Possession', label:'Posesión', pct:true },
+    { type:'Total passes', label:'Pases totales' },
+    { type:'Passes accurate', label:'Pases completados' },
+    { type:'Passes %', label:'Precisión de pases', pct:true },
+  ]},
+  { title:'Ataque', rows:[
+    { type:'expected_goals', label:'xG', dec:true },
+    { type:'Total Shots', label:'Tiros totales' },
+    { type:'Shots on Goal', label:'Tiros a puerta' },
+    { type:'Shots off Goal', label:'Tiros fuera' },
+    { type:'Blocked Shots', label:'Tiros bloqueados' },
+    { type:'Shots insidebox', label:'Dentro del área' },
+    { type:'Shots outsidebox', label:'Fuera del área' },
+    { type:'Corner Kicks', label:'Córners' },
+    { type:'Offsides', label:'Fueras de juego' },
+  ]},
+  { title:'Disciplina y portería', rows:[
+    { type:'Fouls', label:'Faltas' },
+    { type:'Goalkeeper Saves', label:'Paradas' },
+    { type:'Yellow Cards', label:'Amarillas' },
+    { type:'Red Cards', label:'Rojas' },
+  ]},
+];
+
+function mdStatNum(v){
+  if(v == null) return null;
+  if(typeof v === 'number') return v;
+  const n = parseFloat(String(v).replace('%',''));
+  return isNaN(n) ? null : n;
+}
+
+function mdStatRowHTML(row){
+  const s = MD.stats; if(!s) return '';
+  const rh = s.home ? s.home[row.type] : null;
+  const ra = s.away ? s.away[row.type] : null;
+  const nh = mdStatNum(rh), na = mdStatNum(ra);
+  if(nh == null && na == null) return ''; // sin dato en ningún lado -> se oculta
+  const fmt = (raw, n) => raw == null ? '–'
+    : row.dec ? Number(n).toFixed(2)
+    : row.pct ? (String(raw).indexOf('%') !== -1 ? String(raw) : n + '%')
+    : String(raw);
+  const dh = fmt(rh, nh), da = fmt(ra, na);
+  const vh = nh == null ? 0 : nh, va = na == null ? 0 : na;
+  const tot = vh + va;
+  const ph = tot > 0 ? Math.round(vh / tot * 100) : 50, pa = 100 - ph;
+  const hs = vh > va ? ' s' : '', as = va > vh ? ' s' : '';
+  return `<div class="md-stat-row"><div class="v l${hs}">${dh}</div><div class="lab">${row.label}</div><div class="v r${as}">${da}</div></div>`
+    + `<div class="md-stat-bar"><i class="bl" style="width:${ph}%"></i><i class="br" style="width:${pa}%"></i></div>`;
+}
+
+function mdStatsTable(){
+  if(!MD.stats || !MD.stats.home) return '';
+  let html = '';
+  MD_STAT_SECTIONS.forEach(sec => {
+    let rows = '';
+    sec.rows.forEach(r => { rows += mdStatRowHTML(r); });
+    if(rows) html += `<div class="md-stat-sec">${sec.title}</div>${rows}`;
+  });
+  return html ? `<div class="md-stats">${html}</div>` : '';
+}
+
 function mdRender(){
   if(!MD) return;
   const m = MD.match;
@@ -2445,22 +2557,20 @@ function mdRender(){
     </div>
     ${(homeEv||awayEv)?`<div class="lu-goals"><div>${homeEv}</div><div>${awayEv}</div></div>`:''}`;
 
-  let body;
+  let lineupBody;
   if(MD.lineups === '__none__'){
-    body = `<div class="empty-state" style="padding:30px 18px">Las alineaciones aparecerán cuando se acerque el partido.</div>`;
+    lineupBody = `<div class="empty-state" style="padding:30px 18px">Las alineaciones aparecerán cuando se acerque el partido.</div>`;
   } else if(MD.lineups === null){
-    body = `<div class="empty-state" style="padding:30px 18px">Cargando alineaciones…</div>`;
+    lineupBody = `<div class="empty-state" style="padding:30px 18px">Cargando alineaciones…</div>`;
   } else if(!MD.lineups.length){
-    body = `<div class="empty-state" style="padding:30px 18px">Alineaciones aún no publicadas (salen poco antes del pitido).</div>`;
+    lineupBody = `<div class="empty-state" style="padding:30px 18px">Alineaciones aún no publicadas (salen poco antes del pitido).</div>`;
   } else {
     const side = MD.side;
     const lu = MD.lineups[side] || MD.lineups[0];
-    body = `
-      <div style="padding:0 14px">
-        <div class="lu-toggle">
-          <div class="lu-tab${side===0?' active':''}" onclick="mdSide(0)">${mdTeamLabel(m,0)}</div>
-          <div class="lu-tab${side===1?' active':''}" onclick="mdSide(1)">${mdTeamLabel(m,1)}</div>
-        </div>
+    lineupBody = `
+      <div class="lu-pills">
+        <div class="lu-pill${side===0?' active':''}" onclick="mdSide(0)">${mdTeamLabel(m,0)}</div>
+        <div class="lu-pill${side===1?' active':''}" onclick="mdSide(1)">${mdTeamLabel(m,1)}</div>
       </div>
       <div class="lu-form">${lu.formation||''}</div>
       ${mdPitch(lu)}
@@ -2468,6 +2578,22 @@ function mdRender(){
       ${lu.coach && lu.coach.name ? `<div class="lu-coach">DT&nbsp;·&nbsp;<span style="color:var(--text2)">${lu.coach.name}</span></div>` : ''}
     `;
   }
+
+  let statsBody;
+  const started = !!m.score; // loadFixtures solo pone score en partidos en vivo o finalizados
+  if(!started){
+    statsBody = `<div class="empty-state" style="padding:30px 18px">Las estadísticas aparecerán cuando empiece el partido.</div>`;
+  } else if(MD.stats === null){
+    statsBody = `<div class="empty-state" style="padding:30px 18px">Cargando estadísticas…</div>`;
+  } else {
+    statsBody = mdStatsTable() || `<div class="empty-state" style="padding:30px 18px">Estadísticas aún no disponibles.</div>`;
+  }
+
+  const tabsBar = `<div class="md-tabs">
+      <div class="md-tab${MD.tab===0?' active':''}" onclick="mdTab(0)">Alineaciones</div>
+      <div class="md-tab${MD.tab===1?' active':''}" onclick="mdTab(1)">Estadísticas</div>
+    </div>`;
+  const body = tabsBar + (MD.tab === 1 ? statsBody : lineupBody);
 
   host.innerHTML = `
     <div class="detail-head">
