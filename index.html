@@ -1019,8 +1019,24 @@ html, body {
   font-family: var(--serif);
   font-size: 13px;
   color: var(--gold);
-  padding: 14px 20px 8px;
+  padding: 14px 20px 6px;
 }
+.ps-section.bt { border-top: 1px solid var(--border2); }
+.ps-srow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  font-size: 13px;
+}
+.ps-srow-l { color: var(--text2); }
+.ps-srow-v {
+  font-family: var(--serif);
+  font-weight: 700;
+  color: var(--text1);
+  font-size: 14px;
+}
+.ps-frac { font-size: 11px; color: var(--text3); font-weight: 400; }
 .ps-bio-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2117,10 +2133,154 @@ async function psFixturePlayers(fixtureId){
     const id = pp.player && pp.player.id; if(id == null) return;
     const st = (pp.statistics && pp.statistics[0]) || {};
     const g = st.goals || {}, c = st.cards || {}, gm = st.games || {};
-    out[id] = { min: gm.minutes || 0, g: g.total || 0, a: g.assists || 0, cards: (c.yellow || 0) + (c.red || 0) };
+    const sh = st.shots || {}, pa = st.passes || {}, tk = st.tackles || {},
+          du = st.duels || {}, dr = st.dribbles || {}, fo = st.fouls || {}, pe = st.penalty || {};
+    // passes.accuracy llega como porcentaje ("85%"/"85") o como recuento de
+    // pases acertados según la versión de la API. Lo normalizamos a "acertados"
+    // aproximados para poder agregar una precisión ponderada del torneo:
+    //  · con "%": acertados ≈ total · %/100
+    //  · sin "%": se asume recuento de acertados
+    // (verificar con #statsjug; si saliera invertido es un cambio de una línea).
+    let accApprox = 0; const accRaw = pa.accuracy;
+    if(accRaw != null){
+      const s = String(accRaw);
+      accApprox = s.indexOf('%') >= 0 ? (pa.total || 0) * (parseFloat(s) || 0) / 100 : (parseFloat(s) || 0);
+    }
+    out[id] = {
+      min: gm.minutes || 0, g: g.total || 0, a: g.assists || 0, cards: (c.yellow || 0) + (c.red || 0),
+      shTot: sh.total || 0, shOn: sh.on || 0,
+      drbA: dr.attempts || 0, drbS: dr.success || 0,
+      penS: pe.scored || 0, penSv: pe.saved || 0,
+      pKey: pa.key || 0, pTot: pa.total || 0, pAcc: accApprox,
+      foulC: fo.committed || 0,
+      duT: du.total || 0, duW: du.won || 0,
+      tkT: tk.total || 0, tkI: tk.interceptions || 0, tkB: tk.blocks || 0,
+      saves: g.saves || 0, conc: g.conceded || 0
+    };
   }));
   PS_FX_CACHE[fixtureId] = out;
   return out;
+}
+
+// ── Helpers de presentación de las secciones por posición ──
+// Bloque de básicos superior (cambia para porteros).
+function psStripHTML(pos){
+  if(pos === 'PO'){
+    return `<div class="ps-stats">
+      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-sv">0</span><span class="ps-stat-l">paradas</span></div>
+      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-cs">0</span><span class="ps-stat-l">p. a cero</span></div>
+      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-min">0'</span><span class="ps-stat-l">minutos</span></div>
+      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-cards">0</span><span class="ps-stat-l">tarjetas</span></div>
+    </div>`;
+  }
+  return `<div class="ps-stats">
+    <div class="ps-stat"><span class="ps-stat-n" id="ps-st-g">0</span><span class="ps-stat-l">goles</span></div>
+    <div class="ps-stat"><span class="ps-stat-n" id="ps-st-a">0</span><span class="ps-stat-l">asistencias</span></div>
+    <div class="ps-stat"><span class="ps-stat-n" id="ps-st-min">0'</span><span class="ps-stat-l">minutos</span></div>
+    <div class="ps-stat"><span class="ps-stat-n" id="ps-st-cards">0</span><span class="ps-stat-l">tarjetas</span></div>
+  </div>`;
+}
+
+function psPctPase(t){ return t.passTotal > 0 ? Math.round(t.passAccurate / t.passTotal * 100) + '%' : null; }
+function frac(v, of){ return { v, of }; } // fila "de los cuales" (numerador / total)
+
+// Catálogo de secciones según la demarcación. Cada fila lleva valor null cuando
+// el dato no aplica, y se oculta sola; una sección sin filas tampoco se pinta.
+function psSections(pos, t){
+  const prec = psPctPase(t);
+  const out = [];
+  const add = (title, rows) => {
+    const keep = rows.filter(r => r && r.value !== null && r.value !== undefined);
+    if(keep.length) out.push({ title, rows: keep });
+  };
+  if(pos === 'PO'){
+    add('Portería', [
+      { label:'Goles encajados', value: t.conceded },
+      { label:'% de paradas', value: (t.saves + t.conceded) > 0 ? Math.round(t.saves / (t.saves + t.conceded) * 100) + '%' : null },
+      { label:'Penaltis parados', value: t.penSaved > 0 ? t.penSaved : null },
+    ]);
+    add('Juego de pies', [
+      { label:'Precisión de pase', value: prec },
+      { label:'Pases totales', value: t.passTotal > 0 ? t.passTotal : null },
+    ]);
+  } else if(pos === 'DEF'){
+    add('Defensa', [
+      { label:'Entradas', value: t.tkT },
+      { label:'Intercepciones', value: t.tkI },
+      { label:'Bloqueos', value: t.tkB > 0 ? t.tkB : null },
+      { label:'Duelos ganados', value: frac(t.duW, t.duT) },
+    ]);
+    add('Pases', [
+      { label:'Precisión de pase', value: prec },
+      { label:'Pases clave', value: t.pKey > 0 ? t.pKey : null },
+    ]);
+    add('Disciplina', [
+      { label:'Faltas cometidas', value: t.foulC > 0 ? t.foulC : null },
+    ]);
+  } else if(pos === 'MED'){
+    add('Pases', [
+      { label:'Pases clave', value: t.pKey },
+      { label:'Precisión de pase', value: prec },
+      { label:'Pases totales', value: t.passTotal > 0 ? t.passTotal : null },
+    ]);
+    add('Ataque', [
+      { label:'Tiros a puerta', value: frac(t.shOn, t.shTot) },
+      { label:'Regates completados', value: frac(t.drbS, t.drbA) },
+    ]);
+    add('Defensa', [
+      { label:'Duelos ganados', value: frac(t.duW, t.duT) },
+      { label:'Entradas', value: t.tkT },
+      { label:'Intercepciones', value: t.tkI },
+    ]);
+  } else if(pos === 'DEL'){
+    add('Ataque', [
+      { label:'Tiros a puerta', value: frac(t.shOn, t.shTot) },
+      { label:'Regates completados', value: frac(t.drbS, t.drbA) },
+      { label:'Penaltis marcados', value: t.penScored > 0 ? t.penScored : null },
+    ]);
+    add('Pases', [
+      { label:'Pases clave', value: t.pKey },
+      { label:'Precisión de pase', value: prec },
+    ]);
+    add('Defensa', [
+      { label:'Duelos ganados', value: frac(t.duW, t.duT) },
+      { label:'Entradas', value: t.tkT },
+      { label:'Intercepciones', value: t.tkI },
+    ]);
+  } else { // GEN: jugador fuera de nuestra plantilla, sin posición fiable
+    add('Ataque', [
+      { label:'Tiros a puerta', value: frac(t.shOn, t.shTot) },
+      { label:'Regates completados', value: frac(t.drbS, t.drbA) },
+    ]);
+    add('Pases', [
+      { label:'Pases clave', value: t.pKey > 0 ? t.pKey : null },
+      { label:'Precisión de pase', value: prec },
+    ]);
+    add('Defensa', [
+      { label:'Duelos ganados', value: frac(t.duW, t.duT) },
+      { label:'Entradas', value: t.tkT > 0 ? t.tkT : null },
+      { label:'Intercepciones', value: t.tkI > 0 ? t.tkI : null },
+    ]);
+  }
+  return out;
+}
+
+function psValHTML(v){
+  if(v && typeof v === 'object'){ // fracción "numerador / total"
+    const den = (v.of != null && v.of > 0) ? `<span class="ps-frac"> / ${v.of}</span>` : '';
+    return `${v.v}${den}`;
+  }
+  return `${v}`;
+}
+
+function psSectionsHTML(pos, t){
+  const secs = psSections(pos, t);
+  return secs.map((sec, i) => {
+    const rows = sec.rows.map(r =>
+      `<div class="ps-srow"><span class="ps-srow-l">${r.label}</span><span class="ps-srow-v">${psValHTML(r.value)}</span></div>`
+    ).join('');
+    return `<div class="ps-section${i > 0 ? ' bt' : ''}">${sec.title}</div>${rows}`;
+  }).join('');
 }
 
 async function psLoadPlayerStats(teamId, p, token){
@@ -2128,7 +2288,10 @@ async function psLoadPlayerStats(teamId, p, token){
   if(pid == null) return; // sin foto -> sin id -> dejamos los 0
   const fixtures = MATCHES.filter(m => (m.home === teamId || m.away === teamId) && m.fixtureId && PS_PLAYED.indexOf(m.status) !== -1);
   if(!fixtures.length) return; // aún no ha jugado: 0 es correcto
-  const tot = { min:0, g:0, a:0, cards:0 };
+  const tot = { min:0, g:0, a:0, cards:0,
+    shTot:0, shOn:0, drbA:0, drbS:0, penScored:0, penSaved:0,
+    passKey:0, passTotal:0, passAccurate:0, foulC:0,
+    duT:0, duW:0, tkT:0, tkI:0, tkB:0, saves:0, conceded:0, cleanSheets:0 };
   const ET_STATUSES = ['AET','PEN','ET','BT','P']; // partidos con prórroga
   for(const m of fixtures){
     let fx; try { fx = await psFixturePlayers(m.fixtureId); } catch(e){ continue; }
@@ -2139,6 +2302,13 @@ async function psLoadPlayerStats(teamId, p, token){
       // Para mostrar, topamos a 90' en tiempo reglamentario y 120' si hubo prórroga.
       const cap = ET_STATUSES.indexOf(m.status) !== -1 ? 120 : 90;
       tot.min += Math.min(s.min, cap); tot.g += s.g; tot.a += s.a; tot.cards += s.cards;
+      tot.shTot += s.shTot; tot.shOn += s.shOn; tot.drbA += s.drbA; tot.drbS += s.drbS;
+      tot.penScored += s.penS; tot.penSaved += s.penSv;
+      tot.passKey += s.pKey; tot.passTotal += s.pTot; tot.passAccurate += s.pAcc;
+      tot.foulC += s.foulC; tot.duT += s.duT; tot.duW += s.duW;
+      tot.tkT += s.tkT; tot.tkI += s.tkI; tot.tkB += s.tkB;
+      tot.saves += s.saves; tot.conceded += s.conc;
+      if(s.min > 0 && s.conc === 0) tot.cleanSheets++; // portería a cero del partido
     }
   }
   if(token !== psToken) return;
@@ -2147,6 +2317,10 @@ async function psLoadPlayerStats(teamId, p, token){
   set('ps-st-a', tot.a);
   set('ps-st-min', tot.min + `'`);
   set('ps-st-cards', tot.cards);
+  set('ps-st-sv', tot.saves);     // solo existe en la ficha de portero
+  set('ps-st-cs', tot.cleanSheets); // idem
+  const secEl = document.getElementById('ps-sections');
+  if(secEl) secEl.innerHTML = psSectionsHTML(p.pos || 'GEN', tot);
 }
 
 function openPlayerSheet(teamId, playerIdx){
@@ -2190,12 +2364,9 @@ function openPlayerSheet(teamId, playerIdx){
       </div>
     </div>
 
-    <div class="ps-stats">
-      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-g">0</span><span class="ps-stat-l">goles</span></div>
-      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-a">0</span><span class="ps-stat-l">asistencias</span></div>
-      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-min">0'</span><span class="ps-stat-l">minutos</span></div>
-      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-cards">0</span><span class="ps-stat-l">tarjetas</span></div>
-    </div>
+    ${psStripHTML(p.pos)}
+
+    <div id="ps-sections"></div>
 
     <div class="ps-note" id="ps-note">Estadísticas del Mundial 2026</div>
 
@@ -2271,12 +2442,8 @@ function openApiPlayerSheet(apiId, number, name, teamCode){
         <div class="ps-meta" style="margin-top:6px;"><span class="ps-tag-pos">Convocado</span></div>
       </div>
     </div>
-    <div class="ps-stats">
-      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-g">0</span><span class="ps-stat-l">goles</span></div>
-      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-a">0</span><span class="ps-stat-l">asistencias</span></div>
-      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-min">0'</span><span class="ps-stat-l">minutos</span></div>
-      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-cards">0</span><span class="ps-stat-l">tarjetas</span></div>
-    </div>
+    ${psStripHTML('GEN')}
+    <div id="ps-sections"></div>
     <div class="ps-note">Estadísticas del Mundial 2026</div>
     <div style="height:8px"></div>`;
   const box = document.getElementById('player-sheet-box');
@@ -3738,8 +3905,33 @@ async function diagMinutes(code){
   }
   showDiscoverResult(out);
 }
-
-// ── HELPER de un solo uso: busca un jugador por nombre en TODA la base de la
+// "#statsjug-usa" → vuelca los bloques crudos de estadística por jugador
+// (shots/passes/tackles/duels/dribbles/goals/fouls/penalty) de un partido jugado,
+// 3 por equipo. Sirve para fijar los nombres reales de los campos y, sobre todo,
+// el formato de passes.accuracy (porcentaje vs recuento) antes de dar por buena
+// la precisión de pase.
+async function diagStatsJugador(code){
+  const fxs = _diagPlayedFixtures(code);
+  if(!fxs.length){ showDiscoverResult('Sin partido jugado para "'+(code||'')+'".'); return; }
+  let out = '';
+  for(const m of fxs){
+    out += `=== ${m.home} vs ${m.away}  (fixture ${m.fixtureId})\n`;
+    const data = await apiFetch(`/fixtures/players?fixture=${m.fixtureId}`);
+    ((data && data.response)||[]).forEach(tm => {
+      out += `-- ${(tm.team && tm.team.name) || ''} --\n`;
+      (tm.players||[]).slice(0,3).forEach(pp => {
+        const st = (pp.statistics && pp.statistics[0]) || {};
+        out += `${(pp.player && pp.player.name) || ''}\n`;
+        out += `  shots=${JSON.stringify(st.shots||{})} passes=${JSON.stringify(st.passes||{})}\n`;
+        out += `  tackles=${JSON.stringify(st.tackles||{})} duels=${JSON.stringify(st.duels||{})}\n`;
+        out += `  dribbles=${JSON.stringify(st.dribbles||{})} goals=${JSON.stringify(st.goals||{})}\n`;
+        out += `  fouls=${JSON.stringify(st.fouls||{})} penalty=${JSON.stringify(st.penalty||{})}\n`;
+      });
+    });
+    out += '\n';
+  }
+  showDiscoverResult(out);
+}
 // API (no solo en la convocatoria de su selección) para sacar su id cuando la
 // API no lo incluye en /players/squads (p. ej. el Éderson del Atalanta en
 // Brasil). Úsalo con "#buscar-<nombre>" (p. ej. #buscar-ederson). Imprime
@@ -3923,6 +4115,7 @@ if(location.hash === '#noyo') gcToggleSkip();
 if(location.hash.indexOf('#fotos') === 0){ const _c = location.hash.split('-')[1]; if(_c === 'all') discoverUnmatchedAll(); else discoverUnmatched(_c); }
 if(location.hash.indexOf('#evento') === 0) diagEvents(location.hash.split('-')[1]);
 if(location.hash.indexOf('#mins') === 0) diagMinutes(location.hash.split('-')[1]);
+if(location.hash.indexOf('#statsjug') === 0) diagStatsJugador(location.hash.split('-')[1]);
 if(location.hash.indexOf('#buscar') === 0) buscarJugador(decodeURIComponent(location.hash.split('-').slice(1).join('-')));
 if(location.hash.indexOf('#cruce') === 0){ const _c = location.hash.split('-')[1]; if(_c === 'all') cruceLineupsAll(); else cruceLineups(_c); }
 if(location.hash === '#r32') diagKnockout();
