@@ -1037,6 +1037,32 @@ html, body {
   font-size: 14px;
 }
 .ps-frac { font-size: 11px; color: var(--text3); font-weight: 400; }
+.ps-pills {
+  display: flex;
+  gap: 7px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.ps-pills:empty { display: none; }
+.ps-pills::-webkit-scrollbar { display: none; }
+.ps-pill {
+  flex: 0 0 auto;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(0,0,0,0.10);
+  color: var(--text2);
+  background: var(--bg2);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.ps-pill.on {
+  background: var(--gold-dim);
+  border-color: rgba(184,150,90,0.55);
+  color: #9A7B43;
+}
 .ps-bio-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2135,12 +2161,11 @@ async function psFixturePlayers(fixtureId){
     const g = st.goals || {}, c = st.cards || {}, gm = st.games || {};
     const sh = st.shots || {}, pa = st.passes || {}, tk = st.tackles || {},
           du = st.duels || {}, dr = st.dribbles || {}, fo = st.fouls || {}, pe = st.penalty || {};
-    // passes.accuracy llega como porcentaje ("85%"/"85") o como recuento de
-    // pases acertados según la versión de la API. Lo normalizamos a "acertados"
-    // aproximados para poder agregar una precisión ponderada del torneo:
-    //  · con "%": acertados ≈ total · %/100
-    //  · sin "%": se asume recuento de acertados
-    // (verificar con #statsjug; si saliera invertido es un cambio de una línea).
+    // passes.accuracy = RECUENTO de pases acertados (CONFIRMADO con #statsjug-usa,
+    // jun 2026: porteros con total 20 / accuracy 12 -> 60%, coherente; como % daría
+    // 12%, imposible). Lo normalizamos a "acertados" para agregar una precisión
+    // ponderada del torneo (suma acertados / suma totales). Se mantiene la rama "%"
+    // por si una futura versión de la API lo devolviera como porcentaje ("85%").
     let accApprox = 0; const accRaw = pa.accuracy;
     if(accRaw != null){
       const s = String(accRaw);
@@ -2163,22 +2188,15 @@ async function psFixturePlayers(fixtureId){
 }
 
 // ── Helpers de presentación de las secciones por posición ──
-// Bloque de básicos superior (cambia para porteros).
-function psStripHTML(pos){
+// Bloque de básicos superior (cambia para porteros). Pinta los valores de `t`
+// (el ámbito activo: torneo o un partido); con t=null muestra ceros (cargando).
+function psStripHTML(pos, t){
+  const v = t || {};
+  const cell = (val, label) => `<div class="ps-stat"><span class="ps-stat-n">${val}</span><span class="ps-stat-l">${label}</span></div>`;
   if(pos === 'PO'){
-    return `<div class="ps-stats">
-      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-sv">0</span><span class="ps-stat-l">paradas</span></div>
-      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-cs">0</span><span class="ps-stat-l">p. a cero</span></div>
-      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-min">0'</span><span class="ps-stat-l">minutos</span></div>
-      <div class="ps-stat"><span class="ps-stat-n" id="ps-st-cards">0</span><span class="ps-stat-l">tarjetas</span></div>
-    </div>`;
+    return `<div class="ps-stats">${cell(v.saves || 0, 'paradas')}${cell(v.cleanSheets || 0, 'p. a cero')}${cell((v.min || 0) + `'`, 'minutos')}${cell(v.cards || 0, 'tarjetas')}</div>`;
   }
-  return `<div class="ps-stats">
-    <div class="ps-stat"><span class="ps-stat-n" id="ps-st-g">0</span><span class="ps-stat-l">goles</span></div>
-    <div class="ps-stat"><span class="ps-stat-n" id="ps-st-a">0</span><span class="ps-stat-l">asistencias</span></div>
-    <div class="ps-stat"><span class="ps-stat-n" id="ps-st-min">0'</span><span class="ps-stat-l">minutos</span></div>
-    <div class="ps-stat"><span class="ps-stat-n" id="ps-st-cards">0</span><span class="ps-stat-l">tarjetas</span></div>
-  </div>`;
+  return `<div class="ps-stats">${cell(v.g || 0, 'goles')}${cell(v.a || 0, 'asistencias')}${cell((v.min || 0) + `'`, 'minutos')}${cell(v.cards || 0, 'tarjetas')}</div>`;
 }
 
 function psPctPase(t){ return t.passTotal > 0 ? Math.round(t.passAccurate / t.passTotal * 100) + '%' : null; }
@@ -2283,44 +2301,94 @@ function psSectionsHTML(pos, t){
   }).join('');
 }
 
+// Cuerpo de estadísticas (strip + secciones) para un ámbito `t` (torneo o partido).
+function psBodyHTML(pos, t){ return psStripHTML(pos, t) + psSectionsHTML(pos, t); }
+
+// ── Conmutador Torneo / partido ──
+// PS_DATA guarda lo cargado de la ficha abierta: posición, total del torneo y la
+// lista de partidos (cada uno con su línea `t`). El conmutador solo reordena lo
+// que ya tenemos; no vuelve a llamar a la API.
+let PS_DATA = null;
+
+function psZeroT(){
+  return { min:0, g:0, a:0, cards:0, shTot:0, shOn:0, drbA:0, drbS:0,
+    penScored:0, penSaved:0, passKey:0, passTotal:0, passAccurate:0, foulC:0,
+    duT:0, duW:0, tkT:0, tkI:0, tkB:0, saves:0, conceded:0, cleanSheets:0 };
+}
+// Línea de un solo partido en la forma que esperan strip/secciones.
+function psMatchT(s, cap){
+  return { min: Math.min(s.min, cap), g:s.g, a:s.a, cards:s.cards,
+    shTot:s.shTot, shOn:s.shOn, drbA:s.drbA, drbS:s.drbS,
+    penScored:s.penS, penSaved:s.penSv,
+    passKey:s.pKey, passTotal:s.pTot, passAccurate:s.pAcc,
+    foulC:s.foulC, duT:s.duT, duW:s.duW,
+    tkT:s.tkT, tkI:s.tkI, tkB:s.tkB,
+    saves:s.saves, conceded:s.conc,
+    cleanSheets: (s.min > 0 && s.conc === 0) ? 1 : 0 };
+}
+function psAddT(acc, cm){ for(const k in cm){ acc[k] += cm[k]; } }
+function psFechaCorta(iso){
+  const MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const parts = (iso || '').split('-');
+  if(parts.length < 3) return '';
+  return parseInt(parts[2], 10) + ' ' + (MES[parseInt(parts[1], 10) - 1] || '');
+}
+
+// Fila de pills. Con menos de 2 partidos no hay nada que conmutar -> no se pinta.
+function psPillsHTML(active){
+  if(!PS_DATA || PS_DATA.matches.length < 2) return '';
+  const pill = (scope, label) =>
+    `<span class="ps-pill${String(active) === String(scope) ? ' on' : ''}" onclick="psRenderView('${scope}')">${label}</span>`;
+  let h = pill('tot', 'Torneo');
+  PS_DATA.matches.forEach(mm => { h += pill(mm.id, mm.label); });
+  return h;
+}
+
+// Cambia el ámbito mostrado (torneo o un fixture). Global: se llama desde onclick.
+function psRenderView(scope){
+  if(!PS_DATA) return;
+  let t, note;
+  if(String(scope) === 'tot'){ t = PS_DATA.total; note = 'Acumulado del Mundial 2026'; }
+  else {
+    const mm = PS_DATA.matches.find(x => String(x.id) === String(scope));
+    if(!mm) return;
+    t = mm.t; note = mm.note;
+  }
+  const pillsEl = document.getElementById('ps-pills');
+  const bodyEl = document.getElementById('ps-body');
+  const noteEl = document.getElementById('ps-note');
+  if(pillsEl) pillsEl.innerHTML = psPillsHTML(scope);
+  if(bodyEl) bodyEl.innerHTML = psBodyHTML(PS_DATA.pos, t);
+  if(noteEl) noteEl.textContent = note;
+}
+
 async function psLoadPlayerStats(teamId, p, token){
   const pid = psPlayerApiId(p);
   if(pid == null) return; // sin foto -> sin id -> dejamos los 0
-  const fixtures = MATCHES.filter(m => (m.home === teamId || m.away === teamId) && m.fixtureId && PS_PLAYED.indexOf(m.status) !== -1);
+  const fixtures = MATCHES
+    .filter(m => (m.home === teamId || m.away === teamId) && m.fixtureId && PS_PLAYED.indexOf(m.status) !== -1)
+    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)); // cronológico
   if(!fixtures.length) return; // aún no ha jugado: 0 es correcto
-  const tot = { min:0, g:0, a:0, cards:0,
-    shTot:0, shOn:0, drbA:0, drbS:0, penScored:0, penSaved:0,
-    passKey:0, passTotal:0, passAccurate:0, foulC:0,
-    duT:0, duW:0, tkT:0, tkI:0, tkB:0, saves:0, conceded:0, cleanSheets:0 };
   const ET_STATUSES = ['AET','PEN','ET','BT','P']; // partidos con prórroga
+  const total = psZeroT();
+  const matches = [];
   for(const m of fixtures){
     let fx; try { fx = await psFixturePlayers(m.fixtureId); } catch(e){ continue; }
     if(token !== psToken) return; // el usuario abrió otra ficha entre tanto
     const s = fx[pid];
-    if(s){
-      // La API a veces devuelve minutos con el descuento incluido (p. ej. 99').
-      // Para mostrar, topamos a 90' en tiempo reglamentario y 120' si hubo prórroga.
-      const cap = ET_STATUSES.indexOf(m.status) !== -1 ? 120 : 90;
-      tot.min += Math.min(s.min, cap); tot.g += s.g; tot.a += s.a; tot.cards += s.cards;
-      tot.shTot += s.shTot; tot.shOn += s.shOn; tot.drbA += s.drbA; tot.drbS += s.drbS;
-      tot.penScored += s.penS; tot.penSaved += s.penSv;
-      tot.passKey += s.pKey; tot.passTotal += s.pTot; tot.passAccurate += s.pAcc;
-      tot.foulC += s.foulC; tot.duT += s.duT; tot.duW += s.duW;
-      tot.tkT += s.tkT; tot.tkI += s.tkI; tot.tkB += s.tkB;
-      tot.saves += s.saves; tot.conceded += s.conc;
-      if(s.min > 0 && s.conc === 0) tot.cleanSheets++; // portería a cero del partido
-    }
+    if(!s) continue; // no participó en ese partido -> sin pill
+    // La API a veces devuelve minutos con el descuento incluido (p. ej. 99').
+    // Topamos a 90' en tiempo reglamentario y 120' si hubo prórroga.
+    const cap = ET_STATUSES.indexOf(m.status) !== -1 ? 120 : 90;
+    const cm = psMatchT(s, cap);
+    psAddT(total, cm);
+    const rival = tname(m.home === teamId ? m.away : m.home);
+    matches.push({ id: m.fixtureId, label: 'vs ' + rival, note: 'Partido vs ' + rival + ' · ' + psFechaCorta(m.date), t: cm });
   }
   if(token !== psToken) return;
-  const set = (id, v) => { const el = document.getElementById(id); if(el) el.textContent = v; };
-  set('ps-st-g', tot.g);
-  set('ps-st-a', tot.a);
-  set('ps-st-min', tot.min + `'`);
-  set('ps-st-cards', tot.cards);
-  set('ps-st-sv', tot.saves);     // solo existe en la ficha de portero
-  set('ps-st-cs', tot.cleanSheets); // idem
-  const secEl = document.getElementById('ps-sections');
-  if(secEl) secEl.innerHTML = psSectionsHTML(p.pos || 'GEN', tot);
+  if(!matches.length) return; // convocado pero sin minutos: dejamos los 0
+  PS_DATA = { pos: p.pos || 'GEN', teamId, total, matches };
+  psRenderView('tot'); // por defecto, el acumulado del torneo
 }
 
 function openPlayerSheet(teamId, playerIdx){
@@ -2349,6 +2417,7 @@ function openPlayerSheet(teamId, playerIdx){
     ? `<span style="font-size:12px;color:var(--text2);">· ${metaBits.join(' · ')}</span>`
     : '';
 
+  PS_DATA = null; // ficha nueva: olvida el conmutador de la anterior
   document.getElementById('player-sheet-content').innerHTML = `
     <div class="ps-handle"></div>
     <div class="ps-hero">
@@ -2364,9 +2433,8 @@ function openPlayerSheet(teamId, playerIdx){
       </div>
     </div>
 
-    ${psStripHTML(p.pos)}
-
-    <div id="ps-sections"></div>
+    <div class="ps-pills" id="ps-pills"></div>
+    <div id="ps-body">${psStripHTML(p.pos, null)}</div>
 
     <div class="ps-note" id="ps-note">Estadísticas del Mundial 2026</div>
 
@@ -2432,6 +2500,7 @@ function openApiPlayerSheet(apiId, number, name, teamCode){
   const nm = name || 'Jugador';
   const initials = nm.split(/\s+/).map(w=>w[0]||'').join('').substring(0,2).toUpperCase();
   const img = apiId!=null ? `<img src="${MEDIA_PLAYER}${apiId}.png" onerror="this.parentElement.textContent='${initials}'">` : '';
+  PS_DATA = null; // ficha nueva: olvida el conmutador de la anterior
   document.getElementById('player-sheet-content').innerHTML = `
     <div class="ps-handle"></div>
     <div class="ps-hero">
@@ -2442,9 +2511,9 @@ function openApiPlayerSheet(apiId, number, name, teamCode){
         <div class="ps-meta" style="margin-top:6px;"><span class="ps-tag-pos">Convocado</span></div>
       </div>
     </div>
-    ${psStripHTML('GEN')}
-    <div id="ps-sections"></div>
-    <div class="ps-note">Estadísticas del Mundial 2026</div>
+    <div class="ps-pills" id="ps-pills"></div>
+    <div id="ps-body">${psStripHTML('GEN', null)}</div>
+    <div class="ps-note" id="ps-note">Estadísticas del Mundial 2026</div>
     <div style="height:8px"></div>`;
   const box = document.getElementById('player-sheet-box');
   let startY = 0;
