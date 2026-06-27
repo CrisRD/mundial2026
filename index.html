@@ -3320,9 +3320,25 @@ document.querySelectorAll('.chip').forEach(c=>c.addEventListener('click',()=>{
 }));
 let st;
 document.getElementById('search-input').addEventListener('input',e=>{
-  if(e.target.value.trim().toLowerCase().replace(/^#/,'')==='noyo'){ e.target.value=''; toggleClear(''); q=''; gcToggleSkip(); return; }
+  const raw = e.target.value.trim();
   toggleClear(e.target.value);
-  clearTimeout(st);st=setTimeout(()=>{q=e.target.value.trim();render();},180);
+  clearTimeout(st);
+  // Comandos de diagnóstico (#cruce, #fotos, #statsjug, #buscar, …): no son una
+  // búsqueda. Se ejecutan solos medio segundo después de dejar de escribir, sin
+  // depender de la tecla Enter (poco fiable en iOS). Los códigos incompletos o
+  // inválidos cortan antes de llamar a la API, así que escribir no la machaca.
+  if(raw.charAt(0) === '#'){
+    q = '';
+    st = setTimeout(() => { if(typeof runDiag === 'function') runDiag(raw); }, 500);
+    return;
+  }
+  st = setTimeout(() => { q = raw; render(); }, 180);
+});
+// Atajo: si pulsas Enter/"ir", ejecuta el comando al instante (sin esperar al debounce).
+document.getElementById('search-input').addEventListener('keydown', e => {
+  if(e.key !== 'Enter') return;
+  const raw = e.target.value.trim();
+  if(raw.charAt(0) === '#' && typeof runDiag === 'function' && runDiag(raw)){ clearTimeout(st); e.preventDefault(); }
 });
 function toggleClear(v){const b=document.getElementById('search-clear');if(b)b.classList.toggle('show',!!v);}
 function clearSearch(){const si=document.getElementById('search-input');si.value='';q='';toggleClear('');render();si.focus();}
@@ -4110,15 +4126,28 @@ async function cruceLineupsAll(){
   showDiscoverResult(out);
 }
 
-if(location.hash === '#discover') discoverApiIds();
-if(location.hash === '#noyo') gcToggleSkip();
-if(location.hash.indexOf('#fotos') === 0){ const _c = location.hash.split('-')[1]; if(_c === 'all') discoverUnmatchedAll(); else discoverUnmatched(_c); }
-if(location.hash.indexOf('#evento') === 0) diagEvents(location.hash.split('-')[1]);
-if(location.hash.indexOf('#mins') === 0) diagMinutes(location.hash.split('-')[1]);
-if(location.hash.indexOf('#statsjug') === 0) diagStatsJugador(location.hash.split('-')[1]);
-if(location.hash.indexOf('#buscar') === 0) buscarJugador(decodeURIComponent(location.hash.split('-').slice(1).join('-')));
-if(location.hash.indexOf('#cruce') === 0){ const _c = location.hash.split('-')[1]; if(_c === 'all') cruceLineupsAll(); else cruceLineups(_c); }
-if(location.hash === '#r32') diagKnockout();
+// Enruta un comando de diagnóstico (string que empieza por '#'). Se usa tanto al
+// cargar (location.hash) como al escribirlo en el buscador y pulsar Enter.
+// Devuelve true si reconoció el comando.
+function runDiag(h){
+  h = (h || '').trim();
+  if(h.charAt(0) !== '#') return false;
+  const lo = h.toLowerCase();
+  const code = (h.split('-')[1] || '').toLowerCase();      // código de selección
+  const term = h.split('-').slice(1).join('-');            // término del buscador (respeta mayúsculas)
+  if(lo === '#discover'){ discoverApiIds(); return true; }
+  if(lo === '#noyo'){ gcToggleSkip(); return true; }
+  if(lo === '#r32'){ diagKnockout(); return true; }
+  if(lo.indexOf('#statsjug') === 0){ diagStatsJugador(code); return true; }
+  if(lo.indexOf('#fotos') === 0){ if(code === 'all') discoverUnmatchedAll(); else discoverUnmatched(code); return true; }
+  if(lo.indexOf('#evento') === 0){ diagEvents(code); return true; }
+  if(lo.indexOf('#mins') === 0){ diagMinutes(code); return true; }
+  if(lo.indexOf('#buscar') === 0){ buscarJugador(decodeURIComponent(term)); return true; }
+  if(lo.indexOf('#cruce') === 0){ if(code === 'all') cruceLineupsAll(); else cruceLineups(code); return true; }
+  return false;
+}
+
+runDiag(location.hash);
 </script>
 <script data-goatcounter="https://mundialfutbol2026.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
