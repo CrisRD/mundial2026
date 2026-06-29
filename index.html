@@ -1829,6 +1829,13 @@ function syncGroupBar(){
   });
 }
 
+// Orden cronológico por fecha + hora de España. Dentro de un mismo día evita que
+// los partidos salgan en orden de número FIFA en vez de por hora: un partido que
+// en EE. UU. es de noche cae de madrugada en Madrid, así que el número de partido
+// y la hora de España no coinciden. date ('YYYY-MM-DD') y time ('HH:MM') son de
+// ancho fijo, así que comparar las cadenas concatenadas equivale a comparar fechas.
+function chronoSort(arr){ return arr.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)); }
+
 function renderMatches(){
   syncGroupBar();
   const ql=normTxt(q);
@@ -1845,7 +1852,7 @@ function renderMatches(){
     if(!rows.length){ el.innerHTML='<div class="empty-state">No existe ese grupo</div>'; return; }
     el.innerHTML = `<div class="day-header"><div class="day-label">Grupo ${G}</div><div class="day-rule"></div></div>`+
       groupTableHTML(G)+
-      rows.map(m=>matchRowHTML(m,'',true)).join('');
+      chronoSort(rows).map(m=>matchRowHTML(m,'',true)).join('');
     return;
   }
 
@@ -1860,7 +1867,7 @@ function renderMatches(){
     const dates=Object.keys(byDate).sort().reverse();
     el.innerHTML=dates.map(date=>
       `<div class="day-header"><div class="day-label">${fmtDate(date)}</div><div class="day-rule"></div></div>`+
-      byDate[date].map(m=>matchRowHTML(m,ql)).join('')
+      chronoSort(byDate[date]).map(m=>matchRowHTML(m,ql)).join('')
     ).join('');
     return;
   }
@@ -1889,7 +1896,7 @@ function renderMatches(){
         <div class="day-rule"></div>
       </div>`+
       groupTableHTML(g)+
-      rows.map(m=>matchRowHTML(m,ql,true)).join('');
+      chronoSort(rows).map(m=>matchRowHTML(m,ql,true)).join('');
     }).join('');
     return;
   }
@@ -1900,7 +1907,7 @@ function renderMatches(){
   const dates=Object.keys(byDate).sort();
   el.innerHTML=dates.map(date=>{
     return `<div class="day-header"><div class="day-label">${fmtDate(date)}</div><div class="day-rule"></div></div>`+
-    byDate[date].map(m=>matchRowHTML(m,ql)).join('');
+    chronoSort(byDate[date]).map(m=>matchRowHTML(m,ql)).join('');
   }).join('');
 }
 
@@ -1970,7 +1977,7 @@ function renderCalendar(){
           const dayLabel=`${dias[dt.getDay()]} ${dt.getDate()} ${meses[dt.getMonth()]}`;
           return `<div class="cal-day-header">${dayLabel}</div>
             <div class="cal-day-group">`+
-            ms.map(m=>{
+            chronoSort(ms).map(m=>{
               const isH=ql&&(teamHit(m.home,ql)||teamHit(m.away,ql));
               return `<div class="cal-match-item${isH?' h':''}" onclick="jumpDate('${m.date}')">
                 <div class="cal-mi-left">
@@ -2002,7 +2009,7 @@ function openDayModal(date){
   document.getElementById('day-modal-content').innerHTML=`
     <div class="modal-handle"></div>
     <div class="modal-day-title">${dayLabel.toUpperCase()}</div>
-    ${ms.map(m=>`
+    ${chronoSort(ms).map(m=>`
       <div class="modal-match-row" onclick="closeDayModal();openMatch('${m.id}')">
         <div class="m-home">
           ${teamFlag(m.home,28)}
