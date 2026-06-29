@@ -303,6 +303,10 @@ html, body {
   height: 1px;
   background: var(--border);
 }
+/* Cabecera "En directo" (sección fijada arriba en la Agenda con partidos en juego) */
+.day-header.live .day-label { color: #E03E3E; display: flex; align-items: center; gap: 7px; }
+.day-header.live .day-rule { background: rgba(224,62,62,.25); }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #E03E3E; display: inline-block; animation: pulse 1.5s ease-in-out infinite; }
 .group-teams-strip {
   font-size: 11px;
   color: var(--text3);
@@ -1859,7 +1863,7 @@ function renderMatches(){
   // ANTERIORES → días ya cerrados (date < hoy), agrupados por fecha DESCENDENTE
   // (lo más reciente arriba). La búsqueda filtra por selección dentro del archivo.
   if(phase==='past'){
-    let ms=MATCHES.filter(m=>m.date<today);
+    let ms=MATCHES.filter(m=>m.date<today && !m.scoreLive);
     if(ql) ms=ms.filter(m=>teamHit(m.home,ql)||teamHit(m.away,ql));
     if(!ms.length){el.innerHTML='<div class="empty-state">'+(ql?'Sin partidos anteriores para esa selección':'Aún no hay partidos anteriores')+'</div>';return;}
     const byDate={};
@@ -1878,9 +1882,22 @@ function renderMatches(){
     // Agenda (sin búsqueda): hoy y futuro. Los días cerrados viven en "Anteriores".
     // Las fases (grupos/eliminatorias) muestran su calendario completo.
     if(phase==='all'&&m.date<today)return false;
+    // Los partidos en directo se fijan en su propia sección "En directo" (arriba),
+    // así que no los repetimos en los grupos por fecha de la Agenda.
+    if(phase==='all'&&m.scoreLive)return false;
     return true;
   });
-  if(!ms.length){el.innerHTML='<div class="empty-state">Sin partidos para mostrar</div>';return;}
+
+  // Sección "En directo" (solo en Agenda, sin búsqueda): partidos en juego fijados
+  // arriba. Un partido en vivo que empezó "ayer" (hora España) ya no cae en
+  // "Anteriores" ni queda bajo una cabecera con fecha pasada.
+  const liveMs=(phase==='all'&&!ql)?chronoSort(MATCHES.filter(m=>m.scoreLive)):[];
+  const liveHTML=liveMs.length
+    ?`<div class="day-header live"><div class="day-label"><span class="live-dot"></span>En directo</div><div class="day-rule"></div></div>`
+     +liveMs.map(m=>matchRowHTML(m,ql)).join('')
+    :'';
+
+  if(!ms.length&&!liveHTML){el.innerHTML='<div class="empty-state">Sin partidos para mostrar</div>';return;}
 
   // Fase de grupos → tabla de clasificación + partidos, por grupo A-L
   if(phase==='groups'&&!ql){
@@ -1905,7 +1922,7 @@ function renderMatches(){
   const byDate={};
   ms.forEach(m=>{if(!byDate[m.date])byDate[m.date]=[];byDate[m.date].push(m);});
   const dates=Object.keys(byDate).sort();
-  el.innerHTML=dates.map(date=>{
+  el.innerHTML=liveHTML+dates.map(date=>{
     return `<div class="day-header"><div class="day-label">${fmtDate(date)}</div><div class="day-rule"></div></div>`+
     chronoSort(byDate[date]).map(m=>matchRowHTML(m,ql)).join('');
   }).join('');
