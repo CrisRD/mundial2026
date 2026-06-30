@@ -445,6 +445,8 @@ html, body {
   font-weight: 600;
   animation: pulse 1.5s ease-in-out infinite;
 }
+.m-pen { font-size: 11px; color: var(--text3); letter-spacing: 0.2px; margin-top: 1px; }
+.m-pen b { font-weight: 700; color: var(--gold); }
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
@@ -558,6 +560,16 @@ html, body {
 .lu-sc-n { font-family:var(--serif); font-size:19px; color:var(--text1); line-height:1; text-align:center; white-space:nowrap; }
 .lu-sc-l { font-size:11px; color:var(--text2); margin-top:6px; text-align:center; }
 .lu-sc-l.live { color:#C0392B; font-weight:600; }
+.lu-pen { font-size:12px; color:var(--text2); margin-top:4px; text-align:center; letter-spacing:0.2px; }
+.lu-pen b { font-weight:700; color:var(--gold); }
+.lu-pens-wrap { margin-top:12px; padding-top:10px; border-top:1px dashed var(--border); }
+.lu-pens-h { font-size:10px; font-weight:600; letter-spacing:0.6px; color:var(--text3); text-transform:uppercase; text-align:center; margin-bottom:8px; }
+.lu-pen-row { font-size:12px; color:var(--text2); display:flex; align-items:center; gap:6px; margin-top:6px; }
+.lu-pen-row.r { justify-content:flex-end; }
+.lu-pen-dot { display:inline-flex; align-items:center; justify-content:center; width:15px; height:15px; border-radius:50%; flex:none; }
+.lu-pen-dot.ok { background:#2E7D32; }
+.lu-pen-dot.ko { background:var(--bg1); border:1.3px solid var(--text3); }
+.lu-pen-row.miss .nm { color:var(--text3); text-decoration:line-through; text-decoration-color:var(--border); }
 .lu-goals { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
 .lu-gl { font-size:12px; color:var(--text2); display:flex; align-items:center; flex-wrap:wrap; gap:5px; margin-top:5px; }
 .lu-gl .mn { color:var(--text3); font-variant-numeric:tabular-nums; }
@@ -841,6 +853,8 @@ html, body {
 .cal-mi-score { font-family: var(--serif); font-size:15px; font-weight:700; color:var(--text1); letter-spacing:0.5px; }
 .cal-mi-st { font-size:10px; color:var(--text3); letter-spacing:0.3px; margin-top:1px; }
 .cal-mi-st.live { color:#E03E3E; font-weight:600; animation: pulse 1.5s ease-in-out infinite; }
+.cal-mi-pen { font-size:10px; color:var(--text3); letter-spacing:0.2px; margin-top:1px; }
+.cal-mi-pen b { font-weight:700; color:var(--gold); }
 
 /* ── DAY MODAL ── */
 #day-modal {
@@ -1588,6 +1602,17 @@ let view='matches', phase='all', q='', groupSel=null, calMo=new Date(2026,5,1);
 // ══════════════════════════════════════
 // RENDER MATCHES
 // ══════════════════════════════════════
+// Devuelve el HTML "(4-3)" con el número del equipo que pasa en dorado, o ''
+// si el partido no se decidió en penaltis. cls deja elegir la clase contenedora
+// según el sitio donde se pinte (m-pen / cal-mi-pen / lu-pen).
+function penHTML(m, cls){
+  if(!m.scorePen) return '';
+  const { h, a } = m.scorePen;
+  const hh = h > a ? `<b>${h}</b>` : h;
+  const aa = a > h ? `<b>${a}</b>` : a;
+  return `<div class="${cls}">(${hh}-${aa})</div>`;
+}
+
 function matchRowHTML(m, ql, showDate) {
   const hi=ql&&(teamHit(m.home,ql)||teamHit(m.away,ql));
   const isGroup = m.phase==='groups';
@@ -1608,6 +1633,7 @@ function matchRowHTML(m, ql, showDate) {
     </div>
     <div class="m-center">
       <div class="m-time${m.score?' score':''}">${m.score||m.time}</div>
+      ${penHTML(m,'m-pen')}
       ${m.scoreLabel?`<div class="m-status${m.scoreLive?' live':''}">${m.scoreLabel}</div>`:''}
     </div>
     <div class="m-away">
@@ -2003,6 +2029,7 @@ function renderCalendar(){
                 </div>
                 ${m.score?`<div class="cal-mi-right">
                   <div class="cal-mi-score">${m.score.replace('—',' – ')}</div>
+                  ${penHTML(m,'cal-mi-pen')}
                   ${m.scoreLabel?`<div class="cal-mi-st${m.scoreLive?' live':''}">${m.scoreLabel}</div>`:''}
                 </div>`:''}
               </div>`;
@@ -2034,6 +2061,7 @@ function openDayModal(date){
         </div>
         <div class="m-center">
           <div class="m-time${m.score?' score':''}">${m.score||m.time}</div>
+          ${penHTML(m,'m-pen')}
           ${m.scoreLabel?`<div class="m-status${m.scoreLive?' live':''}">${m.scoreLabel}</div>`:''}
         </div>
         <div class="m-away">
@@ -2623,12 +2651,20 @@ function mdBuildEvents(){
   const homeId = API_IDS[MD.match.home], awayId = API_IDS[MD.match.away];
   const sideByPid = MD.sideByPid || {};
   const ev = { home:[], away:[] };
+  const shootout = [];
   MD.rawEvents.forEach(e => {
     if(!e) return;
     const st = e.team && e.team.id;
     const detail = e.detail || '';
     const base = { min:(e.time && e.time.elapsed) || 0, extra:(e.time && e.time.extra) || 0, pid:(e.player && e.player.id), rawName:(e.player && e.player.name) || '' };
     const teamSide = st===homeId ? 'home' : st===awayId ? 'away' : null;
+    if(e.type === 'Goal' && (detail === 'Penalty' || detail === 'Missed Penalty') && mdIsShootoutKick(e)){
+      // Lanzamiento de la tanda: va aparte, no se mezcla con el marcador del
+      // partido ni con la lista de goleadores del tiempo reglamentario/prórroga.
+      if(!teamSide) return;
+      shootout.push({ side: teamSide, scored: detail === 'Penalty', pid: base.pid, rawName: base.rawName });
+      return;
+    }
     if(e.type === 'Goal'){
       if(detail === 'Missed Penalty') return;
       const own = detail === 'Own Goal';
@@ -2653,8 +2689,24 @@ function mdBuildEvents(){
   });
   const ord = (a,b) => (a.min + a.extra/100) - (b.min + b.extra/100);
   ev.home.sort(ord); ev.away.sort(ord);
+  ev.shootout = shootout;
   MD.events = ev;
   mdRender();
+}
+// Distingue un lanzamiento de la TANDA de penaltis de un penalti normal pitado
+// durante el partido (ambos llegan con type:'Goal', detail:'Penalty'/'Missed
+// Penalty'). La API marca los de la tanda con comments:"Penalty Shootout"; si
+// ese campo no viniera, usamos como respaldo que el partido se decidiera en
+// penaltis (status PEN) y que el lanzamiento caiga en el minuto 120 (fin de
+// la prórroga), que es donde la API sitúa toda la tanda.
+function isShootoutKick(e, status){
+  if(e.comments && /shootout/i.test(e.comments)) return true;
+  if(status !== 'PEN') return false;
+  const min = (e.time && e.time.elapsed) || 0;
+  return min >= 120;
+}
+function mdIsShootoutKick(e){
+  return isShootoutKick(e, MD && MD.match && MD.match.status);
 }
 
 // Capitán desde /fixtures/players (statistics[].games.captain). Disponible cuando
@@ -2695,6 +2747,25 @@ function mdEventLine(it, right){
   return right
     ? `<div class="lu-gl" style="justify-content:flex-end">${nm}&nbsp;${mn}${icon}</div>`
     : `<div class="lu-gl">${icon}${mn}&nbsp;${nm}</div>`;
+}
+
+function mdPenaltyShootout(list){
+  if(!list || !list.length) return '';
+  const dot = ok => `<span class="lu-pen-dot ${ok?'ok':'ko'}">${ok
+    ? `<svg viewBox="0 0 24 24" width="9" height="9" fill="none"><path d="M5 13l4 4L19 7" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
+    : `<svg viewBox="0 0 24 24" width="8" height="8" fill="none"><path d="M6 6l12 12M18 6L6 18" stroke="var(--text3)" stroke-width="2.6" stroke-linecap="round"/></svg>`}</span>`;
+  const row = (it, right) => {
+    const nm = `<span class="nm">${mdResolve(it.pid, it.rawName)}</span>`;
+    return right
+      ? `<div class="lu-pen-row r${it.scored?'':' miss'}">${nm}${dot(it.scored)}</div>`
+      : `<div class="lu-pen-row${it.scored?'':' miss'}">${dot(it.scored)}${nm}</div>`;
+  };
+  const home = list.filter(x=>x.side==='home').map(x=>row(x,false)).join('');
+  const away = list.filter(x=>x.side==='away').map(x=>row(x,true)).join('');
+  return `<div class="lu-pens-wrap">
+    <div class="lu-pens-h">Tanda de penaltis</div>
+    <div class="lu-goals"><div>${home}</div><div>${away}</div></div>
+  </div>`;
 }
 
 function mdTeamLabel(m, side){
@@ -2805,9 +2876,9 @@ function mdRender(){
   const aName = TEAM_INFO[m.away] ? tname(m.away) : m.away;
   const sc = m.score ? m.score.split('—') : null;
   const scCenter = sc
-    ? `<div class="lu-sc-n">${sc[0]||''}<span style="color:var(--text3);margin:0 7px">–</span>${sc[1]||''}</div><div class="lu-sc-l${m.scoreLive?' live':''}">${m.scoreLabel||''}</div>`
+    ? `<div class="lu-sc-n">${sc[0]||''}<span style="color:var(--text3);margin:0 7px">–</span>${sc[1]||''}</div>${penHTML(m,'lu-pen')}<div class="lu-sc-l${m.scoreLive?' live':''}">${m.scoreLabel||''}</div>`
     : `<div class="lu-sc-n"><span style="font-size:18px;color:var(--text3)">vs</span></div><div class="lu-sc-l">${m.time?m.time+' h':''}</div>`;
-  const E = MD.events || {home:[],away:[]};
+  const E = MD.events || {home:[],away:[],shootout:[]};
   const homeEv = E.home.map(x=>mdEventLine(x,false)).join('');
   const awayEv = E.away.map(x=>mdEventLine(x,true)).join('');
   const luHead = `<div class="lu-head">
@@ -2815,7 +2886,8 @@ function mdRender(){
       <div>${scCenter}</div>
       <div class="lu-team">${TEAM_INFO[m.away]?`<span class="nm2">${aName}</span>${flag(m.away,30)}`:`<span class="nm2">${aName}</span>`}</div>
     </div>
-    ${(homeEv||awayEv)?`<div class="lu-goals"><div>${homeEv}</div><div>${awayEv}</div></div>`:''}`;
+    ${(homeEv||awayEv)?`<div class="lu-goals"><div>${homeEv}</div><div>${awayEv}</div></div>`:''}
+    ${mdPenaltyShootout(E.shootout)}`;
 
   let lineupBody;
   if(MD.lineups === '__none__'){
@@ -3462,6 +3534,7 @@ const ID_TO_CODE = {};
 Object.keys(API_IDS).forEach(c => { ID_TO_CODE[API_IDS[c]] = c; });
 let currentTeamId = null;
 let liveRefreshTimer = null;
+const LIVE_REFRESH_MS = 60000; // sondeo en vivo cada 60 s mientras haya partido en juego
 
 async function apiFetch(endpoint){
   try {
@@ -3475,7 +3548,7 @@ async function apiFetch(endpoint){
 async function loadFixtures(){
   showApiStatus('Actualizando resultados…');
   const data = await apiFetch(`/fixtures?league=${WC_LEAGUE}&season=${WC_SEASON}`);
-  if(!data || !data.response){ hideApiStatus(); return; }
+  if(!data || !data.response){ hideApiStatus(); scheduleLiveRefresh(); return; }
 
   data.response.forEach(f => {
     const hId = f.teams.home.id, aId = f.teams.away.id;
@@ -3522,13 +3595,24 @@ async function loadFixtures(){
       if(swap){ const t = h; h = a; a = t; }
       match.score = `${h}—${a}`;
       match.scoreLive = liveStatuses.includes(status);
-      match.scoreLabel = status === 'HT' ? 'Descanso' :
+      match.scoreLabel = (status === 'HT' || status === 'BT') ? 'Descanso' :
+                         status === 'P' ? 'Penaltis' :
                          finishedStatuses.includes(status) ? 'Final' :
                          `${elapsed}${extraMin?'+'+extraMin:''}'`;
+      // Tanda de penaltis: solo viene rellena cuando el partido se decidió así.
+      const pen = f.score && f.score.penalty;
+      if(status === 'PEN' && pen && pen.home != null && pen.away != null){
+        let ph = pen.home, pa = pen.away;
+        if(swap){ const t = ph; ph = pa; pa = t; }
+        match.scorePen = { h: ph, a: pa };
+      } else {
+        match.scorePen = null;
+      }
     } else {
       match.score = null;
       match.scoreLive = false;
       match.scoreLabel = null;
+      match.scorePen = null;
     }
   });
 
@@ -3548,9 +3632,17 @@ async function loadFixtures(){
   }
 
   // Auto-refresh if live matches
+  scheduleLiveRefresh();
+}
+
+// Reprograma el sondeo en vivo. Clave: se llama SIEMPRE (también tras una respuesta
+// fallida o vacía), para que un fallo puntual de red no mate el bucle y deje el
+// minuto congelado (p. ej. atascado en "90+4" al empezar la prórroga). Mientras
+// haya algún partido en directo, vuelve a sondear en LIVE_REFRESH_MS.
+function scheduleLiveRefresh(){
   clearTimeout(liveRefreshTimer);
   if(MATCHES.some(m => m.scoreLive)){
-    liveRefreshTimer = setTimeout(loadFixtures, 60000);
+    liveRefreshTimer = setTimeout(loadFixtures, LIVE_REFRESH_MS);
   }
 }
 
@@ -3983,14 +4075,18 @@ async function diagEvents(code){
   if(!fxs.length){ showDiscoverResult('Sin partido jugado para "'+(code||'')+'". Usa el código de selección (par, usa, esp…).'); return; }
   let out = '';
   for(const m of fxs){
-    out += `=== ${m.home} vs ${m.away}  (fixture ${m.fixtureId})\n`;
-    out += `API_IDS:  ${m.home}=${API_IDS[m.home]}   ${m.away}=${API_IDS[m.away]}\n\n`;
+    out += `=== ${m.home} vs ${m.away}  (fixture ${m.fixtureId})  status ${m.status}\n`;
+    out += `API_IDS:  ${m.home}=${API_IDS[m.home]}   ${m.away}=${API_IDS[m.away]}\n`;
+    if(m.scorePen) out += `scorePen: ${m.scorePen.h}-${m.scorePen.a}\n`;
+    out += '\n';
     const data = await apiFetch(`/fixtures/events?fixture=${m.fixtureId}`);
     const resp = (data && data.response) || [];
     if(!resp.length) out += '(sin eventos)\n';
     resp.forEach(e => {
       const t = e.team || {}, p = e.player || {};
-      out += `${String(e.type||'').padEnd(6)}| ${String(e.detail||'').padEnd(14)}| team ${t.id} ${t.name||''} | ${p.name||''}\n`;
+      const min = (e.time && e.time.elapsed) || 0;
+      const shoot = isShootoutKick(e, m.status) ? ' [TANDA]' : '';
+      out += `${String(min).padStart(3)}'| ${String(e.type||'').padEnd(6)}| ${String(e.detail||'').padEnd(14)}| team ${t.id} ${t.name||''} | ${p.name||''} | comments:${e.comments||'-'}${shoot}\n`;
     });
     out += '\n';
   }
