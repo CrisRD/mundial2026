@@ -4452,13 +4452,13 @@ async function diagTopList(){
   const fmtTime = ts => ts ? new Date(ts).toLocaleTimeString('es-ES') : '(nunca)';
   let out = '=== API EN VIVO (sin caché) ===\n\nGoleadores:\n';
   const respS = (dataS && dataS.response) || [];
-  out += respS.length ? respS.slice(0,10).map((it,i) => {
+  out += respS.length ? respS.slice(0,20).map((it,i) => {
     const p = it.player||{}, st=(it.statistics&&it.statistics[0])||{};
     return `${i+1}. ${p.name}  ·  ${(st.team&&st.team.name)||'?'}  ·  ${(st.goals&&st.goals.total)??'?'} goles`;
   }).join('\n') : '(la API no devuelve nada todavía)';
   out += '\n\nAsistentes:\n';
   const respA = (dataA && dataA.response) || [];
-  out += respA.length ? respA.slice(0,10).map((it,i) => {
+  out += respA.length ? respA.slice(0,20).map((it,i) => {
     const p = it.player||{}, st=(it.statistics&&it.statistics[0])||{};
     return `${i+1}. ${p.name}  ·  ${(st.team&&st.team.name)||'?'}  ·  ${(st.goals&&st.goals.assists)??'?'} asist.`;
   }).join('\n') : '(la API no devuelve nada todavía)';
