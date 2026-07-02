@@ -4434,6 +4434,40 @@ async function cruceLineupsAll(){
   showDiscoverResult(out);
 }
 
+// "#goleadores" → pide topscorers/topassists directamente a la API, sin pasar
+// por TOP_CACHE, y lo compara con el estado de la caché de la app. Sirve para
+// distinguir si lo que falla es que la API todavía no tiene el dato (lo verás
+// también aquí, en la parte "API en vivo") o si es la app la que no refresca
+// (la caché se queda vieja aunque la API ya esté al día).
+async function diagTopList(){
+  showApiStatus('Consultando goleadores/asistentes…');
+  let dataS, dataA;
+  try {
+    [dataS, dataA] = await Promise.all([
+      apiFetch(`/players/topscorers?league=${WC_LEAGUE}&season=${WC_SEASON}`),
+      apiFetch(`/players/topassists?league=${WC_LEAGUE}&season=${WC_SEASON}`)
+    ]);
+  } catch(e){ hideApiStatus(); showDiscoverResult('Error consultando la API: ' + e); return; }
+  hideApiStatus();
+  const fmtTime = ts => ts ? new Date(ts).toLocaleTimeString('es-ES') : '(nunca)';
+  let out = '=== API EN VIVO (sin caché) ===\n\nGoleadores:\n';
+  const respS = (dataS && dataS.response) || [];
+  out += respS.length ? respS.slice(0,10).map((it,i) => {
+    const p = it.player||{}, st=(it.statistics&&it.statistics[0])||{};
+    return `${i+1}. ${p.name}  ·  ${(st.team&&st.team.name)||'?'}  ·  ${(st.goals&&st.goals.total)??'?'} goles`;
+  }).join('\n') : '(la API no devuelve nada todavía)';
+  out += '\n\nAsistentes:\n';
+  const respA = (dataA && dataA.response) || [];
+  out += respA.length ? respA.slice(0,10).map((it,i) => {
+    const p = it.player||{}, st=(it.statistics&&it.statistics[0])||{};
+    return `${i+1}. ${p.name}  ·  ${(st.team&&st.team.name)||'?'}  ·  ${(st.goals&&st.goals.assists)??'?'} asist.`;
+  }).join('\n') : '(la API no devuelve nada todavía)';
+  out += `\n\n=== CACHÉ DE LA APP (lo que se ve en pantalla ahora) ===\n`;
+  out += `scorers:  ${TOP_CACHE.scorers ? TOP_CACHE.scorers.length+' jugadores' : '(nunca cargada esta sesión)'}  ·  última carga ${fmtTime(topFetchedAt.scorers)}\n`;
+  out += `assists:  ${TOP_CACHE.assists ? TOP_CACHE.assists.length+' jugadores' : '(nunca cargada esta sesión)'}  ·  última carga ${fmtTime(topFetchedAt.assists)}\n`;
+  showDiscoverResult(out);
+}
+
 // Enruta un comando de diagnóstico (string que empieza por '#'). Se usa tanto al
 // cargar (location.hash) como al escribirlo en el buscador y pulsar Enter.
 // Devuelve true si reconoció el comando.
@@ -4452,6 +4486,7 @@ function runDiag(h){
   if(lo.indexOf('#mins') === 0){ diagMinutes(code); return true; }
   if(lo.indexOf('#buscar') === 0){ buscarJugador(decodeURIComponent(term)); return true; }
   if(lo.indexOf('#cruce') === 0){ if(code === 'all') cruceLineupsAll(); else cruceLineups(code); return true; }
+  if(lo === '#goleadores'){ diagTopList(); return true; }
   return false;
 }
 
