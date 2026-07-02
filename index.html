@@ -1541,14 +1541,14 @@ const MATCHES = [
   {id:'m86', home:'arg', away:'cpv', date:'2026-07-04', time:'00:00', venue:'Hard Rock Stadium, Miami', phase:'r32'},
   {id:'m87', home:'col', away:'gha', date:'2026-07-04', time:'03:30', venue:'Arrowhead Stadium, Kansas City', phase:'r32'},
   {id:'m88', home:'aus', away:'egy', date:'2026-07-03', time:'20:00', venue:'AT&T Stadium, Dallas', phase:'r32'},
-  {id:'m89', home:'can', away:'mar', date:'2026-07-04', time:'19:00', venue:'BMO Field, Toronto', phase:'r16'},
-  {id:'m90', home:'par', away:'fra', date:'2026-07-04', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', phase:'r16'},
-  {id:'m91', home:'bra', away:'nor', date:'2026-07-05', time:'19:00', venue:'NRG Stadium, Houston', phase:'r16'},
-  {id:'m92', home:'mex', away:'eng', date:'2026-07-05', time:'23:00', venue:'Estadio Azteca / Banorte, Ciudad de México', phase:'r16'},
+  {id:'m89', home:'Ganador 74', away:'Ganador 77', date:'2026-07-04', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', phase:'r16'},
+  {id:'m90', home:'Ganador 73', away:'Ganador 75', date:'2026-07-04', time:'19:00', venue:'NRG Stadium, Houston', phase:'r16'},
+  {id:'m91', home:'Ganador 76', away:'Ganador 78', date:'2026-07-05', time:'22:00', venue:'MetLife Stadium, Nueva York/Nueva Jersey', phase:'r16'},
+  {id:'m92', home:'Ganador 79', away:'Ganador 80', date:'2026-07-06', time:'02:00', venue:'Estadio Azteca / Banorte, Ciudad de México', phase:'r16'},
   {id:'m93', home:'Ganador 83', away:'Ganador 84', date:'2026-07-06', time:'21:00', venue:'AT&T Stadium, Dallas', phase:'r16'},
-  {id:'m94', home:'usa', away:'bel', date:'2026-07-07', time:'02:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r16'},
-  {id:'m95', home:'Ganador 86', away:'Ganador 88', date:'2026-07-07', time:'18:00', venue:'Gillette Stadium, Boston', phase:'r16'},
-  {id:'m96', home:'Ganador 85', away:'Ganador 87', date:'2026-07-07', time:'22:00', venue:'Lumen Field, Seattle', phase:'r16'},
+  {id:'m94', home:'Ganador 81', away:'Ganador 82', date:'2026-07-07', time:'02:00', venue:'Lumen Field, Seattle', phase:'r16'},
+  {id:'m95', home:'Ganador 85', away:'Ganador 87', date:'2026-07-07', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r16'},
+  {id:'m96', home:'Ganador 86', away:'Ganador 88', date:'2026-07-07', time:'22:00', venue:'BC Place, Vancouver', phase:'r16'},
   {id:'m97', home:'Ganador 89', away:'Ganador 90', date:'2026-07-09', time:'22:00', venue:'Gillette Stadium, Boston', phase:'qf'},
   {id:'m98', home:'Ganador 93', away:'Ganador 94', date:'2026-07-10', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'qf'},
   {id:'m99', home:'Ganador 91', away:'Ganador 92', date:'2026-07-11', time:'23:00', venue:'Hard Rock Stadium, Miami', phase:'qf'},
@@ -1614,7 +1614,7 @@ function todayMadrid(){
 // ══════════════════════════════════════
 // STATE
 // ══════════════════════════════════════
-let view='matches', phase='all', q='', groupSel=null, calMo=new Date(2026,6,1);
+let view='matches', phase='all', q='', groupSel=null, calMo=new Date(2026,5,1);
 
 // ══════════════════════════════════════
 // RENDER MATCHES
@@ -1842,87 +1842,6 @@ function diagKnockout(){
     const resA = c.away ? tname(c.away) : '—';
     out += `${m.id.toUpperCase()}: ${cur}\n      resuelve → ${resH} vs ${resA}\n`;
   });
-  showDiscoverResult(out);
-}
-
-// ══════════════════════════════════════
-// AUTO-RELLENO DE CRUCES DESDE OCTAVOS EN ADELANTE (octavos → cuartos → semis → final)
-// ══════════════════════════════════════
-// A diferencia de R32 (que sale de la fase de grupos), estas rondas salen de
-// partidos anteriores ya jugados. Reutiliza TM_ADJ —el mismo mapa de
-// adyacencia oficial del simulador "Tu Mundial"— para saber qué dos partidos
-// alimentan cada slot, así no hay una segunda fuente de verdad que mantener.
-// Igual que resolveKnockout(): NUNCA pisa una selección ya fijada a mano.
-// Devuelve el código del equipo ganador de un cruce ya decidido, o null si el
-// partido no ha terminado, si algún lado sigue siendo un hueco de texto, o
-// si el resultado aún no es legible.
-function koWinner(m){
-  if(!m || GROUP_FINISHED.indexOf(m.status)===-1) return null;
-  if(!isTeamCode(m.home) || !isTeamCode(m.away)) return null;
-  const sc = parseGoals(m.score); if(!sc) return null;
-  if(sc[0] > sc[1]) return m.home;
-  if(sc[1] > sc[0]) return m.away;
-  if(m.scorePen){
-    if(m.scorePen.h > m.scorePen.a) return m.home;
-    if(m.scorePen.a > m.scorePen.h) return m.away;
-  }
-  return null;
-}
-// Igual que koWinner pero devuelve al perdedor (para el partido por el 3.º puesto).
-function koLoser(m){
-  const w = koWinner(m);
-  if(!w) return null;
-  return w === m.home ? m.away : m.home;
-}
-// Recorre octavos, cuartos, semis y final (TM_ADJ) más el 3.º puesto (m103,
-// perdedores de semis) rellenando solo los huecos que siguen como texto.
-function resolveBracket(){
-  const byId = {}; MATCHES.forEach(m => { byId[m.id] = m; });
-  let changed = 0;
-  ['r16','qf','sf','final'].forEach(roundKey => {
-    const adj = TM_ADJ[roundKey];
-    adj.ids.forEach((id, i) => {
-      const m = byId[id]; if(!m) return;
-      const [fromH, fromA] = adj.from[i];
-      const winH = koWinner(byId[fromH]);
-      const winA = koWinner(byId[fromA]);
-      if(!isTeamCode(m.home) && winH){ m.home = winH; changed++; }
-      if(!isTeamCode(m.away) && winA){ m.away = winA; changed++; }
-    });
-  });
-  const third = byId['m103'];
-  if(third){
-    const loseH = koLoser(byId['m101']), loseA = koLoser(byId['m102']);
-    if(!isTeamCode(third.home) && loseH){ third.home = loseH; changed++; }
-    if(!isTeamCode(third.away) && loseA){ third.away = loseA; changed++; }
-  }
-  return changed;
-}
-// Diagnóstico de un solo uso: "#cruces" al final de la URL. Vuelca, para cada
-// slot de octavos en adelante, qué hay fijado y qué resolvería el sistema.
-function diagBracket(){
-  const byId = {}; MATCHES.forEach(m => { byId[m.id] = m; });
-  const LBL = { r16:'OCTAVOS', qf:'CUARTOS', sf:'SEMIS', final:'FINAL' };
-  let out = `CRUCES OCTAVOS→FINAL — diagnóstico\n\n`;
-  ['r16','qf','sf','final'].forEach(roundKey => {
-    const adj = TM_ADJ[roundKey];
-    out += `── ${LBL[roundKey]} ──\n`;
-    adj.ids.forEach((id, i) => {
-      const m = byId[id]; if(!m) return;
-      const [fromH, fromA] = adj.from[i];
-      const cur = `${isTeamCode(m.home)?tname(m.home):m.home}  vs  ${isTeamCode(m.away)?tname(m.away):m.away}`;
-      const winH = koWinner(byId[fromH]), winA = koWinner(byId[fromA]);
-      const resH = winH ? tname(winH) : '—', resA = winA ? tname(winA) : '—';
-      out += `${id.toUpperCase()} (de ${fromH.toUpperCase()}/${fromA.toUpperCase()}): ${cur}\n      resuelve → ${resH} vs ${resA}\n`;
-    });
-    out += `\n`;
-  });
-  const third = byId['m103'];
-  if(third){
-    const cur = `${isTeamCode(third.home)?tname(third.home):third.home}  vs  ${isTeamCode(third.away)?tname(third.away):third.away}`;
-    const loseH = koLoser(byId['m101']), loseA = koLoser(byId['m102']);
-    out += `── 3.º PUESTO ──\nM103 (perdedores de M101/M102): ${cur}\n      resuelve → ${loseH?tname(loseH):'—'} vs ${loseA?tname(loseA):'—'}\n`;
-  }
   showDiscoverResult(out);
 }
 
@@ -3653,6 +3572,10 @@ async function apiFetch(endpoint){
 // jugador. Se cachea en memoria para toda la sesión; recargar la página
 // vuelve a pedirlas.
 const TOP_CACHE = { scorers:null, assists:null };
+// Cuánto se deja "envejecer" una lista antes de volver a pedirla: ni hay que
+// sondear a cada refresco del marcador (60s) ni dejarla fija toda la sesión.
+const TOP_STALE_MS = 5 * 60 * 1000; // 5 minutos
+const topFetchedAt = { scorers:0, assists:0 };
 function mapTopList(resp){
   return (resp||[]).map(it=>{
     const p = it.player||{};
@@ -3667,13 +3590,39 @@ function mapTopList(resp){
     };
   });
 }
-async function loadTopList(kind){
-  if(TOP_CACHE[kind]) return TOP_CACHE[kind];
+async function loadTopList(kind, force){
+  if(!force && TOP_CACHE[kind] && (Date.now() - topFetchedAt[kind] < TOP_STALE_MS)) return TOP_CACHE[kind];
   const ep = kind==='scorers' ? '/players/topscorers' : '/players/topassists';
   const data = await apiFetch(`${ep}?league=${WC_LEAGUE}&season=${WC_SEASON}`);
   const list = mapTopList(data && data.response);
   TOP_CACHE[kind] = list;
+  topFetchedAt[kind] = Date.now();
   return list;
+}
+// Refresco en segundo plano de las listas que ya se hayan abierto alguna vez
+// (si nunca se abrieron, no hace falta precargarlas). Se llama en cada sondeo
+// del marcador en vivo, pero como loadTopList respeta TOP_STALE_MS, la API
+// solo se pide de verdad como mucho cada 5 minutos.
+function refreshTopListsIfStale(){
+  ['scorers','assists'].forEach(kind => {
+    if(!TOP_CACHE[kind]) return;
+    if(Date.now() - topFetchedAt[kind] < TOP_STALE_MS) return;
+    loadTopList(kind).then(() => { if(phase===kind) renderTopList(kind); });
+  });
+}
+// Un partido que pasa de en-directo a finalizado puede tardar en reflejarse
+// en el ranking, o un gol puede anularse por el VAR poco después del pitido
+// final — por eso, además del refresco periódico, se fuerza una recarga
+// 5 minutos después de detectar el cambio a finalizado.
+let topPostMatchTimer = null;
+function scheduleTopPostMatchRefresh(){
+  clearTimeout(topPostMatchTimer);
+  topPostMatchTimer = setTimeout(() => {
+    ['scorers','assists'].forEach(kind => {
+      if(!TOP_CACHE[kind]) return;
+      loadTopList(kind, true).then(() => { if(phase===kind) renderTopList(kind); });
+    });
+  }, TOP_STALE_MS);
 }
 function topRowHTML(x, rank, kind){
   const val = kind==='scorers' ? x.goals : x.assists;
@@ -3710,6 +3659,7 @@ async function loadFixtures(){
   const data = await apiFetch(`/fixtures?league=${WC_LEAGUE}&season=${WC_SEASON}`);
   if(!data || !data.response){ hideApiStatus(); scheduleLiveRefresh(); return; }
 
+  let justFinished = false;
   data.response.forEach(f => {
     const hId = f.teams.home.id, aId = f.teams.away.id;
     const hCode = ID_TO_CODE[hId], aCode = ID_TO_CODE[aId];
@@ -3744,6 +3694,7 @@ async function loadFixtures(){
     if(!match) return;
 
     match.fixtureId = f.fixture.id;
+    const wasLive = match.scoreLive; // antes de actualizar con esta respuesta
     match.status = status;
 
     const liveStatuses = ['1H','2H','HT','ET','P','BT'];
@@ -3755,6 +3706,7 @@ async function loadFixtures(){
       if(swap){ const t = h; h = a; a = t; }
       match.score = `${h}—${a}`;
       match.scoreLive = liveStatuses.includes(status);
+      if(wasLive && !match.scoreLive) justFinished = true;
       match.scoreLabel = (status === 'HT' || status === 'BT') ? 'Descanso' :
                          status === 'P' ? 'Penaltis' :
                          finishedStatuses.includes(status) ? 'Final' :
@@ -3780,7 +3732,6 @@ async function loadFixtures(){
   // hayan quedado decididos (ganadores/segundos de grupos completos; terceros
   // cuando acaben los 12 grupos). No pisa las selecciones ya fijadas a mano.
   resolveKnockout();
-  resolveBracket();
 
   hideApiStatus();
   render();
@@ -3794,6 +3745,13 @@ async function loadFixtures(){
 
   // Auto-refresh if live matches
   scheduleLiveRefresh();
+
+  // Goleadores/asistentes: se ponen al día solas, como mucho cada 5 minutos,
+  // en cada sondeo del marcador en vivo. Si algún partido acaba de terminar,
+  // además se fuerza una recarga a los 5 minutos (goles que tarden en
+  // reflejarse, o que se anulen por el VAR poco después del pitido final).
+  refreshTopListsIfStale();
+  if(justFinished) scheduleTopPostMatchRefresh();
 }
 
 // Reprograma el sondeo en vivo. Clave: se llama SIEMPRE (también tras una respuesta
@@ -4488,7 +4446,6 @@ function runDiag(h){
   if(lo === '#discover'){ discoverApiIds(); return true; }
   if(lo === '#noyo'){ gcToggleSkip(); return true; }
   if(lo === '#r32'){ diagKnockout(); return true; }
-  if(lo === '#cruces'){ diagBracket(); return true; }
   if(lo.indexOf('#statsjug') === 0){ diagStatsJugador(code); return true; }
   if(lo.indexOf('#fotos') === 0){ if(code === 'all') discoverUnmatchedAll(); else discoverUnmatched(code); return true; }
   if(lo.indexOf('#evento') === 0){ diagEvents(code); return true; }
