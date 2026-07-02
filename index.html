@@ -229,6 +229,21 @@ html, body {
   font-weight: 500;
 }
 
+.chip.sp { border-color: var(--gold-light); color: var(--gold); }
+
+.rk-list { padding-bottom: 6px; }
+.rk-row { display:flex; align-items:center; gap:9px; padding:10px 16px; background:var(--bg2); border-top:1px solid var(--border2); }
+.rk-row:first-of-type { border-top:none; }
+.rk-pos { width:18px; font-size:12px; color:var(--text3); flex-shrink:0; text-align:center; }
+.rk-pos.lead { color:var(--gold); font-weight:700; }
+.rk-fc { width:26px; height:26px; border-radius:50%; overflow:hidden; flex-shrink:0; border:1px solid var(--border); background:var(--bg3); }
+.rk-fc .fi { width:26px; height:26px; background-size:cover; display:block; }
+.rk-info { flex:1; min-width:0; }
+.rk-nm { font-size:13.5px; font-weight:500; color:var(--text1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rk-team { font-size:11px; color:var(--text3); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.rk-val { font-family:var(--serif); font-size:16px; font-weight:700; color:var(--text1); width:26px; text-align:center; flex-shrink:0; }
+.rk-row.r1 .rk-val { color:var(--gold); }
+
 /* ── SUB-BARRA DE GRUPOS (prefiltro, solo en "Fase de grupos") ── */
 .group-bar {
   display: flex;
@@ -1238,6 +1253,8 @@ html, body {
     <div id="view-matches" class="view active">
       <div class="phase-bar" id="phase-bar">
         <div class="chip active" data-phase="all">Agenda</div>
+        <div class="chip sp" data-phase="scorers">Goleadores</div>
+        <div class="chip sp" data-phase="assists">Asistentes</div>
         <div class="chip" data-phase="groups">Fase de grupos</div>
         <div class="chip" data-phase="r32">Dieciseisavos</div>
         <div class="chip" data-phase="r16">Octavos</div>
@@ -1868,6 +1885,7 @@ function chronoSort(arr){ return arr.slice().sort((a,b)=>(a.date+a.time).localeC
 
 function renderMatches(){
   syncGroupBar();
+  if(phase==='scorers'||phase==='assists'){ renderTopList(phase); return; }
   const ql=normTxt(q);
   const today=todayMadrid();
   const el=document.getElementById('matches-list');
@@ -3543,6 +3561,67 @@ async function apiFetch(endpoint){
     });
     return await r.json();
   } catch(e) { console.warn('API error:', e); return null; }
+}
+
+// ══════════════════════════════════════
+// GOLEADORES / ASISTENTES
+// ══════════════════════════════════════
+// Una sola llamada por lista: /players/topscorers y /players/topassists
+// devuelven el top 20 ya con las estadísticas completas de cada jugador
+// (goles, asistencias, equipo…), así que no hace falta pedir nada más por
+// jugador. Se cachea en memoria para toda la sesión; recargar la página
+// vuelve a pedirlas.
+const TOP_CACHE = { scorers:null, assists:null };
+function mapTopList(resp){
+  return (resp||[]).map(it=>{
+    const p = it.player||{};
+    const st = (it.statistics && it.statistics[0]) || {};
+    const teamApiId = st.team && st.team.id;
+    return {
+      pid: p.id, name: p.name||'',
+      teamCode: ID_TO_CODE[teamApiId] || null,
+      teamName: (st.team && st.team.name) || '',
+      goals: (st.goals && st.goals.total) || 0,
+      assists: (st.goals && st.goals.assists) || 0
+    };
+  });
+}
+async function loadTopList(kind){
+  if(TOP_CACHE[kind]) return TOP_CACHE[kind];
+  const ep = kind==='scorers' ? '/players/topscorers' : '/players/topassists';
+  const data = await apiFetch(`${ep}?league=${WC_LEAGUE}&season=${WC_SEASON}`);
+  const list = mapTopList(data && data.response);
+  TOP_CACHE[kind] = list;
+  return list;
+}
+function topRowHTML(x, rank, kind){
+  const val = kind==='scorers' ? x.goals : x.assists;
+  const fc = x.teamCode ? flag(x.teamCode,26).replace('class="fc"','class="rk-fc"') : `<div class="rk-fc"></div>`;
+  return `<div class="rk-row${rank===0?' r1':''}">
+    <div class="rk-pos${rank===0?' lead':''}">${rank+1}</div>
+    ${fc}
+    <div class="rk-info"><div class="rk-nm">${x.name}</div><div class="rk-team">${x.teamCode?tname(x.teamCode):x.teamName}</div></div>
+    <div class="rk-val">${val}</div>
+  </div>`;
+}
+async function renderTopList(kind){
+  const el = document.getElementById('matches-list');
+  const label = kind==='scorers' ? 'goleadores' : 'asistentes';
+  el.innerHTML = `<div class="empty-state">Cargando ${label}…</div>`;
+  let list;
+  try{ list = await loadTopList(kind); }
+  catch(e){
+    console.warn('topList', e);
+    if(phase===kind) el.innerHTML = '<div class="empty-state">No se pudo cargar el ranking</div>';
+    return;
+  }
+  if(phase!==kind) return; // el usuario cambió de chip mientras cargaba
+  if(!list.length){ el.innerHTML = '<div class="empty-state">Sin datos todavía</div>'; return; }
+  let rows = list.map((x,i)=>({x,i}));
+  const ql = normTxt(q);
+  if(ql) rows = rows.filter(({x})=>normTxt(x.name).includes(ql) || (x.teamCode && teamHit(x.teamCode,ql)));
+  if(!rows.length){ el.innerHTML = '<div class="empty-state">Sin resultados</div>'; return; }
+  el.innerHTML = `<div class="rk-list">${rows.map(({x,i})=>topRowHTML(x,i,kind)).join('')}</div>`;
 }
 
 async function loadFixtures(){
