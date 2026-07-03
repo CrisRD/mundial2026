@@ -1346,6 +1346,44 @@ html, body {
 
 <script>
 // ══════════════════════════════════════
+// CACHE-BUSTING AUTOMÁTICO
+// ══════════════════════════════════════
+// Problema: la PWA añadida a pantalla de inicio en iOS a veces sigue sirviendo
+// una copia vieja del index.html aunque ya se haya subido una nueva a GitHub
+// Pages. Antes había que forzarlo a mano con "?v=N" en la URL.
+// Solución: en cada arranque se compara BUILD_ID (constante embebida en este
+// mismo archivo) contra version.txt, pedido con {cache:'no-store'} para saltar
+// cualquier caché del navegador. Si difieren, se navega a una URL con un query
+// param nuevo (?v=timestamp) — un cambio de URL fuerza descarga en red aunque
+// location.reload() por sí solo no lo garantice en Safari/iOS. Sin bucles: una
+// vez comprobado un BUILD_ID en esta sesión, no se vuelve a comprobar hasta el
+// siguiente arranque completo de la app. Si falla la petición (sin red, recién
+// desplegado y version.txt aún no propagado, etc.) no hace nada — la app sigue
+// funcionando con lo que ya tenía cargado.
+//
+// IMPORTANTE al desplegar una nueva versión: subir index.html y version.txt
+// JUNTOS, con el mismo valor. Si se sube uno sin el otro, en el peor caso solo
+// se pierde la detección automática de esa versión concreta (no rompe nada).
+const BUILD_ID = '202607031900';
+(function checkForUpdate(){
+  try{
+    if(sessionStorage.getItem('mundial_build_checked') === BUILD_ID) return;
+    fetch('version.txt', { cache:'no-store' })
+      .then(r => r.ok ? r.text() : null)
+      .then(v => {
+        if(v == null) return;
+        v = v.trim();
+        if(v && v !== BUILD_ID){
+          location.href = location.pathname + '?v=' + Date.now() + location.hash;
+          return;
+        }
+        sessionStorage.setItem('mundial_build_checked', BUILD_ID);
+      })
+      .catch(() => {});
+  }catch(e){}
+})();
+
+// ══════════════════════════════════════
 // FLAGS
 // ══════════════════════════════════════
 const ISO_FLAG = {'usa':'us', 'can':'ca', 'mex':'mx', 'uru':'uy', 'arg':'ar', 'bra':'br', 'esp':'es', 'mar':'ma', 'por':'pt', 'fra':'fr', 'ger':'de', 'sco':'gb-sct', 'sui':'ch', 'bel':'be', 'eng':'gb-eng', 'ned':'nl', 'aut':'at', 'tur':'tr', 'cro':'hr', 'jpn':'jp', 'col':'co', 'ksa':'sa', 'gha':'gh', 'kor':'kr', 'aus':'au', 'sen':'sn', 'ecu':'ec', 'par':'py', 'cdi':'ci', 'nzl':'nz', 'ira':'ir', 'rsa':'za', 'cze':'cz', 'bih':'ba', 'qat':'qa', 'hat':'ht', 'cur':'cw', 'tun':'tn', 'swe':'se', 'cpv':'cv', 'irq':'iq', 'nor':'no', 'alg':'dz', 'jor':'jo', 'cod':'cd', 'uzb':'uz', 'pan':'pa', 'egy':'eg'};
