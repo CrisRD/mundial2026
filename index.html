@@ -1542,13 +1542,13 @@ const MATCHES = [
   {id:'m87', home:'col', away:'gha', date:'2026-07-04', time:'03:30', venue:'Arrowhead Stadium, Kansas City', phase:'r32'},
   {id:'m88', home:'aus', away:'egy', date:'2026-07-03', time:'20:00', venue:'AT&T Stadium, Dallas', phase:'r32'},
   {id:'m89', home:'Ganador 74', away:'Ganador 77', date:'2026-07-04', time:'23:00', venue:'Lincoln Financial Field, Filadelfia', phase:'r16'},
-  {id:'m90', home:'Ganador 73', away:'Ganador 75', date:'2026-07-04', time:'19:00', venue:'NRG Stadium, Houston', phase:'r16'},
-  {id:'m91', home:'Ganador 76', away:'Ganador 78', date:'2026-07-05', time:'22:00', venue:'MetLife Stadium, Nueva York/Nueva Jersey', phase:'r16'},
-  {id:'m92', home:'Ganador 79', away:'Ganador 80', date:'2026-07-06', time:'02:00', venue:'Estadio Azteca / Banorte, Ciudad de México', phase:'r16'},
+  {id:'m90', home:'Ganador 73', away:'Ganador 75', date:'2026-07-04', time:'19:00', venue:'BMO Field, Toronto', phase:'r16'},
+  {id:'m91', home:'Ganador 76', away:'Ganador 78', date:'2026-07-05', time:'19:00', venue:'NRG Stadium, Houston', phase:'r16'},
+  {id:'m92', home:'Ganador 79', away:'Ganador 80', date:'2026-07-05', time:'23:00', venue:'Estadio Azteca / Banorte, Ciudad de México', phase:'r16'},
   {id:'m93', home:'Ganador 83', away:'Ganador 84', date:'2026-07-06', time:'21:00', venue:'AT&T Stadium, Dallas', phase:'r16'},
-  {id:'m94', home:'Ganador 81', away:'Ganador 82', date:'2026-07-07', time:'02:00', venue:'Lumen Field, Seattle', phase:'r16'},
-  {id:'m95', home:'Ganador 85', away:'Ganador 87', date:'2026-07-07', time:'18:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r16'},
-  {id:'m96', home:'Ganador 86', away:'Ganador 88', date:'2026-07-07', time:'22:00', venue:'BC Place, Vancouver', phase:'r16'},
+  {id:'m94', home:'Ganador 81', away:'Ganador 82', date:'2026-07-07', time:'02:00', venue:'Mercedes-Benz Stadium, Atlanta', phase:'r16'},
+  {id:'m95', home:'Ganador 85', away:'Ganador 87', date:'2026-07-07', time:'22:00', venue:'Lumen Field, Seattle', phase:'r16'},
+  {id:'m96', home:'Ganador 86', away:'Ganador 88', date:'2026-07-07', time:'18:00', venue:'Gillette Stadium, Boston', phase:'r16'},
   {id:'m97', home:'Ganador 89', away:'Ganador 90', date:'2026-07-09', time:'22:00', venue:'Gillette Stadium, Boston', phase:'qf'},
   {id:'m98', home:'Ganador 93', away:'Ganador 94', date:'2026-07-10', time:'21:00', venue:'SoFi Stadium, Los Ángeles', phase:'qf'},
   {id:'m99', home:'Ganador 91', away:'Ganador 92', date:'2026-07-11', time:'23:00', venue:'Hard Rock Stadium, Miami', phase:'qf'},
@@ -1825,6 +1825,47 @@ function resolveKnockout(){
   });
   return changed;
 }
+
+// ══════════════════════════════════════
+// AUTO-RELLENO DE CRUCES (octavos en adelante) DESDE RESULTADOS
+// ══════════════════════════════════════
+// A partir de octavos el cruce ya NO depende de la clasificación de grupos:
+// es fijo de antemano ("el partido 90 siempre enfrenta al ganador del 73 con
+// el del 75"), así que basta con mirar quién ganó cada partido de origen.
+// Esos huecos están escritos en MATCHES tal cual como "Ganador 73" / "Perdedor
+// 101" (ver m89-m104), referenciando el id de partido FIFA.
+// Devuelve {win, lose} (códigos de selección) para un partido de eliminatoria
+// ya decidido, o null si todavía no se puede saber: no ha acabado, alguno de
+// sus dos lados sigue siendo un hueco sin resolver, o quedó empatado sin que
+// tengamos aún registrada la tanda de penaltis que lo decidió.
+function matchDecision(mid){
+  const m = MATCHES.find(x => x.id === mid);
+  if(!m || !isTeamCode(m.home) || !isTeamCode(m.away)) return null;
+  if(GROUP_FINISHED.indexOf(m.status) === -1) return null; // FT/AET/PEN
+  const g = parseGoals(m.score);
+  if(!g) return null;
+  const [h,a] = g;
+  if(h > a) return { win:m.home, lose:m.away };
+  if(a > h) return { win:m.away, lose:m.home };
+  if(m.scorePen) return m.scorePen.h > m.scorePen.a ? { win:m.home, lose:m.away } : { win:m.away, lose:m.home };
+  return null; // empate sin tanda registrada todavía
+}
+const GAN_RE = /^Ganador (\d+)$/, PER_RE = /^Perdedor (\d+)$/;
+function resolveBracket(){
+  let changed = 0;
+  MATCHES.forEach(m => {
+    if(['r16','qf','sf','3rd','final'].indexOf(m.phase) === -1) return;
+    ['home','away'].forEach(side => {
+      const val = m[side];
+      if(isTeamCode(val)) return;
+      let mm = GAN_RE.exec(val);
+      if(mm){ const d = matchDecision('m'+mm[1]); if(d){ m[side] = d.win; changed++; } return; }
+      mm = PER_RE.exec(val);
+      if(mm){ const d = matchDecision('m'+mm[1]); if(d){ m[side] = d.lose; changed++; } }
+    });
+  });
+  return changed;
+}
 // Diagnóstico de un solo uso: "#cruces" al final de la URL. Vuelca, por cada
 // slot de R32, qué hay fijado y qué resolvería el sistema desde los resultados.
 function diagKnockout(){
@@ -1841,6 +1882,32 @@ function diagKnockout(){
     const resH = c.home ? tname(c.home) : '—';
     const resA = c.away ? tname(c.away) : '—';
     out += `${m.id.toUpperCase()}: ${cur}\n      resuelve → ${resH} vs ${resA}\n`;
+  });
+  showDiscoverResult(out);
+}
+// Diagnóstico de un solo uso: "#bracket". Igual que #r32 pero para octavos en
+// adelante: por cada partido, qué hay puesto ahora y a qué resolvería si su(s)
+// partido(s) de origen ya estuvieran decididos.
+function diagBracket(){
+  let out = `CRUCES OCTAVOS EN ADELANTE — diagnóstico\n\n`;
+  ['r16','qf','sf','3rd','final'].forEach(ph => {
+    MATCHES.filter(m => m.phase===ph).forEach(m => {
+      const cur = `${isTeamCode(m.home)?tname(m.home):m.home}  vs  ${isTeamCode(m.away)?tname(m.away):m.away}`;
+      const resolve = (val) => {
+        const mm = GAN_RE.exec(val) || PER_RE.exec(val);
+        if(!mm) return null; // ya es código de selección
+        const src = MATCHES.find(x => x.id === 'm'+mm[1]);
+        if(!src) return 'origen desconocido';
+        if(!isTeamCode(src.home) || !isTeamCode(src.away)) return `${src.id} aún sin sus dos lados`;
+        if(GROUP_FINISHED.indexOf(src.status) === -1) return `${src.id} sin acabar (status ${src.status||'?'})`;
+        const d = matchDecision(src.id);
+        if(!d) return `${src.id} empatado y sin tanda registrada`;
+        return GAN_RE.test(val) ? tname(d.win) : tname(d.lose);
+      };
+      const rh = resolve(m.home), ra = resolve(m.away);
+      out += `${m.id.toUpperCase()} (${ph}): ${cur}\n`;
+      if(rh || ra) out += `      resuelve → ${rh||tname(m.home)} vs ${ra||tname(m.away)}\n`;
+    });
   });
   showDiscoverResult(out);
 }
@@ -3732,6 +3799,9 @@ async function loadFixtures(){
   // hayan quedado decididos (ganadores/segundos de grupos completos; terceros
   // cuando acaben los 12 grupos). No pisa las selecciones ya fijadas a mano.
   resolveKnockout();
+  // Y, a partir de octavos, rellena "Ganador N" / "Perdedor N" en cuanto el
+  // partido N de origen esté decidido (incluida la tanda de penaltis si la hubo).
+  resolveBracket();
 
   hideApiStatus();
   render();
@@ -4480,6 +4550,7 @@ function runDiag(h){
   if(lo === '#discover'){ discoverApiIds(); return true; }
   if(lo === '#noyo'){ gcToggleSkip(); return true; }
   if(lo === '#r32'){ diagKnockout(); return true; }
+  if(lo === '#bracket'){ diagBracket(); return true; }
   if(lo.indexOf('#statsjug') === 0){ diagStatsJugador(code); return true; }
   if(lo.indexOf('#fotos') === 0){ if(code === 'all') discoverUnmatchedAll(); else discoverUnmatched(code); return true; }
   if(lo.indexOf('#evento') === 0){ diagEvents(code); return true; }
