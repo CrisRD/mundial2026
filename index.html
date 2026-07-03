@@ -787,6 +787,7 @@ html, body {
 }
 .cal-nav-btn:active { background: var(--bg3); }
 .cal-nav-btn svg { width: 14px; height: 14px; stroke: currentColor; }
+.cal-nav-btn.disabled { opacity: 0.3; cursor: default; pointer-events: none; }
 .cal-grid-wrap { padding: 10px 18px 14px; }
 .cal-dow-row {
   display: grid;
@@ -1364,7 +1365,7 @@ html, body {
 // IMPORTANTE al desplegar una nueva versión: subir index.html y version.txt
 // JUNTOS, con el mismo valor. Si se sube uno sin el otro, en el peor caso solo
 // se pierde la detección automática de esa versión concreta (no rompe nada).
-const BUILD_ID = '202607031900';
+const BUILD_ID = '202607031945';
 (function checkForUpdate(){
   try{
     if(sessionStorage.getItem('mundial_build_checked') === BUILD_ID) return;
@@ -1648,11 +1649,22 @@ function todayMadrid(){
     const n=new Date(); return `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')}`;
   }
 }
+// El Mundial 2026 solo se juega en junio y julio. El calendario arranca en el
+// mes actual si estamos dentro de ese rango; si se abre antes (o después, ya
+// acabado el torneo), se acota a junio (o julio) para no aterrizar fuera de
+// rango. CAL_MIN/CAL_MAX (más abajo) usan los mismos límites para la navegación.
+function calDefaultMonth(){
+  const [y,m] = todayMadrid().split('-').map(Number);
+  if(y < 2026 || (y === 2026 && m < 6)) return new Date(2026,5,1);  // antes del Mundial -> junio
+  if(y > 2026 || (y === 2026 && m > 7)) return new Date(2026,6,1);  // ya acabado -> julio
+  return new Date(2026, m-1, 1);                                    // junio o julio en curso
+}
 
 // ══════════════════════════════════════
 // STATE
 // ══════════════════════════════════════
-let view='matches', phase='all', q='', groupSel=null, calMo=new Date(2026,5,1);
+let view='matches', phase='all', q='', groupSel=null, calMo=calDefaultMonth();
+const CAL_MIN = new Date(2026,5,1), CAL_MAX = new Date(2026,6,1);
 
 // ══════════════════════════════════════
 // RENDER MATCHES
@@ -2108,9 +2120,9 @@ function renderCalendar(){
 
   document.getElementById('calendar-view').innerHTML=`
     <div class="cal-nav">
-      <button class="cal-nav-btn" onclick="chMo(-1)"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      <button class="cal-nav-btn${calMo.getTime()<=CAL_MIN.getTime()?' disabled':''}" onclick="chMo(-1)"><svg viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
       <h2>${mname}</h2>
-      <button class="cal-nav-btn" onclick="chMo(1)"><svg viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      <button class="cal-nav-btn${calMo.getTime()>=CAL_MAX.getTime()?' disabled':''}" onclick="chMo(1)"><svg viewBox="0 0 24 24" fill="none"><path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
     </div>
     <div class="cal-grid-wrap">
       <div class="cal-dow-row">${dows.map(d=>`<div class="cal-dow">${d}</div>`).join('')}</div>
@@ -2164,7 +2176,12 @@ function renderCalendar(){
   `;
 }
 
-function chMo(d){calMo=new Date(calMo.getFullYear(),calMo.getMonth()+d,1);renderCalendar();}
+function chMo(d){
+  const next=new Date(calMo.getFullYear(),calMo.getMonth()+d,1);
+  if(next < CAL_MIN || next > CAL_MAX) return; // fuera de junio-julio 2026: no navegar
+  calMo=next;
+  renderCalendar();
+}
 
 function openDayModal(date){
   const dt=new Date(date+'T00:00:00');
