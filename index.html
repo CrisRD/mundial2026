@@ -1365,7 +1365,7 @@ html, body {
 // IMPORTANTE al desplegar una nueva versión: subir index.html y version.txt
 // JUNTOS, con el mismo valor. Si se sube uno sin el otro, en el peor caso solo
 // se pierde la detección automática de esa versión concreta (no rompe nada).
-const BUILD_ID = '202607041827';
+const BUILD_ID = '202607042202';
 (function checkForUpdate(){
   try{
     if(sessionStorage.getItem('mundial_build_checked') === BUILD_ID) return;
@@ -3836,16 +3836,38 @@ async function loadFixtures(){
       }
     }
     // 2) Respaldo: por nombre y, en último caso, por fecha (como antes).
+    //    OJO: el respaldo por fecha SOLO puede caer sobre un hueco que aún no
+    //    sepamos quién juega (placeholder "Ganador N" sin resolver). Si ya
+    //    tiene equipos identificados (isTeamCode), nunca se le puede "robar"
+    //    su fixture aunque comparta fecha con otro partido sin ID todavía —
+    //    así es como Canadá-Marruecos acabó enganchado por error a Paraguay-
+    //    Francia el 4 de julio de 2026.
     if(!match){
       match = MATCHES.find(m => {
         const mh = tname(m.home).toLowerCase();
         const ma = tname(m.away).toLowerCase();
         return (mh === home || mh.includes(home.split(' ')[0])) &&
                (ma === away || ma.includes(away.split(' ')[0]));
-      }) || MATCHES.find(m => m.date === date && !m.fixtureId);
+      }) || MATCHES.find(m => m.date === date && !m.fixtureId && (!isTeamCode(m.home) || !isTeamCode(m.away)));
     }
 
     if(!match) return;
+
+    // Auto-corrección: si este mismo fixtureId se había quedado enganchado por
+    // error en OTRO partido local (típicamente por el respaldo por fecha antes
+    // de que ambos lados estuvieran resueltos), lo liberamos para que deje de
+    // mostrar datos congelados que no le pertenecen.
+    if(match.fixtureId !== f.fixture.id){
+      const stale = MATCHES.find(m => m !== match && m.fixtureId === f.fixture.id);
+      if(stale){
+        stale.fixtureId = null;
+        stale.status = null;
+        stale.score = null;
+        stale.scoreLive = false;
+        stale.scoreLabel = null;
+        stale.scorePen = null;
+      }
+    }
 
     match.fixtureId = f.fixture.id;
     const wasLive = match.scoreLive; // antes de actualizar con esta respuesta
