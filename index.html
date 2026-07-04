@@ -1365,7 +1365,7 @@ html, body {
 // IMPORTANTE al desplegar una nueva versión: subir index.html y version.txt
 // JUNTOS, con el mismo valor. Si se sube uno sin el otro, en el peor caso solo
 // se pierde la detección automática de esa versión concreta (no rompe nada).
-const BUILD_ID = '202607031945';
+const BUILD_ID = '202607041827';
 (function checkForUpdate(){
   try{
     if(sessionStorage.getItem('mundial_build_checked') === BUILD_ID) return;
@@ -1958,6 +1958,38 @@ function diagBracket(){
       out += `${m.id.toUpperCase()} (${ph}): ${cur}\n`;
       if(rh || ra) out += `      resuelve → ${rh||tname(m.home)} vs ${ra||tname(m.away)}\n`;
     });
+  });
+  showDiscoverResult(out);
+}
+
+// Diagnóstico de un solo uso: "#raw90,91,92" (ids separados por coma). Vuelca
+// lo que la propia API devuelve, sin pasar por nuestra lógica de emparejamiento:
+// nombres/IDs de equipo, fecha, ronda y estado tal cual los da API-Football,
+// más el estado actual local de cada partido pedido. Sirve para distinguir
+// "la API aún no ha actualizado ese cruce de octavos" de "nuestra lógica de
+// emparejamiento falla".
+async function diagRawMatches(ids){
+  showDiscoverResult('Consultando API…');
+  let data;
+  try { data = await apiFetch(`/fixtures?league=${WC_LEAGUE}&season=${WC_SEASON}`); }
+  catch(e){ showDiscoverResult('Error al consultar la API: ' + e); return; }
+  if(!data || !data.response){ showDiscoverResult('Sin respuesta de la API.'); return; }
+
+  let out = `DIAGNÓSTICO RAW — ${ids.map(x=>x.toUpperCase()).join(', ')}\n\n`;
+  out += `— Estado local (tras nuestro emparejamiento) —\n`;
+  const dates = new Set();
+  ids.forEach(id => {
+    const m = MATCHES.find(x => x.id === id);
+    if(!m){ out += `${id.toUpperCase()}: no existe en MATCHES\n`; return; }
+    dates.add(m.date);
+    out += `${id.toUpperCase()}: ${isTeamCode(m.home)?tname(m.home):m.home} vs ${isTeamCode(m.away)?tname(m.away):m.away} · fecha local ${m.date} · fixtureId=${m.fixtureId||'(ninguno)'} · status=${m.status||'(ninguno)'}\n`;
+  });
+
+  out += `\n— Fixtures que devuelve la API en esas fechas (crudo) —\n`;
+  const rows = data.response.filter(f => dates.has((f.fixture.date||'').substring(0,10)));
+  if(!rows.length){ out += '(la API no devuelve ningún fixture en esas fechas)\n'; }
+  rows.forEach(f => {
+    out += `${(f.fixture.date||'').substring(0,10)} · ${f.teams.home.name}(id ${f.teams.home.id}) vs ${f.teams.away.name}(id ${f.teams.away.id}) · ronda API="${f.league.round}" · status=${f.fixture.status.short} · fixtureId=${f.fixture.id}\n`;
   });
   showDiscoverResult(out);
 }
@@ -4606,6 +4638,11 @@ function runDiag(h){
   if(lo === '#noyo'){ gcToggleSkip(); return true; }
   if(lo === '#r32'){ diagKnockout(); return true; }
   if(lo === '#bracket'){ diagBracket(); return true; }
+  if(lo.indexOf('#raw') === 0){
+    const ids = lo.slice(4).split(',').map(s => s.trim()).filter(Boolean).map(s => 'm'+s.replace(/^m/,''));
+    if(ids.length) diagRawMatches(ids);
+    return true;
+  }
   if(lo.indexOf('#statsjug') === 0){ diagStatsJugador(code); return true; }
   if(lo.indexOf('#fotos') === 0){ if(code === 'all') discoverUnmatchedAll(); else discoverUnmatched(code); return true; }
   if(lo.indexOf('#evento') === 0){ diagEvents(code); return true; }
