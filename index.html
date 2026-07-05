@@ -1365,7 +1365,7 @@ html, body {
 // IMPORTANTE al desplegar una nueva versión: subir index.html y version.txt
 // JUNTOS, con el mismo valor. Si se sube uno sin el otro, en el peor caso solo
 // se pierde la detección automática de esa versión concreta (no rompe nada).
-const BUILD_ID = '202607050719';
+const BUILD_ID = '202607050739';
 (function checkForUpdate(){
   try{
     if(sessionStorage.getItem('mundial_build_checked') === BUILD_ID) return;
@@ -3839,7 +3839,7 @@ async function loadFixtures(){
   if(!data || !data.response){ hideApiStatus(); scheduleLiveRefresh(); return; }
 
   let justFinished = false;
-  data.response.forEach(f => {
+  function processFixture(f){
     const hId = f.teams.home.id, aId = f.teams.away.id;
     const hCode = ID_TO_CODE[hId], aCode = ID_TO_CODE[aId];
     const home = f.teams.home.name.toLowerCase();
@@ -3927,7 +3927,13 @@ async function loadFixtures(){
       match.scoreLabel = null;
       match.scorePen = null;
     }
-  });
+  }
+
+  // Primera pasada: empareja todo lo que ya se puede (fase de grupos y octavos
+  // usan códigos de equipo fijos, nunca placeholders, así que siempre encajan
+  // a la primera). Esto dispara los resultados que resolveKnockout/resolveBracket
+  // necesitan para resolver los "Ganador N" de rondas siguientes.
+  data.response.forEach(processFixture);
 
   // Con los marcadores ya aplicados, rellena los huecos de dieciseisavos que
   // hayan quedado decididos (ganadores/segundos de grupos completos; terceros
@@ -3936,6 +3942,18 @@ async function loadFixtures(){
   // Y, a partir de octavos, rellena "Ganador N" / "Perdedor N" en cuanto el
   // partido N de origen esté decidido (incluida la tanda de penaltis si la hubo).
   resolveBracket();
+
+  // Segunda pasada: en una recarga completa de la app (o al arrancar de cero),
+  // la primera pasada puede llegar a un partido de octavos+ ANTES de que su
+  // "Ganador N" se haya resuelto en esta misma llamada — en ese momento cae en
+  // el respaldo por fecha y puede engancharse al hueco equivocado si comparte
+  // fecha con otro partido sin ID (esto fue exactamente lo que pasó con
+  // Canadá-Marruecos / Paraguay-Francia el 4 de julio de 2026). Ahora que
+  // resolveBracket() ya ha puesto los códigos reales, repetimos el emparejamiento:
+  // el camino por ID encuentra al partido correcto y la auto-corrección libera
+  // cualquier hueco que se hubiera llevado el fixture por error en la primera
+  // pasada, todo dentro del mismo sondeo — sin esperar 60s ni tener que reabrir.
+  data.response.forEach(processFixture);
 
   hideApiStatus();
   render();
