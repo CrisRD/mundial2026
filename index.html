@@ -1365,7 +1365,7 @@ html, body {
 // IMPORTANTE al desplegar una nueva versión: subir index.html y version.txt
 // JUNTOS, con el mismo valor. Si se sube uno sin el otro, en el peor caso solo
 // se pierde la detección automática de esa versión concreta (no rompe nada).
-const BUILD_ID = '202607071730';
+const BUILD_ID = '202607072215';
 (function checkForUpdate(){
   try{
     if(sessionStorage.getItem('mundial_build_checked') === BUILD_ID) return;
@@ -3979,6 +3979,17 @@ async function loadFixtures(){
   // cualquier hueco que se hubiera llevado el fixture por error en la primera
   // pasada, todo dentro del mismo sondeo — sin esperar 60s ni tener que reabrir.
   data.response.forEach(processFixture);
+
+  // La segunda pasada puede haber liberado (auto-corrección) un fixtureId que
+  // se había enganchado por error a otro partido en la primera pasada — por
+  // ejemplo M94 (EE.UU.-Bélgica) quedándose con el resultado de M95 (Suiza-
+  // Colombia) o viceversa, si ambos comparten fecha y ninguno tenía todavía
+  // equipos resueltos en la primera pasada (7 de julio de 2026). Esa corrección
+  // cambia el status/marcador de los partidos de octavos DESPUÉS de que
+  // resolveBracket() ya se hubiera ejecutado arriba, así que hace falta
+  // recalcular otra vez para que cuartos/semis/final reflejen el estado ya
+  // corregido dentro del mismo sondeo, sin esperar 60s al siguiente.
+  resolveBracket();
 
   hideApiStatus();
   render();
