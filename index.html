@@ -1365,7 +1365,7 @@ html, body {
 // IMPORTANTE al desplegar una nueva versión: subir index.html y version.txt
 // JUNTOS, con el mismo valor. Si se sube uno sin el otro, en el peor caso solo
 // se pierde la detección automática de esa versión concreta (no rompe nada).
-const BUILD_ID = '202607051645';
+const BUILD_ID = '202607071730';
 (function checkForUpdate(){
   try{
     if(sessionStorage.getItem('mundial_build_checked') === BUILD_ID) return;
@@ -1901,17 +1901,42 @@ function matchDecision(mid){
   return null; // empate sin tanda registrada todavía
 }
 const GAN_RE = /^Ganador (\d+)$/, PER_RE = /^Perdedor (\d+)$/;
+// Copia del hueco ORIGINAL ("Ganador 95", "Perdedor 101"...) de cada partido de
+// octavos en adelante, capturada una sola vez al cargar el archivo, antes de que
+// resolveBracket() empiece a escribir códigos de selección encima. Es la memoria
+// que permite recalcular un cruce desde cero en cada sondeo en vez de fiarnos de
+// lo que quedó escrito la última vez — ver nota abajo.
+const BRACKET_SPEC = {};
+MATCHES.forEach(m => {
+  if(['r16','qf','sf','3rd','final'].indexOf(m.phase) === -1) return;
+  BRACKET_SPEC[m.id] = { home: m.home, away: m.away };
+});
+// A partir de octavos, cada hueco es SIEMPRE derivable desde BRACKET_SPEC + los
+// resultados actuales — nunca hace falta "recordar" una resolución anterior. Por
+// eso esta función recalcula desde el texto original en cada llamada, en lugar de
+// limitarse a rellenar huecos vacíos: si escribiera el código de selección y lo
+// dejara ahí para siempre, una resolución errónea de un sondeo anterior (p. ej.
+// un fixtureId mal enganchado un instante, ya corregido después) se quedaría
+// congelada aunque el partido de origen vuelva a su estado real sin decidir —
+// esto fue exactamente lo que le pasó a M100 con Suiza el 7 de julio de 2026:
+// se resolvió "Suiza" a partir de una lectura pasajera y equivocada de M95, y
+// aunque M95 se corrigió enseguida a NS, M100 se quedó con "Suiza" fijo porque
+// nada volvía a tocar un hueco ya no-placeholder.
 function resolveBracket(){
   let changed = 0;
   MATCHES.forEach(m => {
-    if(['r16','qf','sf','3rd','final'].indexOf(m.phase) === -1) return;
+    const spec = BRACKET_SPEC[m.id];
+    if(!spec) return;
     ['home','away'].forEach(side => {
-      const val = m[side];
-      if(isTeamCode(val)) return;
-      let mm = GAN_RE.exec(val);
-      if(mm){ const d = matchDecision('m'+mm[1]); if(d){ m[side] = d.win; changed++; } return; }
-      mm = PER_RE.exec(val);
-      if(mm){ const d = matchDecision('m'+mm[1]); if(d){ m[side] = d.lose; changed++; } }
+      const orig = spec[side];
+      let resolved = orig; // por defecto, vuelve al hueco original si ya no se puede decidir
+      let mm = GAN_RE.exec(orig);
+      if(mm){ const d = matchDecision('m'+mm[1]); if(d) resolved = d.win; }
+      else {
+        mm = PER_RE.exec(orig);
+        if(mm){ const d = matchDecision('m'+mm[1]); if(d) resolved = d.lose; }
+      }
+      if(m[side] !== resolved){ m[side] = resolved; changed++; }
     });
   });
   return changed;
