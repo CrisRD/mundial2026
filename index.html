@@ -708,8 +708,15 @@ html, body {
   align-items: center;
 }
 .match-mini.h { border-color: rgba(184,150,90,0.4); }
+.match-mini { cursor: pointer; }
+.match-mini:active { background: var(--bg3); }
 .match-mini-teams { font-size: 13px; font-weight: 500; color: var(--text1); }
 .match-mini-time { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.match-mini-score { font-family: var(--serif); font-weight: 700; color: var(--gold); letter-spacing: 0.5px; }
+.match-mini-status { color: var(--text3); }
+.match-mini-status.live { color: #E03E3E; font-weight: 600; }
+.match-mini-pen { display: inline; font-size: 11px; color: var(--text3); margin-left: 3px; }
+.match-mini-pen b { font-weight: 700; color: var(--gold); }
 .squad-grid {
   display: grid;
   grid-template-columns: repeat(2,1fr);
@@ -1365,7 +1372,7 @@ html, body {
 // IMPORTANTE al desplegar una nueva versión: subir index.html y version.txt
 // JUNTOS, con el mismo valor. Si se sube uno sin el otro, en el peor caso solo
 // se pierde la detección automática de esa versión concreta (no rompe nada).
-const BUILD_ID = '202607072215';
+const BUILD_ID = '202607101600';
 (function checkForUpdate(){
   try{
     if(sessionStorage.getItem('mundial_build_checked') === BUILD_ID) return;
@@ -2366,8 +2373,8 @@ function openTeam(id){
     </div>
     ${tms.length?`<div class="sec-title">Partidos</div>
     <div class="match-mini-list">
-      ${tms.slice(0,4).map(m=>`<div class="match-mini h">
-        <div><div class="match-mini-teams">${dispName(m.home)} · ${dispName(m.away)}</div><div class="match-mini-time">${fmtDate(m.date)} · ${m.time} h</div></div>
+      ${tms.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).map(m=>`<div class="match-mini h" onclick="openMatch('${m.id}')">
+        <div><div class="match-mini-teams">${dispName(m.home)} · ${dispName(m.away)}</div><div class="match-mini-time">${m.score?`<span class="match-mini-score">${m.score}</span>${penHTML(m,'match-mini-pen')}${m.scoreLabel?` · <span class="match-mini-status${m.scoreLive?' live':''}">${m.scoreLabel}</span>`:''}`:`${fmtDate(m.date)} · ${m.time} h`}</div></div>
         ${teamFlag(m.home===id?m.away:m.home,28)}
       </div>`).join('')}
     </div>`:''}
