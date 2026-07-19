@@ -322,6 +322,26 @@ html, body {
 .day-header.live .day-label { color: #E03E3E; display: flex; align-items: center; gap: 7px; }
 .day-header.live .day-rule { background: rgba(224,62,62,.25); }
 .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #E03E3E; display: inline-block; animation: pulse 1.5s ease-in-out infinite; }
+
+/* ── BANNER DE CAMPEÓN (torneo finalizado) ── */
+.champion-banner {
+  margin: 14px 16px 6px;
+  padding: 18px 16px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--gold-dim), var(--bg2));
+  border: 1px solid var(--gold-light);
+  text-align: center;
+  cursor: pointer;
+}
+.champion-banner .cb-label {
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--gold); font-weight: 600;
+}
+.champion-banner .cb-flag { margin: 8px 0 6px; display: flex; justify-content: center; }
+.champion-banner .cb-name {
+  font-family: var(--serif, Georgia, serif); font-size: 24px; font-weight: 700;
+}
+.champion-banner .cb-sub { font-size: 12px; color: var(--text2); margin-top: 6px; }
 .group-teams-strip {
   font-size: 11px;
   color: var(--text3);
@@ -1372,7 +1392,7 @@ html, body {
 // IMPORTANTE al desplegar una nueva versión: subir index.html y version.txt
 // JUNTOS, con el mismo valor. Si se sube uno sin el otro, en el peor caso solo
 // se pierde la detección automática de esa versión concreta (no rompe nada).
-const BUILD_ID = '202607101600';
+const BUILD_ID = '202607201200';
 (function checkForUpdate(){
   try{
     if(sessionStorage.getItem('mundial_build_checked') === BUILD_ID) return;
@@ -2057,6 +2077,46 @@ function syncGroupBar(){
   });
 }
 
+// ¿Terminó ya todo el torneo? Se basa en que la Final (m104) tenga marcador
+// cerrado (FT/AET/PEN), no en fechas — así no depende de husos horarios ni de
+// que el dispositivo tenga bien puesta la fecha.
+function tournamentOver(){
+  const f = MATCHES.find(m => m.phase === 'final');
+  return !!(f && f.score && !f.scoreLive);
+}
+// Ganador de la Final a partir del marcador (y penaltis si los hubo). Devuelve
+// {champ, runnerUp, score, pens} o null si aún no hay resultado.
+function finalWinner(){
+  const f = MATCHES.find(m => m.phase === 'final');
+  if(!f || !f.score) return null;
+  const goals = parseGoals(f.score);
+  if(!goals) return null;
+  const [gh, ga] = goals;
+  let champ, runnerUp;
+  if(gh === ga && f.scorePen){
+    champ = f.scorePen.h > f.scorePen.a ? f.home : f.away;
+    runnerUp = f.scorePen.h > f.scorePen.a ? f.away : f.home;
+  } else {
+    champ = gh > ga ? f.home : f.away;
+    runnerUp = gh > ga ? f.away : f.home;
+  }
+  return { match: f, champ, runnerUp };
+}
+// Banner de campeón: solo se pinta en Agenda/Todos sin búsqueda, cuando ya hay
+// resultado de la Final. Toca para abrir el sheet del partido, igual que
+// cualquier fila.
+function championBannerHTML(){
+  const w = finalWinner();
+  if(!w) return '';
+  const f = w.match;
+  return `<div class="champion-banner" onclick="openMatch('${f.id}')">
+    <div class="cb-label">Campeón del Mundo</div>
+    <div class="cb-flag">${teamFlag(w.champ, 56)}</div>
+    <div class="cb-name">${dispName(w.champ)}</div>
+    <div class="cb-sub">Venció a ${dispName(w.runnerUp)} · ${f.score}${f.scorePen?` (pen. ${f.scorePen.h}-${f.scorePen.a})`:''} · ${fmtDateShort(f.date)}</div>
+  </div>`;
+}
+
 // Orden cronológico por fecha + hora de España. Dentro de un mismo día evita que
 // los partidos salgan en orden de número FIFA en vez de por hora: un partido que
 // en EE. UU. es de noche cae de madrugada en Madrid, así que el número de partido
@@ -2066,6 +2126,8 @@ function chronoSort(arr){ return arr.slice().sort((a,b)=>(a.date+a.time).localeC
 
 function renderMatches(){
   syncGroupBar();
+  const allChip=document.querySelector('.chip[data-phase="all"]');
+  if(allChip) allChip.textContent = tournamentOver() ? 'Todos' : 'Agenda';
   if(phase==='scorers'||phase==='assists'){ renderTopList(phase); return; }
   const ql=normTxt(q);
   const today=todayMadrid();
@@ -2112,6 +2174,21 @@ function renderMatches(){
     if(phase==='all'&&m.scoreLive)return false;
     return true;
   });
+
+  // Torneo terminado y estamos en Agenda sin búsqueda: ya no hay "hoy ni futuro"
+  // que mostrar (ms sale vacío), así que en vez de "Sin partidos" se lista todo
+  // el torneo en orden cronológico ascendente, con el campeón fijado arriba.
+  if(phase==='all'&&!ql&&tournamentOver()){
+    const all=chronoSort(MATCHES);
+    const byDate={};
+    all.forEach(m=>{if(!byDate[m.date])byDate[m.date]=[];byDate[m.date].push(m);});
+    const dates=Object.keys(byDate).sort();
+    el.innerHTML=championBannerHTML()+dates.map(date=>
+      `<div class="day-header"><div class="day-label">${fmtDate(date)}</div><div class="day-rule"></div></div>`+
+      chronoSort(byDate[date]).map(m=>matchRowHTML(m,ql)).join('')
+    ).join('');
+    return;
+  }
 
   // Sección "En directo" (solo en Agenda, sin búsqueda): partidos en juego fijados
   // arriba. Un partido en vivo que empezó "ayer" (hora España) ya no cae en
