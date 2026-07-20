@@ -1392,7 +1392,7 @@ html, body {
 // IMPORTANTE al desplegar una nueva versión: subir index.html y version.txt
 // JUNTOS, con el mismo valor. Si se sube uno sin el otro, en el peor caso solo
 // se pierde la detección automática de esa versión concreta (no rompe nada).
-const BUILD_ID = '202607201215';
+const BUILD_ID = '202607201430';
 (function checkForUpdate(){
   try{
     if(sessionStorage.getItem('mundial_build_checked') === BUILD_ID) return;
@@ -4100,9 +4100,13 @@ async function loadFixtures(){
 // fallida o vacía), para que un fallo puntual de red no mate el bucle y deje el
 // minuto congelado (p. ej. atascado en "90+4" al empezar la prórroga). Mientras
 // haya algún partido en directo, vuelve a sondear en LIVE_REFRESH_MS.
+// Además, mientras el torneo no esté confirmado como terminado (Final sin marcador
+// cerrado en MATCHES), también se reintenta — si no, un fallo puntual de la API en
+// la primera carga (antes de que exista ningún partido "en vivo" que dispare el
+// reintento) deja la app pillada para siempre en el estado inicial vacío.
 function scheduleLiveRefresh(){
   clearTimeout(liveRefreshTimer);
-  if(MATCHES.some(m => m.scoreLive)){
+  if(MATCHES.some(m => m.scoreLive) || !tournamentOver()){
     liveRefreshTimer = setTimeout(loadFixtures, LIVE_REFRESH_MS);
   }
 }
