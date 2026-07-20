@@ -1392,7 +1392,7 @@ html, body {
 // IMPORTANTE al desplegar una nueva versión: subir index.html y version.txt
 // JUNTOS, con el mismo valor. Si se sube uno sin el otro, en el peor caso solo
 // se pierde la detección automática de esa versión concreta (no rompe nada).
-const BUILD_ID = '202607201200';
+const BUILD_ID = '202607201215';
 (function checkForUpdate(){
   try{
     if(sessionStorage.getItem('mundial_build_checked') === BUILD_ID) return;
@@ -2182,10 +2182,10 @@ function renderMatches(){
     const all=chronoSort(MATCHES);
     const byDate={};
     all.forEach(m=>{if(!byDate[m.date])byDate[m.date]=[];byDate[m.date].push(m);});
-    const dates=Object.keys(byDate).sort();
+    const dates=Object.keys(byDate).sort().reverse();
     el.innerHTML=championBannerHTML()+dates.map(date=>
       `<div class="day-header"><div class="day-label">${fmtDate(date)}</div><div class="day-rule"></div></div>`+
-      chronoSort(byDate[date]).map(m=>matchRowHTML(m,ql)).join('')
+      chronoSort(byDate[date]).reverse().map(m=>matchRowHTML(m,ql)).join('')
     ).join('');
     return;
   }
