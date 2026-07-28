@@ -1392,7 +1392,7 @@ html, body {
 // IMPORTANTE al desplegar una nueva versión: subir index.html y version.txt
 // JUNTOS, con el mismo valor. Si se sube uno sin el otro, en el peor caso solo
 // se pierde la detección automática de esa versión concreta (no rompe nada).
-const BUILD_ID = '202607201445';
+const BUILD_ID = '202607281400';
 (function checkForUpdate(){
   try{
     if(sessionStorage.getItem('mundial_build_checked') === BUILD_ID) return;
@@ -3815,10 +3815,8 @@ function toggleClear(v){const b=document.getElementById('search-clear');if(b)b.c
 function clearSearch(){const si=document.getElementById('search-input');si.value='';q='';toggleClear('');render();si.focus();}
 
 // ══════════════════════════════════════
-// API-FOOTBALL
+// DATOS CONGELADOS — app estática, sin API
 // ══════════════════════════════════════
-const API_KEY = '31d66c2cbb8035670e626538f5213c41';
-const API_BASE = 'https://v3.football.api-sports.io';
 const WC_LEAGUE = 1;
 const WC_SEASON = 2026;
 
@@ -3840,22 +3838,29 @@ const ID_TO_CODE = {};
 Object.keys(API_IDS).forEach(c => { ID_TO_CODE[API_IDS[c]] = c; });
 let currentTeamId = null;
 let liveRefreshTimer = null;
-const LIVE_REFRESH_MS = 60000; // sondeo en vivo cada 60 s mientras haya partido en juego
+const LIVE_REFRESH_MS = 60000; // sondeo en vivo cada 60 s mientras haya partido en juego (ya no aplica, torneo cerrado)
 
-// Cuando EXPORT_CAPTURE está activo (solo durante #exportartodo), cada endpoint
-// que pase por aquí queda grabado tal cual lo devuelve la API, con su respuesta
-// cruda. Es la base para congelar la app: en vez de tocar cada función que llama
-// a la API, se captura en el único punto por el que pasan todas.
-let EXPORT_CAPTURE = null;
+// El Mundial terminó y la suscripción a API-Football ya no está activa. Todo lo
+// que antes se pedía en vivo (marcadores, bracket, alineaciones, eventos,
+// fotos/edad/altura de plantillas, goleadores/asistentes) se capturó una vez con
+// "#exportartodo" y vive ahora en frozen-data.json: un mapa endpoint -> respuesta
+// cruda, tal cual la devolvía la API. apiFetch() consulta esa tabla en vez de
+// hacer network — el resto del código (parseo, emparejamiento, resolveBracket…)
+// no cambia ni una línea, porque recibe exactamente la misma forma de dato de
+// siempre. Las fotos de jugador siguen viniendo de media.api-sports.io (CDN
+// pública de imágenes, no requiere clave), así que tampoco hace falta tocarlas.
+let FROZEN_DATA = null;
+async function loadFrozenData(){
+  if(FROZEN_DATA) return FROZEN_DATA;
+  try{
+    const r = await fetch('frozen-data.json', { cache:'force-cache' });
+    FROZEN_DATA = await r.json();
+  } catch(e){ console.warn('No se pudo cargar frozen-data.json:', e); FROZEN_DATA = {}; }
+  return FROZEN_DATA;
+}
 async function apiFetch(endpoint){
-  try {
-    const r = await fetch(`${API_BASE}${endpoint}`, {
-      headers: { 'x-apisports-key': API_KEY }
-    });
-    const json = await r.json();
-    if(EXPORT_CAPTURE) EXPORT_CAPTURE[endpoint] = json;
-    return json;
-  } catch(e) { console.warn('API error:', e); return null; }
+  const data = await loadFrozenData();
+  return Object.prototype.hasOwnProperty.call(data, endpoint) ? data[endpoint] : null;
 }
 
 // ══════════════════════════════════════
@@ -4711,7 +4716,6 @@ function showDiscoverGallery(html){
 buildGroupBar();
 render();
 loadFixtures();
-setInterval(loadFixtures, 300000); // refresh every 5min passively
 // ── CRUCE CON ALINEACIONES REALES (verdad de campo) ───────────────────────────
 // Lee las alineaciones (/fixtures/lineups) de los partidos JUGADOS de una
 // selección —quién pisó el campo, con su dorsal y su id real— y las cruza con tu
@@ -4821,66 +4825,6 @@ async function diagTopList(){
   showDiscoverResult(out);
 }
 
-// ══════════════════════════════════════
-// EXPORT COMPLETO — congelar la app (side project sin API)
-// ══════════════════════════════════════
-// "#exportartodo" recorre TODO lo que la app puede llegar a pedirle a la API
-// (marcadores/bracket, alineaciones y eventos de los 104 partidos, fotos/edad/
-// altura de las 48 plantillas, goleadores y asistentes) y descarga un único
-// .json con cada endpoint y su respuesta cruda tal cual. Con eso, en un
-// segundo paso se sustituye apiFetch por una consulta a esa tabla y la app
-// queda 100% estática, sin depender ya de la clave ni de la suscripción.
-// Tarda unos minutos (hay que dar tiempo entre llamadas para no saturar el
-// límite por minuto de la API) — no cerrar la pestaña mientras corre.
-function _sleep(ms){ return new Promise(res => setTimeout(res, ms)); }
-
-async function runFullExport(){
-  EXPORT_CAPTURE = {};
-  const prog = (txt) => showDiscoverResult(
-    `EXPORTANDO DATOS COMPLETOS\n\nNo cierres esta pestaña hasta que termine.\n\n${txt}`
-  );
-  prog('Resolviendo marcadores y bracket…');
-  await loadFixtures(); // captura /fixtures?league&season y deja fixtureId/status/score al día
-
-  const withFixture = MATCHES.filter(m => m.fixtureId);
-  for(let i = 0; i < withFixture.length; i++){
-    const m = withFixture[i];
-    prog(`Alineaciones y eventos: partido ${i+1} de ${withFixture.length} (${m.id.toUpperCase()})`);
-    await apiFetch(`/fixtures/lineups?fixture=${m.fixtureId}`);
-    await _sleep(180);
-    await apiFetch(`/fixtures/events?fixture=${m.fixtureId}`);
-    await _sleep(180);
-  }
-
-  const codes = Object.keys(TEAM_INFO).filter(c => API_IDS[c]);
-  for(let i = 0; i < codes.length; i++){
-    const code = codes[i];
-    prog(`Plantillas (fotos/edad/altura): selección ${i+1} de ${codes.length} (${code.toUpperCase()})`);
-    try { await loadPlayerPhotos(code, API_IDS[code]); } catch(e){ console.warn('export fotos', code, e); }
-    await _sleep(180);
-    try { await loadPlayerHeights(code, API_IDS[code]); } catch(e){ console.warn('export alturas', code, e); }
-    await _sleep(180);
-  }
-
-  prog('Goleadores y asistentes…');
-  try { await loadTopList('scorers', true); } catch(e){ console.warn('export scorers', e); }
-  await _sleep(180);
-  try { await loadTopList('assists', true); } catch(e){ console.warn('export assists', e); }
-
-  const out = { capturedAt: new Date().toISOString(), buildId: BUILD_ID, endpoints: EXPORT_CAPTURE };
-  const n = Object.keys(EXPORT_CAPTURE).length;
-  EXPORT_CAPTURE = null;
-
-  const blob = new Blob([JSON.stringify(out)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'mundial2026-export-' + Date.now() + '.json';
-  document.body.appendChild(a); a.click(); a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 5000);
-
-  prog(`Listo ✅\n\n${n} endpoints capturados.\nSe ha descargado el archivo .json — mándaselo a Claude para hornearlo en el index.html definitivo.`);
-}
-
 
 // Enruta un comando de diagnóstico (string que empieza por '#'). Se usa tanto al
 // cargar (location.hash) como al escribirlo en el buscador y pulsar Enter.
@@ -4907,7 +4851,6 @@ function runDiag(h){
   if(lo.indexOf('#buscar') === 0){ buscarJugador(decodeURIComponent(term)); return true; }
   if(lo.indexOf('#cruce') === 0){ if(code === 'all') cruceLineupsAll(); else cruceLineups(code); return true; }
   if(lo === '#goleadores'){ diagTopList(); return true; }
-  if(lo === '#exportartodo'){ runFullExport(); return true; }
   return false;
 }
 
